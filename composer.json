@@ -1,0 +1,20 @@
+{
+    "name": "dobee/http",
+    "description": "dobee http component",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "janhuang",
+            "email": "384099566@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Http\\": "src/Http"
+        }
+    }
+}
