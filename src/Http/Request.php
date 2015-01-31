@@ -368,15 +368,15 @@ class Request implements HttpInterface
             }
         }
 
-        if (null === static::$request_factory) {
-            static::$request_factory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
+        if (null === self::$request_factory) {
+            self::$request_factory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
         }
 
-        if (0 === strpos(static::$request_factory->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
-            && in_array(strtoupper(static::$request_factory->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
+        if (0 === strpos(self::$request_factory->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
+            && in_array(strtoupper(self::$request_factory->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
         ) {
-            parse_str(static::$request_factory->getContent(), $data);
-            static::$request_factory->request = new Parameters($data);
+            parse_str(self::$request_factory->getContent(), $data);
+            self::$request_factory->request = new Parameters($data);
         }
 
         return static::$request_factory;
