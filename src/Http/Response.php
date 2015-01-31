@@ -22,7 +22,9 @@ class Response implements ResponseInterface
     }
 
     public function send()
-    {}
+    {
+        print_r($this->parameters);
+    }
 
     public function format()
     {}
