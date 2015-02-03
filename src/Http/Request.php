@@ -379,6 +379,6 @@ class Request implements HttpInterface
             self::$request_factory->request = new Parameters($data);
         }
 
-        return static::$request_factory;
+        return self::$request_factory;
     }
 }
