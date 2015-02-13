@@ -10,7 +10,7 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace Http;
+namespace Dobee\Http;
 
 interface ResponseInterface
 {

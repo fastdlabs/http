@@ -10,7 +10,7 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace Http;
+namespace Dobee\Http;
 
 /**
  * Http 请求组件
