@@ -276,7 +276,7 @@ class Request implements HttpInterface
         } elseif (null === $baseUrl) {
             return $requestUri;
         }
-        
+
         if ($requestUri == $pathInfo) {
             return '/';
         }
