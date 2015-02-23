@@ -25,7 +25,7 @@ use Dobee\Http\Session\Session;
  *
  * @package Dobee\Http
  */
-class Request implements HttpInterface
+class Request
 {
     /**
      * @var RequestParametersBag
@@ -351,7 +351,7 @@ class Request implements HttpInterface
             $this->path_info = $this->preparePathInfo();
         }
 
-        return $this->path_info;
+        return '/' . (($pathInfo = pathinfo($this->path_info, PATHINFO_FILENAME)) ? $pathInfo : $this->path_info);
     }
 
     /**
@@ -368,6 +368,14 @@ class Request implements HttpInterface
     public function getMethod()
     {
         return $this->server->get('REQUEST_METHOD');
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return ($suffix = pathinfo($this->getPathInfo(), PATHINFO_EXTENSION)) ? $suffix : 'php';
     }
 
     /**
@@ -499,7 +507,4 @@ class Request implements HttpInterface
 
         return self::$request_factory;
     }
-
-    public function createRequest()
-    {}
 }

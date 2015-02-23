@@ -9,7 +9,7 @@
  * sf: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
  */
-echo '<pre>';
+
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
@@ -22,17 +22,21 @@ $request = \Dobee\Http\Request::createGlobalRequest();
 //
 //print_r($query);
 //
-$cookie = $request->getCookie();
+//$cookie = $request->getCookie();
+//
+//$cookie->set('name', 'janhuang', time() + 120, '/');
+//
+//try {
+//    $cookie->get('name');
+//} catch (InvalidArgumentException $e) {
+//    echo $e->getMessage();
+//}
 
-$cookie->set('name', 'janhuang', time() + 120, '/');
-
-try {
-    $cookie->get('name');
-} catch (InvalidArgumentException $e) {
-    echo $e->getMessage();
-}
-
-$response = new \Dobee\Http\Response($cookie->get('name'));
+$response = new \Dobee\Http\JsonResponse(array(
+    'path_info' => $request->getPathInfo(),
+    'uri' => $request->getBaseUrl(),
+    'format' => $request->getFormat(),
+));
 
 $response->send();
 
