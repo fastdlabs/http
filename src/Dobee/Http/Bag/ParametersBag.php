@@ -2,27 +2,41 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/1/28
- * Time: 下午4:52
+ * Date: 15/2/23
+ * Time: 上午1:19
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
- * sf: http://segmentfault.com/u/janhuang
+ * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http;
+namespace Dobee\Http\Bag;
 
-use Traversable;
-
-class Parameters implements ParametersInterface
+/**
+ * Class ParametersBag
+ *
+ * @package Dobee\Http\Bag
+ */
+class ParametersBag implements ParametersBagInterface
 {
+    /**
+     * @var array|null
+     */
     protected $parameters;
 
+    /**
+     * @param array $parameters
+     */
     public function __construct(array $parameters = array())
     {
         $this->set($parameters);
     }
 
+    /**
+     * @param $key
+     * @return $this
+     */
     public function remove($key)
     {
         if ($this->has($key)) {
@@ -32,11 +46,20 @@ class Parameters implements ParametersInterface
         return $this;
     }
 
+    /**
+     * @param $key
+     * @return bool
+     */
     public function has($key)
     {
         return isset($this->parameters[$key]) ? true : false;
     }
 
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
     public function add($key, $value)
     {
         $this->parameters[$key] = $value;
@@ -44,6 +67,10 @@ class Parameters implements ParametersInterface
         return $this;
     }
 
+    /**
+     * @param array $parameters
+     * @return $this
+     */
     public function set(array $parameters = array())
     {
         $this->parameters = $parameters;
@@ -51,6 +78,11 @@ class Parameters implements ParametersInterface
         return $this;
     }
 
+    /**
+     * @param        $key
+     * @param string $validate
+     * @return bool
+     */
     public function get($key, $validate = 'plain')
     {
         if (!$this->has($key)) {
@@ -61,30 +93,10 @@ class Parameters implements ParametersInterface
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Retrieve an external iterator
-     *
-     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     *       <b>Traversable</b>
+     * @return array|null
      */
-    public function getIterator()
+    public function all()
     {
-        // TODO: Implement getIterator() method.
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Count elements of an object
-     *
-     * @link http://php.net/manual/en/countable.count.php
-     * @return int The custom count as an integer.
-     *       </p>
-     *       <p>
-     *       The return value is cast to an integer.
-     */
-    public function count()
-    {
-        // TODO: Implement count() method.
+        return $this->parameters;
     }
 }

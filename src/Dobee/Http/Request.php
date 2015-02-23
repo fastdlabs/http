@@ -12,51 +12,99 @@
 
 namespace Dobee\Http;
 
+use Dobee\Http\Bag\CookieParametersBag;
+use Dobee\Http\Bag\FilesParametersBag;
+use Dobee\Http\Bag\HeaderParametersBag;
+use Dobee\Http\Bag\QueryParametersBag;
+use Dobee\Http\Bag\RequestParametersBag;
+use Dobee\Http\Bag\ServerParametersBag;
+use Dobee\Http\Session\Session;
+
 /**
- * Http 请求组件
- *  * getPathInfo
- *
  * Class Request
  *
- * @package Http
+ * @package Dobee\Http
  */
 class Request implements HttpInterface
 {
+    /**
+     * @var RequestParametersBag
+     */
     private $request;
 
+    /**
+     * @var QueryParametersBag
+     */
     private $query;
 
+    /**
+     * @var CookieParametersBag
+     */
     private $cookie;
 
+    /**
+     * @var Session|array
+     */
+    private $session;
+
+    /**
+     * @var ServerParametersBag
+     */
     private $server;
 
+    /**
+     * @var FilesParametersBag
+     */
     private $files;
 
+    /**
+     * @var HeaderParametersBag
+     */
     private $headers;
 
+    /**
+     * @var string
+     */
     private $request_uri;
 
+    /**
+     * @var string
+     */
     private $base_url;
 
+    /**
+     * @var string
+     */
     private $path_info;
 
+    /**
+     * @var string
+     */
     private $content;
 
+    /**
+     * @var Request
+     */
     private static $request_factory;
 
-    public function __construct($get, $post, $files, $cookie, $server)
+    /**
+     * @param $get
+     * @param $post
+     * @param $files
+     * @param $cookie
+     * @param $server
+     */
+    private function __construct($get, $post, $files, $cookie, $server)
     {
-        $this->query = new Parameters($get);
-        $this->request = new Parameters($post);
-        $this->files = new FilesParameters($files);
-        $this->cookie = new Parameters($cookie);
-        $this->server = new ServerParameters($server);
-        $this->headers = new HeaderParameters($this->server->getHeaders());
+        $this->query = new QueryParametersBag($get);
+        $this->request = new RequestParametersBag($post);
+        $this->files = new FilesParametersBag($files);
+        $this->cookie = new CookieParametersBag($cookie);
+        $this->server = new ServerParametersBag($server);
+        $this->headers = new HeaderParametersBag($this->server->getHeaders());
     }
 
     /**
-     * 获取域名host
-     *
      * @return string
      */
     public function getHost()
@@ -65,8 +113,6 @@ class Request implements HttpInterface
     }
 
     /**
-     * 获取带带http协议完整域名host
-     *
      * @return string
      */
     public function getHttpAndHost()
@@ -75,8 +121,6 @@ class Request implements HttpInterface
     }
 
     /**
-     * 获取http协议
-     *
      * @return string
      */
     public function getSchema()
@@ -85,7 +129,7 @@ class Request implements HttpInterface
     }
 
     /**
-     * 获取请求来源ip
+     * Get user client request ip.
      *
      * @return string
      */
@@ -119,8 +163,6 @@ class Request implements HttpInterface
     }
 
     /**
-     * 获取请求uri信息
-     *
      * @return string
      */
     public function getRequestUri()
@@ -133,8 +175,6 @@ class Request implements HttpInterface
     }
 
     /**
-     * 解析请求uri
-     *
      * @return string
      */
     protected function prepareRequestUri()
@@ -173,12 +213,17 @@ class Request implements HttpInterface
             $this->server->remove('ORIG_PATH_INFO');
         }
 
-        // 添加uri到系统环境变量当中
+        // add parameter in server
         $this->server->add('REQUEST_URI', $requestUri);
 
         return $requestUri;
     }
 
+    /**
+     * @param $string
+     * @param $prefix
+     * @return bool
+     */
     private function getUrlencodedPrefix($string, $prefix)
     {
         if (0 !== strpos(rawurldecode($string), $prefix)) {
@@ -193,7 +238,7 @@ class Request implements HttpInterface
     }
 
     /**
-     *
+     * @return bool|string
      */
     protected function prepareBaseUrl()
     {
@@ -255,6 +300,9 @@ class Request implements HttpInterface
         return rtrim($baseUrl, '/');
     }
 
+    /**
+     * @return string
+     */
     protected function preparePathInfo()
     {
         $baseUrl = $this->getBaseUrl();
@@ -284,6 +332,9 @@ class Request implements HttpInterface
         return $pathInfo;
     }
 
+    /**
+     * @return bool|string
+     */
     public function getBaseUrl()
     {
         if (null === $this->base_url) {
@@ -293,6 +344,9 @@ class Request implements HttpInterface
         return $this->base_url;
     }
 
+    /**
+     * @return string
+     */
     public function getPathInfo()
     {
         if (null === $this->path_info) {
@@ -302,46 +356,95 @@ class Request implements HttpInterface
         return $this->path_info;
     }
 
+    /**
+     * @return bool
+     */
     public function getMethod()
     {
         return $this->server->get('REQUEST_METHOD');
     }
 
+    /**
+     * @return bool
+     */
     public function isXmlHttpRequest()
     {
-        return 'XMLHttpRequest' == $this->headers->get('X-Requested-With');
+        return 'xmlhttprequest' == strtolower($this->headers->get('X-Requested-With'));
     }
 
+    /**
+     * @param $method
+     * @return bool
+     */
     public function isMethod($method)
     {
         return $this->getMethod() === strtoupper($method);
     }
 
+    /**
+     * @return QueryParametersBag
+     */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * @return RequestParametersBag
+     */
     public function getRequest()
     {
         return $this->request;
     }
 
+    /**
+     * @return CookieParametersBag
+     */
     public function getCookie()
     {
         return $this->cookie;
     }
 
+    /**
+     * @return array|Session
+     */
+    public function getSession()
+    {
+        if (null === $this->session) {
+            $this->session = new Session();
+        }
+
+        return $this->session;
+    }
+
+    /**
+     * @return HeaderParametersBag
+     */
     public function getHeaders()
     {
         return $this->headers;
     }
 
+    /**
+     * @return ServerParametersBag
+     */
     public function getServer()
     {
         return $this->server;
     }
 
+    /**
+     * @return FilesParametersBag
+     */
+    public function getFiles()
+    {
+        return $this->files;
+    }
+
+    /**
+     * @param bool $asResource
+     * @return resource|string
+     */
     public function getContent($asResource = false)
     {
         if (false === $this->content || (true === $asResource && null !== $this->content)) {
@@ -361,8 +464,15 @@ class Request implements HttpInterface
         return $this->content;
     }
 
+    /**
+     * @return Request|static
+     */
     public static function createGlobalRequest()
     {
+        if (null !== self::$request_factory) {
+            return self::$request_factory;
+        }
+
         if ('cli-server' === php_sapi_name()) {
             if (array_key_exists('HTTP_CONTENT_LENGTH', $_SERVER)) {
                 $_SERVER['CONTENT_LENGTH'] = $_SERVER['HTTP_CONTENT_LENGTH'];
@@ -372,17 +482,18 @@ class Request implements HttpInterface
             }
         }
 
-        if (null === self::$request_factory) {
-            self::$request_factory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
-        }
+        self::$request_factory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
 
         if (0 === strpos(self::$request_factory->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
             && in_array(strtoupper(self::$request_factory->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
         ) {
             parse_str(self::$request_factory->getContent(), $data);
-            self::$request_factory->request = new Parameters($data);
+            self::$request_factory->request = new RequestParametersBag($data);
         }
 
         return self::$request_factory;
     }
+
+    public function createRequest()
+    {}
 }

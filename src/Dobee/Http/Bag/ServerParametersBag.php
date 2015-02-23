@@ -2,17 +2,23 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/1/28
- * Time: 下午5:00
+ * Date: 15/2/23
+ * Time: 上午1:20
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
- * sf: http://segmentfault.com/u/janhuang
+ * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http;
+namespace Dobee\Http\Bag;
 
-class ServerParameters extends Parameters
+/**
+ * Class ServerParametersBag
+ *
+ * @package Dobee\Http\Bag
+ */
+class ServerParametersBag extends ParametersBag
 {
     /**
      * Gets the HTTP headers.
