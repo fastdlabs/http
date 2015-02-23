@@ -13,7 +13,8 @@ echo '<pre>';
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
-
+echo $request->getPathInfo();
+die;
 //$session = $request->getSession();
 //
 //print_r($session);

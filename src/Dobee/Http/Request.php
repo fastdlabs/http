@@ -270,7 +270,6 @@ class Request implements HttpInterface
         $requestUri = $this->getRequestUri();
 
         if ($baseUrl && false !== $prefix = $this->getUrlencodedPrefix($requestUri, $baseUrl)) {
-            // full $baseUrl matches
             return $prefix;
         }
 
@@ -286,8 +285,7 @@ class Request implements HttpInterface
 
         $basename = basename($baseUrl);
         if (empty($basename) || !strpos(rawurldecode($truncatedRequestUri), $basename)) {
-            // no match whatsoever; set it blank
-            return '';
+            return rtrim(str_replace($basename, '', $baseUrl), '/');
         }
 
         // If using mod_rewrite or ISAPI_Rewrite strip the script filename
