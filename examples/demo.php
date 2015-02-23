@@ -13,8 +13,7 @@ echo '<pre>';
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
-echo $request->getPathInfo();
-die;
+
 //$session = $request->getSession();
 //
 //print_r($session);
@@ -36,8 +35,6 @@ try {
 $response = new \Dobee\Http\Response($cookie->get('name'));
 
 $response->send();
-
-
 
 //$request = $request->getRequest();
 //

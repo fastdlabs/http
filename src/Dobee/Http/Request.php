@@ -357,6 +357,14 @@ class Request implements HttpInterface
     /**
      * @return bool
      */
+    public function getRequestTimestamp()
+    {
+        return $this->server->get('REQUEST_TIME_FLOAT');
+    }
+
+    /**
+     * @return bool
+     */
     public function getMethod()
     {
         return $this->server->get('REQUEST_METHOD');

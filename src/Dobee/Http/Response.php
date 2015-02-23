@@ -301,6 +301,11 @@ class Response
         return $this;
     }
 
+    public function getResponseTimestamp()
+    {
+        return microtime(true);
+    }
+
     /**
      * Sets the response content.
      *
