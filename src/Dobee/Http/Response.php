@@ -15,7 +15,7 @@ namespace Dobee\Http;
 use Dobee\Http\Bag\CookieParametersBag;
 use Dobee\Http\Bag\HeaderParametersBag;
 
-class Response
+class Response implements ResponseInterface
 {
     const HTTP_CONTINUE = 100;
     const HTTP_SWITCHING_PROTOCOLS = 101;

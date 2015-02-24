@@ -14,5 +14,7 @@ namespace Dobee\Http;
 
 interface ResponseInterface
 {
+    public function sendHeaders();
 
+    public function sendContent();
 }
