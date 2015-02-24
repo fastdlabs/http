@@ -80,6 +80,11 @@ class Request
     /**
      * @var string
      */
+    private $format = 'php';
+
+    /**
+     * @var string
+     */
     private $content;
 
     /**
@@ -316,8 +321,12 @@ class Request
             $requestUri = substr($requestUri, 0, $pos);
         }
 
+        if (($pos = strpos($requestUri, '.'))) {
+            $this->format = pathinfo($requestUri, PATHINFO_EXTENSION);
+            $requestUri = substr($requestUri, 0, $pos);
+        }
+
         if (null !== $baseUrl && false === $pathInfo = substr($requestUri, strlen($baseUrl))) {
-            // If substr() returns false then PATH_INFO is set to an empty string
             return '/';
         } elseif (null === $baseUrl) {
             return $requestUri;
@@ -351,7 +360,7 @@ class Request
             $this->path_info = $this->preparePathInfo();
         }
 
-        return '/' . (($pathInfo = pathinfo($this->path_info, PATHINFO_FILENAME)) ? $pathInfo : $this->path_info);
+        return $this->path_info;
     }
 
     /**
@@ -375,7 +384,7 @@ class Request
      */
     public function getFormat()
     {
-        return ($suffix = pathinfo($this->getPathInfo(), PATHINFO_EXTENSION)) ? $suffix : 'php';
+        return $this->format;
     }
 
     /**
