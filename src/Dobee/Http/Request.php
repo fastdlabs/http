@@ -314,6 +314,11 @@ class Request
             return '/';
         }
 
+        if ($this->server->has('PATH_INFO')) {
+            $this->path_info = $this->server->get('PATH_INFO');
+            return $this->path_info;
+        }
+
         $pathInfo = '/';
 
         // Remove the query string from REQUEST_URI
@@ -326,7 +331,7 @@ class Request
             $requestUri = substr($requestUri, 0, $pos);
         }
 
-        if (null !== $baseUrl && false === $pathInfo = substr($requestUri, strlen($baseUrl))) {
+        if ("" != $baseUrl && false === $pathInfo = substr($requestUri, strlen($baseUrl))) {
             return '/';
         } elseif ("" == $baseUrl) {
             return $requestUri;
