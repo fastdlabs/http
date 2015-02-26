@@ -328,7 +328,7 @@ class Request
 
         if (null !== $baseUrl && false === $pathInfo = substr($requestUri, strlen($baseUrl))) {
             return '/';
-        } elseif (null === $baseUrl) {
+        } elseif ("" == $baseUrl) {
             return $requestUri;
         }
 
