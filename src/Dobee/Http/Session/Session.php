@@ -13,16 +13,38 @@
 
 namespace Dobee\Http\Session;
 
+/**
+ * Class Session
+ * @package Dobee\Http\Session
+ */
 class Session implements SessionInterface
 {
+    /**
+     * @var string
+     */
     private $name;
 
+    /**
+     * @var string
+     */
     private $value;
 
+    /**
+     * @var string
+     */
     private $sessionId;
 
+    /**
+     * @var int
+     */
     private $expire;
 
+    /**
+     * @param $name
+     * @param $value
+     * @param int $expire
+     * @param string $sessionId
+     */
     public function __construct(
         $name,
         $value,
@@ -39,6 +61,10 @@ class Session implements SessionInterface
         $this->sessionId = $sessionId;
     }
 
+    /**
+     * @param $sessionId
+     * @return $this
+     */
     public function setSessionId($sessionId)
     {
         $this->sessionId = $sessionId;
@@ -46,11 +72,18 @@ class Session implements SessionInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getSessionId()
     {
         return $this->sessionId;
     }
 
+    /**
+     * @param $name
+     * @return $this
+     */
     public function setName($name)
     {
         $this->name = $name;
@@ -58,11 +91,18 @@ class Session implements SessionInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * @param $value
+     * @return $this
+     */
     public function setValue($value)
     {
         $this->value = $value;
@@ -70,11 +110,18 @@ class Session implements SessionInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getValue()
     {
         return $this->value;
     }
 
+    /**
+     * @param $expire
+     * @return $this
+     */
     public function setExpire($expire)
     {
         $this->expire = $expire;
@@ -82,6 +129,9 @@ class Session implements SessionInterface
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getExpire()
     {
         return $this->expire;

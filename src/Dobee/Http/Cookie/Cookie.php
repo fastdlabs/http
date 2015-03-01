@@ -14,8 +14,7 @@ namespace Dobee\Http\Cookie;
 
 /**
  * Class Cookie
- *
- * @package Dobee\Http
+ * @package Dobee\Http\Cookie
  */
 class Cookie implements CookieInterface
 {
@@ -39,6 +38,9 @@ class Cookie implements CookieInterface
      */
     protected $path;
 
+    /**
+     * @var string
+     */
     protected $domain;
 
     /**
@@ -51,6 +53,15 @@ class Cookie implements CookieInterface
      */
     protected $httpOnly = false;
 
+    /**
+     * @param $name
+     * @param $value
+     * @param int $expire
+     * @param string $path
+     * @param string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
+     */
     public function __construct(
         $name,
         $value,
@@ -190,6 +201,10 @@ class Cookie implements CookieInterface
         return $this;
     }
 
+    /**
+     * @param $domain
+     * @return $this
+     */
     public function setDomain($domain)
     {
         $this->domain = $domain;
@@ -197,16 +212,25 @@ class Cookie implements CookieInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getDomain()
     {
         return $this->domain;
     }
 
+    /**
+     * @return bool
+     */
     public function getSecure()
     {
         return $this->secure;
     }
 
+    /**
+     * @return bool
+     */
     public function getHttpOnly()
     {
         return $this->httpOnly;

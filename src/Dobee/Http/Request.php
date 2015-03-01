@@ -19,6 +19,7 @@ use Dobee\Http\Bag\QueryParametersBag;
 use Dobee\Http\Bag\RequestParametersBag;
 use Dobee\Http\Bag\ServerParametersBag;
 use Dobee\Http\Bag\SessionParametersBag;
+use Dobee\Http\Session\SessionHandler;
 use Dobee\Http\Session\SessionInterface;
 use Dobee\Http\Cookie\CookieInterface;
 
@@ -106,10 +107,10 @@ class Request
         $this->query    = new QueryParametersBag($get);
         $this->request  = new RequestParametersBag($post);
         $this->files    = new FilesParametersBag($files);
-        $this->cookies   = new CookieParametersBag($cookie);
+        $this->cookies  = new CookieParametersBag($cookie);
+        $this->session  = new SessionParametersBag(new SessionHandler());
         $this->server   = new ServerParametersBag($server);
         $this->headers  = new HeaderParametersBag($this->server->getHeaders());
-        $this->session  = new SessionParametersBag();
     }
 
     /**

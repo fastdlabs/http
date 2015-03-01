@@ -9,22 +9,18 @@
  * sf: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
  */
-
+error_reporting(E_ALL);
+echo '<pre>';
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
-echo '<pre>';
-print_r($_SESSION);
-print_r($_COOKIE);
-$request->cookies->setCookie('name', 'janhuang');
-$request->session->setSession('name', 'janhuang');
-writeln($request->query->get('name'));
-writeln($request->request->get('name'));
-writeln($request->cookies->getCookie('name')->getValue());
-writeln($request->session->getSession('name')->getValue());
-print_r($request->session);
-echo '<hr />';
-print_r($request);
+
+echo '<br />';
+//$request->session->setSession('name', 'janhuang');
+//writeln($request->session->getSession('name')->getValue());
+$_SESSION['name'] = "jnaghyabng";
+
+echo '<br />';
 
 function writeln($message, $EOL = "<br />")
 {

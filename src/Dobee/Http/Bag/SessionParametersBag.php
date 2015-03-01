@@ -40,10 +40,16 @@ class SessionParametersBag
 
     /**
      * Constructor. Initialize session storage handler.
+     *
+     * @param \SessionHandlerInterface $sessionHandler
      */
-    public function __construct()
+    public function __construct(\SessionHandlerInterface $sessionHandler = null)
     {
-        $this->createHandler();
+        $this->handler = $sessionHandler;
+
+        session_set_save_handler($this->handler, true);
+
+        session_start();
     }
 
     /**
@@ -97,17 +103,5 @@ class SessionParametersBag
     public function removeSession($name)
     {
         unset($this->sessions[$name]);
-    }
-
-    /**
-     * @return SessionHandler
-     */
-    public function createHandler()
-    {
-        if (null == $this->handler) {
-            $this->handler = SessionHandler::createHandler();
-        }
-
-        return $this->handler;
     }
 }
