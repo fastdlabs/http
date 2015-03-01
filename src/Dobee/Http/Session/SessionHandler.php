@@ -15,6 +15,10 @@ namespace Dobee\Http\Session;
 
 use Dobee\Http\Handler\HandlerAbstract;
 
+/**
+ * Class SessionHandler
+ * @package Dobee\Http\Session
+ */
 class SessionHandler extends HandlerAbstract
 {
     public function __construct()
@@ -23,13 +27,20 @@ class SessionHandler extends HandlerAbstract
     }
 
     /**
+     * @param string $name
+     * @param string $value
+     * @param int    $expire
+     * @param string $sessionId
      * @return SessionInterface
      */
     public function createSession($name, $value, $expire, $sessionId)
     {
+        $this->saveSession($name, $value, $expire, $sessionId);
         return new Session($name, $value, $expire, $sessionId);
     }
 
-    public function removeSession()
-    {}
+    public function saveSession($name, $value, $expire, $sessionId)
+    {
+        $_SESSION[$name] = $value;
+    }
 }

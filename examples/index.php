@@ -14,10 +14,12 @@ $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
 echo '<pre>';
-writeln($request->query->get('name'));
-writeln($request->request->get('name'));
+print_r($_SESSION);
+print_r($_COOKIE);
 $request->cookies->setCookie('name', 'janhuang');
 $request->session->setSession('name', 'janhuang');
+writeln($request->query->get('name'));
+writeln($request->request->get('name'));
 writeln($request->cookies->getCookie('name')->getValue());
 writeln($request->session->getSession('name')->getValue());
 print_r($request->session);

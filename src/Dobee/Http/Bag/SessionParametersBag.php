@@ -13,7 +13,6 @@
 
 namespace Dobee\Http\Bag;
 
-use Dobee\Http\Session\Session;
 use Dobee\Http\Session\SessionException;
 use Dobee\Http\Session\SessionHandler;
 use Dobee\Http\Session\SessionInterface;
@@ -39,6 +38,9 @@ class SessionParametersBag
      */
     private $handler;
 
+    /**
+     * Constructor. Initialize session storage handler.
+     */
     public function __construct()
     {
         $this->createHandler();
@@ -97,6 +99,9 @@ class SessionParametersBag
         unset($this->sessions[$name]);
     }
 
+    /**
+     * @return SessionHandler
+     */
     public function createHandler()
     {
         if (null == $this->handler) {

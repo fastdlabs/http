@@ -15,5 +15,4 @@ namespace Dobee\Http\Handler;
 
 interface HandlerInterface
 {
-
 }

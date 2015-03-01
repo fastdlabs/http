@@ -13,10 +13,20 @@
 
 namespace Dobee\Http\Handler;
 
+/**
+ * Class HandlerAbstract
+ * @package Dobee\Http\Handler
+ */
 class HandlerAbstract implements HandlerInterface
 {
+    /**
+     * @var $this
+     */
     protected static $handler;
 
+    /**
+     * @return $this
+     */
     public static function createHandler()
     {
         if (null === static::$handler) {
@@ -24,5 +34,21 @@ class HandlerAbstract implements HandlerInterface
         }
 
         return static::$handler;
+    }
+
+    /**
+     * Destruct this handler.
+     */
+    public function __destruct()
+    {
+        static::destructHandler();
+    }
+
+    /**
+     * DestructHandler.
+     */
+    public static function destructHandler()
+    {
+        static::$handler = null;
     }
 }
