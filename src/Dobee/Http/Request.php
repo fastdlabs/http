@@ -18,7 +18,9 @@ use Dobee\Http\Bag\HeaderParametersBag;
 use Dobee\Http\Bag\QueryParametersBag;
 use Dobee\Http\Bag\RequestParametersBag;
 use Dobee\Http\Bag\ServerParametersBag;
-use Dobee\Http\Session\Session;
+use Dobee\Http\Bag\SessionParametersBag;
+use Dobee\Http\Session\SessionInterface;
+use Dobee\Http\Cookie\CookieInterface;
 
 /**
  * Class Request
@@ -28,39 +30,39 @@ use Dobee\Http\Session\Session;
 class Request
 {
     /**
-     * @var RequestParametersBag
-     */
-    private $request;
-
-    /**
      * @var QueryParametersBag
      */
-    private $query;
+    public $query;
 
     /**
-     * @var CookieParametersBag
+     * @var RequestParametersBag
      */
-    private $cookie;
-
-    /**
-     * @var Session|array
-     */
-    private $session;
-
-    /**
-     * @var ServerParametersBag
-     */
-    private $server;
+    public $request;
 
     /**
      * @var FilesParametersBag
      */
-    private $files;
+    public $files;
+
+    /**
+     * @var CookieParametersBag
+     */
+    public $cookies;
+
+    /**
+     * @var SessionParametersBag
+     */
+    public $session;
+
+    /**
+     * @var ServerParametersBag
+     */
+    protected $server;
 
     /**
      * @var HeaderParametersBag
      */
-    private $headers;
+    protected $headers;
 
     /**
      * @var string
@@ -101,12 +103,13 @@ class Request
      */
     private function __construct($get, $post, $files, $cookie, $server)
     {
-        $this->query = new QueryParametersBag($get);
-        $this->request = new RequestParametersBag($post);
-        $this->files = new FilesParametersBag($files);
-        $this->cookie = new CookieParametersBag($cookie);
-        $this->server = new ServerParametersBag($server);
-        $this->headers = new HeaderParametersBag($this->server->getHeaders());
+        $this->query    = new QueryParametersBag($get);
+        $this->request  = new RequestParametersBag($post);
+        $this->files    = new FilesParametersBag($files);
+        $this->cookies   = new CookieParametersBag($cookie);
+        $this->server   = new ServerParametersBag($server);
+        $this->headers  = new HeaderParametersBag($this->server->getHeaders());
+        $this->session  = new SessionParametersBag();
     }
 
     /**
@@ -369,7 +372,7 @@ class Request
     }
 
     /**
-     * @return bool
+     * @return float
      */
     public function getRequestTimestamp()
     {
@@ -377,7 +380,7 @@ class Request
     }
 
     /**
-     * @return bool
+     * @return string
      */
     public function getMethod()
     {
@@ -426,23 +429,21 @@ class Request
     }
 
     /**
-     * @return CookieParametersBag
+     * @param string|null $name
+     * @return CookieInterface
      */
-    public function getCookie()
+    public function getCookie($name = null)
     {
-        return $this->cookie;
+        return $this->cookies->getCookie($name);
     }
 
     /**
-     * @return array|Session
+     * @param string|null $name
+     * @return SessionInterface
      */
-    public function getSession()
+    public function getSession($name = null)
     {
-        if (null === $this->session) {
-            $this->session = new Session();
-        }
-
-        return $this->session;
+        return $this->session->getSession($name);
     }
 
     /**

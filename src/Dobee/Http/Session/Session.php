@@ -13,22 +13,77 @@
 
 namespace Dobee\Http\Session;
 
-use Dobee\Http\Bag\ParametersBag;
-use Dobee\Http\Storage\StorageInterface;
-
-class Session extends ParametersBag
+class Session implements SessionInterface
 {
-    private $storage;
+    private $name;
 
-    public function __construct(StorageInterface $storage = null)
+    private $value;
+
+    private $sessionId;
+
+    private $expire;
+
+    public function __construct(
+        $name,
+        $value,
+        $expire = 0,
+        $sessionId = ''
+    )
     {
-        session_start();
+        $this->name = $name;
 
-        $this->storage = $storage;
+        $this->value = $value;
+
+        $this->expire = $expire;
+
+        $this->sessionId = $sessionId;
     }
 
-    public function customStorage()
+    public function setSessionId($sessionId)
     {
+        $this->sessionId = $sessionId;
 
+        return $this;
+    }
+
+    public function getSessionId()
+    {
+        return $this->sessionId;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function setValue($value)
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    public function setExpire($expire)
+    {
+        $this->expire = $expire;
+
+        return $this;
+    }
+
+    public function getExpire()
+    {
+        return $this->expire;
     }
 }

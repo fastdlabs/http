@@ -13,7 +13,7 @@
 
 namespace Dobee\Http\Bag;
 
-class QueryParametersBag extends FilterParametersBag
+class QueryParametersBag extends ParametersBag
 {
 
 }
