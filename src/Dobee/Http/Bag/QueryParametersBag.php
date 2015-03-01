@@ -13,6 +13,13 @@
 
 namespace Dobee\Http\Bag;
 
+/**
+ * User get server information query parameters.
+ * So. This class is user request get method.
+ *
+ * Class QueryParametersBag
+ * @package Dobee\Http\Bag
+ */
 class QueryParametersBag extends ParametersBag
 {
 

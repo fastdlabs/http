@@ -13,6 +13,13 @@
 
 namespace Dobee\Http\Bag;
 
+/**
+ * User request parameters bag.
+ * The request parameters in POST, PUT, DELETE or other method.
+ *
+ * Class RequestParametersBag
+ * @package Dobee\Http\Bag
+ */
 class RequestParametersBag extends ParametersBag
 {
 
