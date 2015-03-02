@@ -8,9 +8,15 @@
             "email": "384099566@qq.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": ""
+        }
+    ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.3.7"
+        "php": ">=5.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "4.5.*"

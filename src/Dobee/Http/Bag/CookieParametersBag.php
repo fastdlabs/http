@@ -13,6 +13,10 @@
 
 namespace Dobee\Http\Bag;
 
+use Dobee\Http\Cookie\Cookie;
+use Dobee\Http\Cookie\CookieInterface;
+use Dobee\Http\Cookie\CookiesException;
+
 /**
  * Class CookieParametersBag
  *
@@ -23,109 +27,63 @@ class CookieParametersBag
     /**
      * @var array
      */
-    private $parameters;
+    private $cookies = array();
 
     /**
      * @param array $cookie
      */
     public function __construct(array $cookie = null)
     {
-        if (null === $cookie) {
-            $cookie = $_COOKIE;
-        }
 
-        $this->parameters = $cookie;
     }
 
     /**
-     * @return mixed
-     */
-    public function getSessionId()
-    {
-        return $this->parameters['PHPSESSID'];
-    }
-
-    /**
-     * @param        $key
-     * @param        $value
-     * @param int    $expire
+     * @param $name
+     * @param $value
+     * @param int $expire
      * @param string $path
-     * @param null   $domain
-     * @param bool   $secure
-     * @param bool   $http_only
+     * @param string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
      * @return $this
      */
-    public function set($key, $value, $expire = 0, $path = '/', $domain = null, $secure = false, $http_only = false)
+    public function setCookie($name, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httpOnly = false)
     {
-        setcookie($key, $this->encode($value), $expire, $path, $domain, $secure, $http_only);
+        $this->cookies[$name] = new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
 
         return $this;
     }
 
     /**
-     * @param $key
-     * @return mixed
+     * @param null|string $name
+     * @return CookieInterface
+     * @throws CookiesException
      */
-    public function get($key)
+    public function getCookie($name = null)
     {
-        if (!$this->has($key)) {
-            throw new \InvalidArgumentException(sprintf('Cookie key: \'%s\' is undefined.', $key));
+        if (!$this->hasCookie($name)) {
+            throw new CookiesException(sprintf('Cookie "%s" is undefined.', $name));
         }
 
-        return $this->parameters[$key];
+        return $this->cookies[$name];
     }
 
     /**
-     * @param $key
+     * @param $name
      * @return bool
      */
-    public function has($key)
+    public function hasCookie($name)
     {
-        return isset($this->parameters[$key]);
+        return isset($this->cookies[$name]);
     }
 
-    /**
-     * @return $this
-     */
-    public function clearAll()
+    public function removeCookie($name)
     {
-        $_COOKIE = null;
-
-        $this->parameters = array(
-            'PHPSESSID' => $this->getSessionId()
-        );
-
-        return $this;
+        unset($this->cookies[$name]);
     }
 
-    /**
-     * @param $key
-     * @return $this
-     */
-    public function clear($key)
+    public function getHandler()
     {
-        setcookie($key, null, -1);
 
-        unset($_COOKIE[$key]);
-
-        if ($this->has($key)) {
-            unset($this->parameters[$key]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param      $value
-     * @param null $func
-     * @return mixed
-     */
-    public function encode($value, $func = null)
-    {
-        if (is_callable($func)) {
-            $value = $func($value);
-        }
-
-        return $value;
     }
 }

@@ -1,19 +1,19 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: janhuang
- * Date: 15/2/23
- * Time: 上午10:23
+ * User: JanHuang
+ * Date: 2015/3/1
+ * Time: 14:26
+ * Email: bboyjanhuang@gmail.com
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
- * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http\Session;
+namespace Dobee\Http\Cookie;
 
-class CustomSessionStorage 
+class CookiesHandler 
 {
 
 }

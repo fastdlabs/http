@@ -13,22 +13,127 @@
 
 namespace Dobee\Http\Session;
 
-use Dobee\Http\Bag\ParametersBag;
-use Dobee\Http\Storage\StorageInterface;
-
-class Session extends ParametersBag
+/**
+ * Class Session
+ * @package Dobee\Http\Session
+ */
+class Session implements SessionInterface
 {
-    private $storage;
+    /**
+     * @var string
+     */
+    private $name;
 
-    public function __construct(StorageInterface $storage = null)
+    /**
+     * @var string
+     */
+    private $value;
+
+    /**
+     * @var string
+     */
+    private $sessionId;
+
+    /**
+     * @var int
+     */
+    private $expire;
+
+    /**
+     * @param $name
+     * @param $value
+     * @param int $expire
+     * @param string $sessionId
+     */
+    public function __construct(
+        $name,
+        $value,
+        $expire = 0,
+        $sessionId = ''
+    )
     {
-        session_start();
+        $this->name = $name;
 
-        $this->storage = $storage;
+        $this->value = $value;
+
+        $this->expire = $expire;
+
+        $this->sessionId = $sessionId;
     }
 
-    public function customStorage()
+    /**
+     * @param $sessionId
+     * @return $this
+     */
+    public function setSessionId($sessionId)
     {
+        $this->sessionId = $sessionId;
 
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSessionId()
+    {
+        return $this->sessionId;
+    }
+
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param $value
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param $expire
+     * @return $this
+     */
+    public function setExpire($expire)
+    {
+        $this->expire = $expire;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getExpire()
+    {
+        return $this->expire;
     }
 }

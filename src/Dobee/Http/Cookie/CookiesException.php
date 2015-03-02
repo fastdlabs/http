@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: JanHuang
  * Date: 2015/3/1
- * Time: 22:20
+ * Time: 15:03
  * Email: bboyjanhuang@gmail.com
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
@@ -11,13 +11,9 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace Dobee\Http\Storage;
+namespace Dobee\Http\Cookie;
 
-interface StorageInterface 
+class CookiesException extends \Exception
 {
-    public function set($name, $value);
 
-    public function get($name);
-
-    public function remove($name);
 }
