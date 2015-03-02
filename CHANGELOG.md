@@ -21,5 +21,7 @@
 
 ###03-01 ~ 03-02
 * 新增cookies、session 处理
+* 调整Cookie、Session参数包对象
 * 调整http Request 内部结构
-* 
+* 新增FileCollections列表对象
+* 调整文件结构
