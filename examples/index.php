@@ -14,11 +14,12 @@ echo '<pre>';
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
+print_r($request->session);
+print_r($request->session->getSession('name'));
 
-echo '<br />';
+
 //$request->session->setSession('name', 'janhuang');
 //writeln($request->session->getSession('name')->getValue());
-$_SESSION['name'] = "jnaghyabng";
 
 echo '<br />';
 

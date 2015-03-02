@@ -13,14 +13,10 @@
 
 namespace Dobee\Http\Files;
 
-class FilesUploader 
+class FilesUploader
 {
-    private $files;
-
-    public function setFiles(FilesInterface $files)
+    public function upload()
     {
-        $this->files = $files;
 
-        return $this;
     }
 }

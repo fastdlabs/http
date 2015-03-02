@@ -22,19 +22,24 @@ use Dobee\Http\Cookie\CookiesException;
  *
  * @package Dobee\Http\Bag
  */
-class CookieParametersBag
+class CookieParametersBag implements \Iterator
 {
+    /**
+     * @var Cookie[]|array
+     */
+    private $cookies = array();
+
     /**
      * @var array
      */
-    private $cookies = array();
+    private $parameters = array();
 
     /**
      * @param array $cookie
      */
     public function __construct(array $cookie = null)
     {
-
+        $this->parameters = $cookie?: $_COOKIE;
     }
 
     /**
@@ -61,9 +66,14 @@ class CookieParametersBag
      */
     public function getCookie($name = null)
     {
-        if (!$this->hasCookie($name)) {
-            throw new CookiesException(sprintf('Cookie "%s" is undefined.', $name));
+        if (!isset($this->cookies[$name])) {
+            if (!isset($this->parameters[$name])) {
+                throw new CookiesException(sprintf('Cookie "%s" is undefined.', $name));
+            }
+
+            $this->setCookie($name, $this->parameters[$name]);
         }
+
 
         return $this->cookies[$name];
     }
@@ -74,16 +84,75 @@ class CookieParametersBag
      */
     public function hasCookie($name)
     {
-        return isset($this->cookies[$name]);
+        return isset($this->cookies[$name]) || isset($this->parameters[$name]);
     }
 
+    /**
+     * @param $name
+     */
     public function removeCookie($name)
     {
-        unset($this->cookies[$name]);
+        $this->cookies[$name]->clear();
     }
 
-    public function getHandler()
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Return the current element
+     *
+     * @link http://php.net/manual/en/iterator.current.php
+     * @return mixed Can return any type.
+     */
+    public function current()
     {
+        return current($this->cookies);
+    }
 
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Move forward to next element
+     *
+     * @link http://php.net/manual/en/iterator.next.php
+     * @return void Any returned value is ignored.
+     */
+    public function next()
+    {
+        // TODO: Implement next() method.
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Return the key of the current element
+     *
+     * @link http://php.net/manual/en/iterator.key.php
+     * @return mixed scalar on success, or null on failure.
+     */
+    public function key()
+    {
+        // TODO: Implement key() method.
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Checks if current position is valid
+     *
+     * @link http://php.net/manual/en/iterator.valid.php
+     * @return boolean The return value will be casted to boolean and then evaluated.
+     *       Returns true on success or false on failure.
+     */
+    public function valid()
+    {
+        // TODO: Implement valid() method.
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Rewind the Iterator to the first element
+     *
+     * @link http://php.net/manual/en/iterator.rewind.php
+     * @return void Any returned value is ignored.
+     */
+    public function rewind()
+    {
+        reset($this->cookies);
     }
 }

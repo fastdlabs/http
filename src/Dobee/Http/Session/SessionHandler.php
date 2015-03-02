@@ -36,7 +36,7 @@ class SessionHandler implements \SessionHandlerInterface
      * @param string $sessionId
      * @return SessionInterface
      */
-    public function createSession($name, $value, $expire, $sessionId)
+    public function createSession($name, $value, $expire = 0, $sessionId = '')
     {
         return new Session($name, $value, $expire, $sessionId);
     }

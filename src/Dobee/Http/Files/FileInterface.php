@@ -14,16 +14,28 @@
 namespace Dobee\Http\Files;
 
 /**
- * Interface FilesInterface
+ * Interface FileInterface
  *
  * @package Dobee\Http\Files
  */
-interface FilesInterface
+interface FileInterface
 {
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function setName($name);
+
     /**
      * @return string
      */
     public function getName();
+
+    /**
+     * @param $size
+     * @return $this
+     */
+    public function setSize($size);
 
     /**
      * @return int
@@ -31,19 +43,24 @@ interface FilesInterface
     public function getSize();
 
     /**
+     * @param $type
+     * @return $this
+     */
+    public function setType($type);
+
+    /**
      * @return string
      */
     public function getType();
 
     /**
-     * @param $file_name
-     * @return array
+     * @param $tmpName
+     * @return $this
      */
-    public function getFile($file_name);
+    public function setTmpName($tmpName);
 
     /**
-     * @param $file_name
-     * @return bool
+     * @return string
      */
-    public function hasFile($file_name);
+    public function getTmpName();
 }

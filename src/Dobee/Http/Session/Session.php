@@ -59,6 +59,8 @@ class Session implements SessionInterface
         $this->expire = $expire;
 
         $this->sessionId = $sessionId;
+
+        $_SESSION[$name] = $value;
     }
 
     /**
@@ -135,5 +137,19 @@ class Session implements SessionInterface
     public function getExpire()
     {
         return $this->expire;
+    }
+
+    /**
+     * @return bool
+     */
+    public function clear()
+    {
+        unset($_SESSION[$this->name]);
+
+        if (isset($_SESSION[$this->name])) {
+            return false;
+        }
+
+        return true;
     }
 }

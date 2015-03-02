@@ -18,3 +18,8 @@
 ###02-26
 * 修复path info error bug
 * 修复nginx下path info error bug
+
+###03-01 ~ 03-02
+* 新增cookies、session 处理
+* 调整http Request 内部结构
+* 

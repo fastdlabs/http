@@ -53,7 +53,7 @@ class Request
     /**
      * @var SessionParametersBag
      */
-    public $session;
+    protected $session;
 
     /**
      * @var ServerParametersBag
@@ -108,7 +108,6 @@ class Request
         $this->request  = new RequestParametersBag($post);
         $this->files    = new FilesParametersBag($files);
         $this->cookies  = new CookieParametersBag($cookie);
-        $this->session  = new SessionParametersBag(new SessionHandler());
         $this->server   = new ServerParametersBag($server);
         $this->headers  = new HeaderParametersBag($this->server->getHeaders());
     }
@@ -443,6 +442,10 @@ class Request
      */
     public function getSession($name = null)
     {
+        if (null === $this->session) {
+            $this->session  = new SessionParametersBag(new SessionHandler());
+        }
+
         return $this->session->getSession($name);
     }
 
@@ -521,5 +524,24 @@ class Request
         }
 
         return self::$request_factory;
+    }
+
+    /**
+     * Request initialize session handler magic method.
+     *
+     * @param string $name
+     * @return SessionParametersBag
+     */
+    public function __get($name)
+    {
+        if ('session' !== $name) {
+            throw new \InvalidArgumentException(sprintf('Request attribute "%s" is undefined.', $name));
+        }
+
+        if (null === $this->session) {
+            $this->session  = new SessionParametersBag(new SessionHandler());
+        }
+
+        return $this->session;
     }
 }

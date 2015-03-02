@@ -13,7 +13,7 @@
 
 namespace Dobee\Http\Files;
 
-class UploadFileNotExistsException extends \Exception
+class FilesEmptyException extends \Exception
 {
 
 }

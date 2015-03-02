@@ -16,6 +16,7 @@ namespace Dobee\Http\Bag;
 use Dobee\Http\Session\SessionException;
 use Dobee\Http\Session\SessionHandler;
 use Dobee\Http\Session\SessionInterface;
+use Dobee\Http\Session\Session;
 
 /**
  * Class SessionParametersBag
@@ -24,7 +25,7 @@ use Dobee\Http\Session\SessionInterface;
 class SessionParametersBag
 {
     /**
-     * @var array
+     * @var array|Session[]
      */
     private $sessions = array();
 
@@ -39,6 +40,11 @@ class SessionParametersBag
     private $handler;
 
     /**
+     * @var array|SessionInterface[]
+     */
+    private $parameters;
+
+    /**
      * Constructor. Initialize session storage handler.
      *
      * @param \SessionHandlerInterface $sessionHandler
@@ -47,9 +53,13 @@ class SessionParametersBag
     {
         $this->handler = $sessionHandler;
 
-        session_set_save_handler($this->handler, true);
+//        session_set_save_handler($this->handler, true);
 
         session_start();
+
+        $this->parameters = $_SESSION;
+
+        $this->sessionId = session_id();
     }
 
     /**
@@ -69,8 +79,12 @@ class SessionParametersBag
      */
     public function getSession($name = null)
     {
-        if (!$this->hasSession($name)) {
-            throw new SessionException(sprintf('Session "%s" is undefined.', $name));
+        if (!isset($this->sessions[$name])) {
+            if (!isset($_SESSION[$name])) {
+                throw new SessionException(sprintf('Session "%s" is undefined.', $name));
+            }
+
+            $this->setSession($name, $_SESSION[$name]);
         }
 
         return $this->sessions[$name];
@@ -81,10 +95,6 @@ class SessionParametersBag
      */
     public function getSessionId()
     {
-        if (null === $this->sessionId) {
-            $this->sessionId = session_id();
-        }
-
         return $this->sessionId;
     }
 
@@ -94,14 +104,15 @@ class SessionParametersBag
      */
     public function hasSession($name)
     {
-        return isset($this->sessions[$name]);
+        return isset($this->sessions[$name]) || $_SESSION[$name];
     }
 
     /**
      * @param $name
+     * @return bool
      */
     public function removeSession($name)
     {
-        unset($this->sessions[$name]);
+        return $this->sessions[$name]->clear();
     }
 }

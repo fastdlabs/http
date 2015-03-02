@@ -13,108 +13,50 @@
 
 namespace Dobee\Http\Bag;
 
-use Dobee\Http\Files\FilesInterface;
-use Dobee\Http\Files\UploadFileNotExistsException;
+use Dobee\Http\Files\FileCollections;
+use Dobee\Http\Files\FilesEmptyException;
+use Dobee\Http\Files\File;
 
 /**
  * Class FilesParametersBag
  *
  * @package Dobee\Http\Bag
  */
-class FilesParametersBag extends ParametersBag implements FilesInterface, \Countable
+class FilesParametersBag
 {
     /**
-     * @var null|array
+     * @var FileCollections[]|array
      */
-    private $files = null;
+    private $collections = array();
 
     /**
      * @param null|array $files
      */
     public function __construct($files = null)
     {
-        $this->files = $files;
-    }
-
-    /**
-     * @return array|string
-     * @throws UploadFileNotExistsException
-     */
-    public function getType()
-    {
-        if (!isset($this->files['name'])) {
-            throw new UploadFileNotExistsException(sprintf('File %s is not found. Check your file upload form. If you forget setting form \'enctype\' attribute?', $file_name));
+        foreach ($files as $key => $file) {
+            $this->collections[$key] = new FileCollections($key, $file);
         }
-
-        return $this->files['name'];
-    }
-
-    /**
-     * @return string|array
-     * @throws UploadFileNotExistsException
-     */
-    public function getName()
-    {
-        if (!isset($this->files['name'])) {
-            throw new UploadFileNotExistsException(sprintf('File %s is not found. Check your file upload form. If you forget setting form \'enctype\' attribute?', $file_name));
-        }
-
-        return $this->files['name'];
-    }
-
-    /**
-     * @return int
-     */
-    public function getSize()
-    {
-        return $this->files['size'];
     }
 
     /**
      * @param $file_name
-     * @return FilesParametersBag
-     * @throws UploadFileNotExistsException
+     * @return File
+     * @throws FilesEmptyException
      */
     public function getFile($file_name)
     {
-        if (!$this->hasFile($file_name)) {
-            throw new UploadFileNotExistsException(sprintf('File %s is not found. Check your file upload form. If you forget setting form \'enctype\' attribute?', $file_name));
+        if (0 === count($this->collections)) {
+            throw new FilesEmptyException(sprintf('Not upload files.'));
         }
 
-        return new FilesParametersBag($this->files[$file_name]);
-    }
-
-    /**
-     * @param $file_name
-     * @return bool
-     */
-    public function hasFile($file_name)
-    {
-        return isset($this->files[$file_name]);
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Count elements of an object
-     *
-     * @link http://php.net/manual/en/countable.count.php
-     * @return int The custom count as an integer.
-     *       </p>
-     *       <p>
-     *       The return value is cast to an integer.
-     */
-    public function count()
-    {
-        if (isset($this->files['name'])) {
-            return count($this->files['name']);
+        $collectionName = null;
+        $index = 0;
+        if (false !== ($pos = strpos($file_name, '.'))) {
+            $index = explode('.', $file_name);
+            $collectionName = array_shift($index);
         }
 
-        if (($count = count($this->files)) > 1) {
-            return $count;
-        }
-
-        $files = reset($this->files);
-
-        return count($files['name']);
+        return $this->collections[$collectionName]->getFile($index);
     }
 }

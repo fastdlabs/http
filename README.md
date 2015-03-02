@@ -4,7 +4,7 @@
 
 ```
 $request = new \Dobee\Http\Request
-或者
+// 或者
 $request = \Dobee\Http\Request::createGlobalRequest();
 // 更加建议使用后者创建request对象
 ```
@@ -12,7 +12,7 @@ $request = \Dobee\Http\Request::createGlobalRequest();
 ##2.获取Request对象内置资源
 ###2.1获取Request GET数据
 ```
-$get = $request->getQuery();
+$get = $request->getQuery();  // $request->query;
 ```
 
 ####2.1.1获取GET数据

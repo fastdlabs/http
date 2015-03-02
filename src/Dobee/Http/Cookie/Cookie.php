@@ -36,7 +36,7 @@ class Cookie implements CookieInterface
     /**
      * @var string
      */
-    protected $path;
+    protected $path = '/';
 
     /**
      * @var string
@@ -85,6 +85,8 @@ class Cookie implements CookieInterface
         $this->secure = $secure;
 
         $this->httpOnly = $httpOnly;
+
+        setcookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
     }
 
     /**
@@ -234,5 +236,13 @@ class Cookie implements CookieInterface
     public function getHttpOnly()
     {
         return $this->httpOnly;
+    }
+
+    /**
+     * @return void
+     */
+    public function clear()
+    {
+        setcookie($this->name, null, -1, $this->path);
     }
 }

@@ -31,5 +31,5 @@ interface SessionInterface
 
     public function getExpire();
 
-    
+    public function clear();
 }
