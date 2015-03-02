@@ -14,3 +14,7 @@
 * 修复Request Format Bug
 * 修复Request path info bug
 * 调整JsonResponse、Response响应对象
+
+###02-26
+* 修复path info error bug
+* 修复nginx下path info error bug

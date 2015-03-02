@@ -315,8 +315,7 @@ class Request
         }
 
         if ($this->server->has('PATH_INFO')) {
-            $this->path_info = $this->server->get('PATH_INFO');
-            return $this->path_info;
+            return $this->server->get('PATH_INFO');
         }
 
         $pathInfo = '/';
