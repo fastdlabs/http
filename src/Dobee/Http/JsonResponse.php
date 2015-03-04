@@ -47,7 +47,7 @@ class JsonResponse extends Response
             $data = new \ArrayObject();
         }
 
-        $this->encodingOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
+        $this->encodingOptions = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
 
         $this->setData($data);
     }
