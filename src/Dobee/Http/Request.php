@@ -313,12 +313,19 @@ class Request
     {
         $baseUrl = $this->getBaseUrl();
 
-        if (null === ($requestUri = $this->getRequestUri())) {
-            return '/';
+        if ($this->server->has('PATH_INFO')) {
+            $pathInfo = $this->server->get('PATH_INFO');
+            if (false !== ($pos = strpos($pathInfo, '.'))) {
+                $this->format = substr($pathInfo, ($pos + 1));
+                $pathInfo = substr($pathInfo, 0, $pos);
+                $this->server->add('PATH_INFO', $pathInfo);
+            }
+
+            return $pathInfo;
         }
 
-        if ($this->server->has('PATH_INFO')) {
-            return $this->server->get('PATH_INFO');
+        if (null === ($requestUri = $this->getRequestUri())) {
+            return '/';
         }
 
         $pathInfo = '/';
@@ -329,7 +336,6 @@ class Request
         }
 
         if (($pos = strpos($requestUri, '.'))) {
-            $this->format = pathinfo($requestUri, PATHINFO_EXTENSION);
             $requestUri = substr($requestUri, 0, $pos);
         }
 
