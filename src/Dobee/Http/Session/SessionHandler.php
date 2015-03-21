@@ -12,6 +12,7 @@
  */
 
 namespace Dobee\Http\Session;
+
 use Dobee\Http\Storage\StorageInterface;
 
 /**
@@ -20,25 +21,59 @@ use Dobee\Http\Storage\StorageInterface;
  */
 class SessionHandler implements \SessionHandlerInterface
 {
+    /**
+     * @var
+     */
     private $storage;
+
+    private $sessions;
+
+    public function __construct()
+    {
+        session_start();
+    }
+
+    public function setSession($name, $value, $expire = 0)
+    {
+        $this->sessions[$name] = new Session($name, $value, $expire);
+
+        $_SESSION[$name] = $value;
+
+        return $this;
+    }
+
+    public function hasSession($name)
+    {
+        return isset($this->sessions[$name]) || isset($_SERVER[$name]);
+    }
+
+    public function removeSession($name)
+    {
+        return $this->getSession($name)->clear();
+    }
+
+    /**
+     * @param $name
+     * @return Session
+     */
+    public function getSession($name)
+    {
+        if (!isset($this->sessions[$name])) {
+            if (!isset($_SERVER[$name])) {
+                throw new \InvalidArgumentException(sprintf('Session "%s" is undefined.', $name));
+            }
+
+            $this->setSession($name, $_SERVER[$name]);
+        }
+
+        return $this->sessions[$name];
+    }
 
     public function setStorage(StorageInterface $storage)
     {
         $this->storage = $storage;
 
         return $this;
-    }
-
-    /**
-     * @param string $name
-     * @param string $value
-     * @param int    $expire
-     * @param string $sessionId
-     * @return SessionInterface
-     */
-    public function createSession($name, $value, $expire = 0, $sessionId = '')
-    {
-        return new Session($name, $value, $expire, $sessionId);
     }
 
     /**

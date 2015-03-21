@@ -72,7 +72,7 @@ class ParametersBag implements ParametersBagInterface
      *
      * @param        $key
      * @param string $validate
-     * @return bool
+     * @return string|bool
      */
     public function get($key, $validate = 'plain')
     {

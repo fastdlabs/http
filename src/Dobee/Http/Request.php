@@ -17,7 +17,7 @@ use Dobee\Http\Bag\CookieParametersBag;
 use Dobee\Http\Bag\FilesParametersBag;
 use Dobee\Http\Bag\HeaderParametersBag;
 use Dobee\Http\Bag\ServerParametersBag;
-use Dobee\Http\Session\Session;
+use Dobee\Http\Session\SessionHandler;
 
 /**
  * Class Request
@@ -134,9 +134,12 @@ class Request
         return $this->server->get('REQUEST_SCHEME');
     }
 
+    /**
+     * @return string
+     */
     public function getUserAgent()
     {
-        return $this->headers->get('USER_AGENT');
+        return $this->server->get('HTTP_USER_AGENT');
     }
 
     /**
@@ -394,12 +397,12 @@ class Request
     }
 
     /**
-     * @return Session
+     * @return SessionHandler
      */
     public function getSession()
     {
         if (null === $this->session) {
-            $this->session = new Session();
+            $this->session = new SessionHandler();
         }
 
         return $this->session;

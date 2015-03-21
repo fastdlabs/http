@@ -15,7 +15,6 @@ namespace Dobee\Http\Bag;
 
 use Dobee\Http\Cookie\Cookie;
 use Dobee\Http\Cookie\CookieInterface;
-use Dobee\Http\Cookie\CookiesException;
 
 /**
  * Class CookieParametersBag
@@ -62,13 +61,12 @@ class CookieParametersBag implements \Iterator, \Countable
     /**
      * @param null|string $name
      * @return CookieInterface
-     * @throws CookiesException
      */
     public function getCookie($name = null)
     {
         if (!isset($this->cookies[$name])) {
             if (!isset($this->parameters[$name])) {
-                throw new CookiesException(sprintf('Cookie "%s" is undefined.', $name));
+                throw new \InvalidArgumentException(sprintf('Cookie "%s" is undefined.', $name));
             }
 
             $this->setCookie($name, $this->parameters[$name]);

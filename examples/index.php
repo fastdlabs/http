@@ -13,9 +13,9 @@ error_reporting(E_ALL);
 echo '<pre>';
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
-$request = \Dobee\Http\Request::createGlobalRequest();
+$session = new \Dobee\Http\Session\SessionHandler();
 
-$session = $request->getSession();
+$session->setSession('name', 'janhuang');
 
-print_r($session);
+print_r($_SESSION);
 

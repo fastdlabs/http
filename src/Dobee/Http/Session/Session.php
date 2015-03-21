@@ -15,9 +15,10 @@ namespace Dobee\Http\Session;
 
 /**
  * Class Session
+ * 
  * @package Dobee\Http\Session
  */
-class Session implements SessionInterface
+class Session
 {
     /**
      * @var string
@@ -30,37 +31,22 @@ class Session implements SessionInterface
     private $value;
 
     /**
-     * @var string
-     */
-    private $sessionId;
-
-    /**
      * @var int
      */
     private $expire;
 
-    public function __construct()
-    {
-        session_start();
-    }
-
     /**
-     * @param $sessionId
-     * @return $this
+     * @param     $name
+     * @param     $value
+     * @param int $expire
      */
-    public function setSessionId($sessionId)
+    public function __construct($name, $value, $expire = 0)
     {
-        $this->sessionId = $sessionId;
+        $this->name = $name;
 
-        return $this;
-    }
+        $this->value = $value;
 
-    /**
-     * @return string
-     */
-    public function getSessionId()
-    {
-        return $this->sessionId;
+        $this->expire = $expire;
     }
 
     /**
