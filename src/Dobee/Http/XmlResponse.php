@@ -14,5 +14,69 @@ namespace Dobee\Http;
 
 class XmlResponse extends Response
 {
+    protected $version = '1.0';
 
+    protected $encoding = 'utf-8';
+
+    public function __construct(array $data, $statusCode = Response::HTTP_OK, array $headers = array())
+    {
+        parent::__construct('', $statusCode, $headers);
+
+        $this->headers->set('Content-Type', 'text/xml');
+
+        $xmlResponse = $this->buildXmlData($data);
+    }
+
+    public function buildXmlData(array $data)
+    {
+        $xml = <<<XML
+XML;
+        $content = '';
+
+        /*return sprintf($xml,
+            $this->version,
+            $this->encoding,
+            $this->statusCode,
+            $this->statusText,
+
+        );*/
+    }
+
+    /**
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
+    /**
+     * @param string $encoding
+     * @return $this
+     */
+    public function setEncoding($encoding)
+    {
+        $this->encoding = $encoding;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param string $version
+     * @return $this
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+
+        return $this;
+    }
 }

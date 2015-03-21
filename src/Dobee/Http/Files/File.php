@@ -18,7 +18,7 @@ namespace Dobee\Http\Files;
  *
  * @package Dobee\Http\Files
  */
-class File extends FilesUploader implements FileInterface
+class File implements FileInterface
 {
     /**
      * @var string
@@ -41,6 +41,11 @@ class File extends FilesUploader implements FileInterface
     private $type;
 
     /**
+     * @var string
+     */
+    private $hashKey;
+
+    /**
      * @param $name
      * @param $type
      * @param $tmpName
@@ -55,6 +60,8 @@ class File extends FilesUploader implements FileInterface
         $this->tmpName = $tmpName;
 
         $this->size = $size;
+
+        $this->hashKey = md5($name . $size);
     }
 
     /**
@@ -129,5 +136,13 @@ class File extends FilesUploader implements FileInterface
     public function getTmpName()
     {
         return $this->tmpName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileHash()
+    {
+        return $this->hashKey;
     }
 }

@@ -239,10 +239,12 @@ class Cookie implements CookieInterface
     }
 
     /**
-     * @return void
+     * @return bool
      */
     public function clear()
     {
         setcookie($this->name, null, -1, $this->path);
+
+        return isset($_COOKIE[$this->name]);
     }
 }

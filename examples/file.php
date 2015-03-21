@@ -19,10 +19,12 @@ $request = \Dobee\Http\Request::createGlobalRequest();
 
 if ($request->isMethod('post')) {
     echo '<pre>';
-    print_r($request->files);
-    $file = $request->files->getFile('file.0');
 
-    print_r($file);
+    foreach ($request->files as $key => $files) {
+        foreach($files as $name => $file) {
+            print_r($file);
+        }
+    }
 }
 ?>
 

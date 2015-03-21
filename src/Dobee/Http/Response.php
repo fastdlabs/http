@@ -15,7 +15,7 @@ namespace Dobee\Http;
 use Dobee\Http\Bag\CookieParametersBag;
 use Dobee\Http\Bag\HeaderParametersBag;
 
-class Response implements ResponseInterface
+class Response
 {
     const HTTP_CONTINUE = 100;
     const HTTP_SWITCHING_PROTOCOLS = 101;
@@ -193,41 +193,11 @@ class Response implements ResponseInterface
      *
      * @api
      */
-    public function __construct($content = '', $status = 200, $headers = array())
+    public function __construct($content = '', $status = 200, array $headers = array())
     {
         $this->headers = new HeaderParametersBag($headers);
         $this->setContent($content);
         $this->setStatusCode($status);
-    }
-
-    /**
-     * @param CookieParametersBag $cookie
-     * @return $this
-     */
-    public function setCookies(CookieParametersBag $cookie)
-    {
-        $this->headers->setCookies($cookie);
-
-        return $this;
-    }
-
-    /**
-     * Factory method for chainability.
-     *
-     * Example:
-     *
-     *     return Response::create($body, 200)
-     *         ->setSharedMaxAge(300);
-     *
-     * @param mixed $content The response content, see setContent()
-     * @param int   $status  The response status code
-     * @param array $headers An array of response headers
-     *
-     * @return Response
-     */
-    public static function create($content = '', $status = 200, $headers = array())
-    {
-        return new static($content, $status, $headers);
     }
 
     /**
@@ -246,16 +216,8 @@ class Response implements ResponseInterface
         header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
 
         foreach ($this->headers->all() as $name => $value) {
-            header($name.': '.$value, false, $this->statusCode);
+            header(sprintf('%s: %s', $name, $value), false, $this->statusCode);
         }
-
-        // cookies
-        if (null === $this->headers->getCookies()) {
-            $this->headers->setCookies(new CookieParametersBag());
-        }
-//        foreach ($this->headers->getCookies() as $cookie) {
-//            setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpiresTime(), $cookie->getPath(), $cookie->getDomain(), $cookie->isSecure(), $cookie->isHttpOnly());
-//        }
 
         return $this;
     }
@@ -301,6 +263,9 @@ class Response implements ResponseInterface
         return $this;
     }
 
+    /**
+     * @return float
+     */
     public function getResponseTimestamp()
     {
         return microtime(true);
@@ -321,7 +286,7 @@ class Response implements ResponseInterface
      */
     public function setContent($content)
     {
-        if (null !== $content && !is_string($content)) {
+        if (!is_string($content)) {
             throw new \UnexpectedValueException(sprintf('The Response content must be a string or object implementing __toString(), "%s" given.', gettype($content)));
         }
 
@@ -394,15 +359,7 @@ class Response implements ResponseInterface
         }
 
         if (null === $text) {
-            $this->statusText = isset(self::$statusTexts[$code]) ? self::$statusTexts[$code] : '';
-
-            return $this;
-        }
-
-        if (false === $text) {
-            $this->statusText = '';
-
-            return $this;
+            $text = isset(self::$statusTexts[$code]) ? self::$statusTexts[$code] : '';
         }
 
         $this->statusText = $text;

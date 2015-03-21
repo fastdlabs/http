@@ -22,7 +22,7 @@ use Dobee\Http\Cookie\CookiesException;
  *
  * @package Dobee\Http\Bag
  */
-class CookieParametersBag implements \Iterator
+class CookieParametersBag implements \Iterator, \Countable
 {
     /**
      * @var Cookie[]|array
@@ -37,9 +37,9 @@ class CookieParametersBag implements \Iterator
     /**
      * @param array $cookie
      */
-    public function __construct(array $cookie = null)
+    public function __construct(array $cookie)
     {
-        $this->parameters = $cookie?: $_COOKIE;
+        $this->parameters = $cookie;
     }
 
     /**
@@ -89,10 +89,11 @@ class CookieParametersBag implements \Iterator
 
     /**
      * @param $name
+     * @return mixed
      */
     public function removeCookie($name)
     {
-        $this->cookies[$name]->clear();
+        return $this->getCookie($name)->clear();
     }
 
     /**
@@ -116,7 +117,7 @@ class CookieParametersBag implements \Iterator
      */
     public function next()
     {
-        // TODO: Implement next() method.
+        next($this->cookies);
     }
 
     /**
@@ -128,7 +129,7 @@ class CookieParametersBag implements \Iterator
      */
     public function key()
     {
-        // TODO: Implement key() method.
+        return key($this->cookies);
     }
 
     /**
@@ -141,7 +142,7 @@ class CookieParametersBag implements \Iterator
      */
     public function valid()
     {
-        // TODO: Implement valid() method.
+        return isset($this->cookies[$this->key()]);
     }
 
     /**
@@ -154,5 +155,20 @@ class CookieParametersBag implements \Iterator
     public function rewind()
     {
         reset($this->cookies);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Count elements of an object
+     *
+     * @link http://php.net/manual/en/countable.count.php
+     * @return int The custom count as an integer.
+     *       </p>
+     *       <p>
+     *       The return value is cast to an integer.
+     */
+    public function count()
+    {
+        return count($this->cookies);
     }
 }

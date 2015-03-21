@@ -63,4 +63,9 @@ interface FileInterface
      * @return string
      */
     public function getTmpName();
+
+    /**
+     * @return string
+     */
+    public function getFileHash();
 }

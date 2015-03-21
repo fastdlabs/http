@@ -12,11 +12,12 @@
 
 namespace Dobee\Http;
 
+use Dobee\Http\Bag\ParametersBag;
 use Dobee\Http\Bag\CookieParametersBag;
 use Dobee\Http\Bag\FilesParametersBag;
 use Dobee\Http\Bag\HeaderParametersBag;
-use Dobee\Http\Bag\ParametersBag;
 use Dobee\Http\Bag\ServerParametersBag;
+use Dobee\Http\Session\Session;
 
 /**
  * Class Request
@@ -54,6 +55,11 @@ class Request
      * @var HeaderParametersBag
      */
     public $headers;
+
+    /**
+     * @var Session
+     */
+    protected $session;
 
     /**
      * @var string
@@ -126,6 +132,11 @@ class Request
     public function getSchema()
     {
         return $this->server->get('REQUEST_SCHEME');
+    }
+
+    public function getUserAgent()
+    {
+        return $this->headers->get('USER_AGENT');
     }
 
     /**
@@ -380,6 +391,18 @@ class Request
     public function isMethod($method)
     {
         return $this->getMethod() === strtoupper($method);
+    }
+
+    /**
+     * @return Session
+     */
+    public function getSession()
+    {
+        if (null === $this->session) {
+            $this->session = new Session();
+        }
+
+        return $this->session;
     }
 
     /**

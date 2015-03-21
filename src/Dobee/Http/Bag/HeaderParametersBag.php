@@ -15,17 +15,13 @@ namespace Dobee\Http\Bag;
 
 class HeaderParametersBag extends ParametersBag
 {
-    protected $cookie;
-
-    public function setCookies(CookieParametersBag $cookie)
+    /**
+     * @param array $parameters
+     */
+    public function __construct(array $parameters = array())
     {
-        $this->cookie = $cookie;
+        $this->parameters = $parameters;
 
-        return $this;
-    }
-
-    public function getCookies()
-    {
-        return $this->cookie;
+        header_remove('X-Powered-By');
     }
 }

@@ -39,28 +39,9 @@ class Session implements SessionInterface
      */
     private $expire;
 
-    /**
-     * @param $name
-     * @param $value
-     * @param int $expire
-     * @param string $sessionId
-     */
-    public function __construct(
-        $name,
-        $value,
-        $expire = 0,
-        $sessionId = ''
-    )
+    public function __construct()
     {
-        $this->name = $name;
-
-        $this->value = $value;
-
-        $this->expire = $expire;
-
-        $this->sessionId = $sessionId;
-
-        $_SESSION[$name] = $value;
+        session_start();
     }
 
     /**

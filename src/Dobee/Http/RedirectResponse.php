@@ -15,12 +15,10 @@ namespace Dobee\Http;
 
 class RedirectResponse extends Response
 {
-    private $url;
-
     public function __construct($url = '', $status = 200, $headers = array())
     {
         parent::__construct('', $status, $headers);
 
-        $this->url = $url;
+        $this->headers->set('Location', $url);
     }
 }

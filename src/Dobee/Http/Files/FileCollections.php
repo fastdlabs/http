@@ -13,25 +13,17 @@
 
 namespace Dobee\Http\Files;
 
-use Dobee\Http\Files\FileInterface;
-use Dobee\Http\Files\FilesEmptyException;
-
 /**
  * Class FileCollections
  *
  * @package Dobee\Http\Files
  */
-class FileCollections extends FilesUploader implements \Iterator, \Countable
+class FileCollections implements \Iterator, \Countable
 {
     /**
-     * @var array|FileInterface[]
+     * @var File
      */
     private $files = array();
-
-    /**
-     * @var string
-     */
-    private $name;
 
     /**
      * @var int
@@ -39,13 +31,16 @@ class FileCollections extends FilesUploader implements \Iterator, \Countable
     private $count;
 
     /**
-     * @param $name
-     * @param $files
+     * @var string
      */
-    public function __construct($name, $files)
-    {
-        $this->name = $name;
+    private $name;
 
+    /**
+     * @param string $name
+     * @param array $files
+     */
+    public function __construct($name, array $files)
+    {
         $createFile = function ($name, $type, $tmpName, $size) {
             return new File($name, $type, $tmpName, $size);
         };
@@ -66,34 +61,31 @@ class FileCollections extends FilesUploader implements \Iterator, \Countable
 
         $this->files = $tmp;
 
+        $this->name = $name;
+
         $this->count = count($this->files);
+
+        unset($createFile);
     }
 
     /**
      * @param int $index
-     * @return FileInterface
-     * @throws FilesEmptyException
+     * @return File
      */
     public function getFile($index = 0)
     {
-        if (is_numeric($index)) {
-            if (!isset($this->files[$index])) {
-                throw new FilesEmptyException(sprintf('File "%s" is undefined.', $this->getName()));
-            }
+        return $this->files[$index];
+    }
 
-            return $this->files[$index];
-        }
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
 
-        $files = $this->files;
-
-        foreach ($index as $val) {
-            if (!isset($files[$val])) {
-                throw new FilesEmptyException(sprintf('File "%s" is undefined.', $this->getName()));
-            }
-            $files = $files[$val];
-        }
-
-        return $files;
+        return $this;
     }
 
     /**
@@ -109,11 +101,11 @@ class FileCollections extends FilesUploader implements \Iterator, \Countable
      * Return the current element
      *
      * @link http://php.net/manual/en/iterator.current.php
-     * @return mixed Can return any type.
+     * @return File
      */
     public function current()
     {
-        // TODO: Implement current() method.
+        return current($this->files);
     }
 
     /**
@@ -125,7 +117,7 @@ class FileCollections extends FilesUploader implements \Iterator, \Countable
      */
     public function next()
     {
-        // TODO: Implement next() method.
+        next($this->files);
     }
 
     /**
@@ -133,11 +125,11 @@ class FileCollections extends FilesUploader implements \Iterator, \Countable
      * Return the key of the current element
      *
      * @link http://php.net/manual/en/iterator.key.php
-     * @return mixed scalar on success, or null on failure.
+     * @return string
      */
     public function key()
     {
-        // TODO: Implement key() method.
+        return key($this->files);
     }
 
     /**
@@ -150,7 +142,7 @@ class FileCollections extends FilesUploader implements \Iterator, \Countable
      */
     public function valid()
     {
-        // TODO: Implement valid() method.
+        return isset($this->files[$this->key()]);
     }
 
     /**
@@ -162,7 +154,7 @@ class FileCollections extends FilesUploader implements \Iterator, \Countable
      */
     public function rewind()
     {
-        // TODO: Implement rewind() method.
+        reset($this->files);
     }
 
     /**

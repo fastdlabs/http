@@ -98,7 +98,7 @@ interface CookieInterface
     public function getHttpOnly();
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function clear();
 }
