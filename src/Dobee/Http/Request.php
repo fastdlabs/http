@@ -57,7 +57,7 @@ class Request
     public $headers;
 
     /**
-     * @var Session
+     * @var SessionHandler
      */
     protected $session;
 
@@ -75,11 +75,6 @@ class Request
      * @var string
      */
     private $pathInfo;
-
-    /**
-     * @var string
-     */
-    private $format = 'php';
 
     /**
      * @var string
@@ -154,7 +149,7 @@ class Request
         }
 
         if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return $_SERVER['HTTP_X_FORWARDED_FOR'];;
+            return $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
 
         if(isset($_SERVER['HTTP_X_FORWARDED'])) {
@@ -288,13 +283,18 @@ class Request
     {
         $baseUrl = $this->getBaseUrl();
 
+        $format = 'php';
+
         if ($this->server->has('PATH_INFO')) {
             $pathInfo = $this->server->get('PATH_INFO');
             if (false !== ($pos = strpos($pathInfo, '.'))) {
-                $this->format = substr($pathInfo, ($pos + 1));
+                $format = substr($pathInfo, ($pos + 1));
                 $pathInfo = substr($pathInfo, 0, $pos);
-                $this->server->set('PATH_INFO', $pathInfo);
+
             }
+
+            $this->server->set('PATH_INFO', $pathInfo);
+            $this->server->set('REQUEST_FORMAT', $format);
 
             return $pathInfo;
         }
@@ -376,7 +376,7 @@ class Request
      */
     public function getFormat()
     {
-        return $this->format;
+        return $this->server->get('REQUEST_FORMAT')?: 'php';
     }
 
     /**

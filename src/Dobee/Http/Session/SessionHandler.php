@@ -17,6 +17,7 @@ use Dobee\Http\Storage\StorageInterface;
 
 /**
  * Class SessionHandler
+ *
  * @package Dobee\Http\Session
  */
 class SessionHandler implements \SessionHandlerInterface
