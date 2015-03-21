@@ -17,9 +17,6 @@ use Dobee\Http\Bag\FilesParametersBag;
 use Dobee\Http\Bag\HeaderParametersBag;
 use Dobee\Http\Bag\ParametersBag;
 use Dobee\Http\Bag\ServerParametersBag;
-use Dobee\Http\Session\SessionHandler;
-use Dobee\Http\Session\SessionInterface;
-use Dobee\Http\Cookie\CookieInterface;
 
 /**
  * Class Request
@@ -383,19 +380,6 @@ class Request
     public function isMethod($method)
     {
         return $this->getMethod() === strtoupper($method);
-    }
-
-    /**
-     * @param string|null $name
-     * @return SessionInterface
-     */
-    public function getSession($name = null)
-    {
-        if (null === $this->session) {
-            $this->session  = new SessionParametersBag(new SessionHandler());
-        }
-
-        return $this->session->getSession($name);
     }
 
     /**
