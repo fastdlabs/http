@@ -15,10 +15,8 @@ namespace Dobee\Http;
 use Dobee\Http\Bag\CookieParametersBag;
 use Dobee\Http\Bag\FilesParametersBag;
 use Dobee\Http\Bag\HeaderParametersBag;
-use Dobee\Http\Bag\QueryParametersBag;
-use Dobee\Http\Bag\RequestParametersBag;
+use Dobee\Http\Bag\ParametersBag;
 use Dobee\Http\Bag\ServerParametersBag;
-use Dobee\Http\Bag\SessionParametersBag;
 use Dobee\Http\Session\SessionHandler;
 use Dobee\Http\Session\SessionInterface;
 use Dobee\Http\Cookie\CookieInterface;
@@ -31,12 +29,12 @@ use Dobee\Http\Cookie\CookieInterface;
 class Request
 {
     /**
-     * @var QueryParametersBag
+     * @var ParametersBag
      */
     public $query;
 
     /**
-     * @var RequestParametersBag
+     * @var ParametersBag
      */
     public $request;
 
@@ -51,34 +49,29 @@ class Request
     public $cookies;
 
     /**
-     * @var SessionParametersBag
-     */
-    protected $session;
-
-    /**
      * @var ServerParametersBag
      */
-    protected $server;
+    public $server;
 
     /**
      * @var HeaderParametersBag
      */
-    protected $headers;
+    public $headers;
 
     /**
      * @var string
      */
-    private $request_uri;
+    private $requestUri;
 
     /**
      * @var string
      */
-    private $base_url;
+    private $baseUrl;
 
     /**
      * @var string
      */
-    private $path_info;
+    private $pathInfo;
 
     /**
      * @var string
@@ -93,9 +86,11 @@ class Request
     /**
      * @var Request
      */
-    private static $request_factory;
+    private static $requestFactory;
 
     /**
+     * The http request is has once request object.
+     *
      * @param $get
      * @param $post
      * @param $files
@@ -104,8 +99,8 @@ class Request
      */
     private function __construct($get, $post, $files, $cookie, $server)
     {
-        $this->query    = new QueryParametersBag($get);
-        $this->request  = new RequestParametersBag($post);
+        $this->query    = new ParametersBag($get);
+        $this->request  = new ParametersBag($post);
         $this->files    = new FilesParametersBag($files);
         $this->cookies  = new CookieParametersBag($cookie);
         $this->server   = new ServerParametersBag($server);
@@ -175,11 +170,11 @@ class Request
      */
     public function getRequestUri()
     {
-        if (null === $this->request_uri) {
-            $this->request_uri = $this->prepareRequestUri();
+        if (null === $this->requestUri) {
+            $this->requestUri = $this->prepareRequestUri();
         }
 
-        return $this->request_uri;
+        return $this->requestUri;
     }
 
     /**
@@ -189,40 +184,11 @@ class Request
     {
         $requestUri = '';
 
-        if ($this->headers->has('X_ORIGINAL_URL')) {
-            // IIS with Microsoft Rewrite Module
-            $requestUri = $this->headers->get('X_ORIGINAL_URL');
-            $this->headers->remove('X_ORIGINAL_URL');
-            $this->server->remove('HTTP_X_ORIGINAL_URL');
-            $this->server->remove('UNENCODED_URL');
-            $this->server->remove('IIS_WasUrlRewritten');
-        } elseif ($this->headers->has('X_REWRITE_URL')) {
-            // IIS with ISAPI_Rewrite
-            $requestUri = $this->headers->get('X_REWRITE_URL');
-            $this->headers->remove('X_REWRITE_URL');
-        } elseif ($this->server->get('IIS_WasUrlRewritten') == '1' && $this->server->get('UNENCODED_URL') != '') {
-            // IIS7 with URL Rewrite: make sure we get the unencoded URL (double slash problem)
-            $requestUri = $this->server->get('UNENCODED_URL');
-            $this->server->remove('UNENCODED_URL');
-            $this->server->remove('IIS_WasUrlRewritten');
-        } elseif ($this->server->has('REQUEST_URI')) {
-            $requestUri = $this->server->get('REQUEST_URI');
-            // HTTP proxy reqs setup request URI with scheme and host [and port] + the URL path, only use URL path
-            $schemeAndHttpHost = $this->getHttpAndHost();
-            if (strpos($requestUri, $schemeAndHttpHost) === 0) {
+        if ($this->server->has('REQUEST_URI')) {
+            if (0 === strpos(($requestUri = $this->server->get('REQUEST_URI')), ($schemeAndHttpHost = $this->getHttpAndHost()))) {
                 $requestUri = substr($requestUri, strlen($schemeAndHttpHost));
             }
-        } elseif ($this->server->has('ORIG_PATH_INFO')) {
-            // IIS 5.0, PHP as CGI
-            $requestUri = $this->server->get('ORIG_PATH_INFO');
-            if ('' != $this->server->get('QUERY_STRING')) {
-                $requestUri .= '?'.$this->server->get('QUERY_STRING');
-            }
-            $this->server->remove('ORIG_PATH_INFO');
         }
-
-        // add parameter in server
-        $this->server->add('REQUEST_URI', $requestUri);
 
         return $requestUri;
     }
@@ -255,13 +221,11 @@ class Request
             $baseUrl = $this->server->get('SCRIPT_NAME');
         } elseif (basename($this->server->get('PHP_SELF')) === $filename) {
             $baseUrl = $this->server->get('PHP_SELF');
-        } elseif (basename($this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
-            $baseUrl = $this->server->get('ORIG_SCRIPT_NAME'); // 1and1 shared hosting compatibility
-        } else {
+        }  else {
             // Backtrack up the script_filename to find the portion matching
             // php_self
-            $path = $this->server->get('PHP_SELF', '');
-            $file = $this->server->get('SCRIPT_FILENAME', '');
+            $path = $this->server->get('PHP_SELF');
+            $file = $this->server->get('SCRIPT_FILENAME');
             $segs = explode('/', trim($file, '/'));
             $segs = array_reverse($segs);
             $index = 0;
@@ -318,7 +282,7 @@ class Request
             if (false !== ($pos = strpos($pathInfo, '.'))) {
                 $this->format = substr($pathInfo, ($pos + 1));
                 $pathInfo = substr($pathInfo, 0, $pos);
-                $this->server->add('PATH_INFO', $pathInfo);
+                $this->server->set('PATH_INFO', $pathInfo);
             }
 
             return $pathInfo;
@@ -357,11 +321,11 @@ class Request
      */
     public function getBaseUrl()
     {
-        if (null === $this->base_url) {
-            $this->base_url = $this->prepareBaseUrl();
+        if (null === $this->baseUrl) {
+            $this->baseUrl = $this->prepareBaseUrl();
         }
 
-        return $this->base_url;
+        return $this->baseUrl;
     }
 
     /**
@@ -369,11 +333,11 @@ class Request
      */
     public function getPathInfo()
     {
-        if (null === $this->path_info) {
-            $this->path_info = $this->preparePathInfo();
+        if (null === $this->pathInfo) {
+            $this->pathInfo = $this->preparePathInfo();
         }
 
-        return $this->path_info;
+        return $this->pathInfo;
     }
 
     /**
@@ -381,6 +345,10 @@ class Request
      */
     public function getRequestTimestamp()
     {
+        if (!$this->server->has('REQUEST_TIME_FLOAT')) {
+            $this->server->set('REQUEST_TIME_FLOAT', microtime(true));
+        }
+
         return $this->server->get('REQUEST_TIME_FLOAT');
     }
 
@@ -405,7 +373,7 @@ class Request
      */
     public function isXmlHttpRequest()
     {
-        return 'xmlhttprequest' == strtolower($this->headers->get('X-Requested-With'));
+        return 'xmlhttprequest' === strtolower($this->headers->get('X-Requested-With'));
     }
 
     /**
@@ -415,31 +383,6 @@ class Request
     public function isMethod($method)
     {
         return $this->getMethod() === strtoupper($method);
-    }
-
-    /**
-     * @return QueryParametersBag
-     */
-    public function getQuery()
-    {
-        return $this->query;
-    }
-
-    /**
-     * @return RequestParametersBag
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
-     * @param string|null $name
-     * @return CookieInterface
-     */
-    public function getCookie($name = null)
-    {
-        return $this->cookies->getCookie($name);
     }
 
     /**
@@ -453,30 +396,6 @@ class Request
         }
 
         return $this->session->getSession($name);
-    }
-
-    /**
-     * @return HeaderParametersBag
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * @return ServerParametersBag
-     */
-    public function getServer()
-    {
-        return $this->server;
-    }
-
-    /**
-     * @return FilesParametersBag
-     */
-    public function getFiles()
-    {
-        return $this->files;
     }
 
     /**
@@ -507,47 +426,17 @@ class Request
      */
     public static function createGlobalRequest()
     {
-        if (null !== self::$request_factory) {
-            return self::$request_factory;
-        }
+        if (null === self::$requestFactory) {
+            self::$requestFactory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
 
-        if ('cli-server' === php_sapi_name()) {
-            if (array_key_exists('HTTP_CONTENT_LENGTH', $_SERVER)) {
-                $_SERVER['CONTENT_LENGTH'] = $_SERVER['HTTP_CONTENT_LENGTH'];
-            }
-            if (array_key_exists('HTTP_CONTENT_TYPE', $_SERVER)) {
-                $_SERVER['CONTENT_TYPE'] = $_SERVER['HTTP_CONTENT_TYPE'];
+            if (0 === strpos(self::$requestFactory->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
+                && in_array(strtoupper(self::$requestFactory->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
+            ) {
+                parse_str(self::$requestFactory->getContent(), $data);
+                self::$requestFactory->request = new ParametersBag($data);
             }
         }
 
-        self::$request_factory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
-
-        if (0 === strpos(self::$request_factory->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
-            && in_array(strtoupper(self::$request_factory->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
-        ) {
-            parse_str(self::$request_factory->getContent(), $data);
-            self::$request_factory->request = new RequestParametersBag($data);
-        }
-
-        return self::$request_factory;
-    }
-
-    /**
-     * Request initialize session handler magic method.
-     *
-     * @param string $name
-     * @return SessionParametersBag
-     */
-    public function __get($name)
-    {
-        if ('session' !== $name) {
-            throw new \InvalidArgumentException(sprintf('Request attribute "%s" is undefined.', $name));
-        }
-
-        if (null === $this->session) {
-            $this->session  = new SessionParametersBag(new SessionHandler());
-        }
-
-        return $this->session;
+        return self::$requestFactory;
     }
 }

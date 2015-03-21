@@ -33,17 +33,11 @@ interface ParametersBagInterface
     public function has($key);
 
     /**
-     * @param $key
+     * @param $name
      * @param $value
      * @return mixed
      */
-    public function add($key, $value);
-
-    /**
-     * @param array $parameters
-     * @return mixed
-     */
-    public function set(array $parameters = array());
+    public function set($name, $value);
 
     /**
      * @param $key

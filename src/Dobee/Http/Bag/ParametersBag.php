@@ -30,7 +30,7 @@ class ParametersBag implements ParametersBagInterface
      */
     public function __construct(array $parameters = array())
     {
-        $this->set($parameters);
+        $this->parameters = $parameters;
     }
 
     /**
@@ -52,33 +52,24 @@ class ParametersBag implements ParametersBagInterface
      */
     public function has($key)
     {
-        return isset($this->parameters[$key]) ? true : false;
+        return isset($this->parameters[$key]);
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $name
+     * @param       $value
      * @return $this
      */
-    public function add($key, $value)
+    public function set($name, $value)
     {
-        $this->parameters[$key] = $value;
+        $this->parameters[$name] = $value;
 
         return $this;
     }
 
     /**
-     * @param array $parameters
-     * @return $this
-     */
-    public function set(array $parameters = array())
-    {
-        $this->parameters = $parameters;
-
-        return $this;
-    }
-
-    /**
+     * Filter request parameters.
+     *
      * @param        $key
      * @param string $validate
      * @return bool

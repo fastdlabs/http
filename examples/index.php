@@ -11,21 +11,14 @@
  */
 error_reporting(E_ALL);
 echo '<pre>';
+
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
-print_r($request->session);
-print_r($request->session->getSession('name'));
-
-
-//$request->session->setSession('name', 'janhuang');
-//writeln($request->session->getSession('name')->getValue());
-
+print_r($request->server);
+echo $request->getRequestUri();
 echo '<br />';
-
-function writeln($message, $EOL = "<br />")
-{
-    echo $message . $EOL;
-}
-
+echo $request->getBaseUrl();
+echo '<br />';
+echo $request->getPathInfo();
 
