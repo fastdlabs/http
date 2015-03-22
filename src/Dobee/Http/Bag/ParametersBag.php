@@ -71,16 +71,22 @@ class ParametersBag implements ParametersBagInterface
      * Filter request parameters.
      *
      * @param        $key
-     * @param string $validate
+     * @param string|\Closure $validate
      * @return string|bool
      */
-    public function get($key, $validate = 'plain')
+    public function get($key, $validate = Filter::STRING)
     {
         if (!$this->has($key)) {
             return false;
         }
 
-        return $this->parameters[$key];
+        if (is_callable($validate)) {
+            return $validate($this->parameters[$key]);
+        }
+
+        $func = '\Dobee\Http\Bag\Filter::' . $validate;
+
+        return $func($this->parameters[$key]);
     }
 
     /**
