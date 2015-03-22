@@ -24,4 +24,20 @@ class HeaderParametersBag extends ParametersBag
 
         header_remove('X-Powered-By');
     }
+
+    /**
+     * Filter request parameters.
+     *
+     * @param        $key
+     * @param null $validate
+     * @return string|bool
+     */
+    public function get($key, $validate = null)
+    {
+        if (!$this->has($key)) {
+            return false;
+        }
+
+        return $this->parameters[$key];
+    }
 }
