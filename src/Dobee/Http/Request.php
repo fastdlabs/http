@@ -290,7 +290,6 @@ class Request
             if (false !== ($pos = strpos($pathInfo, '.'))) {
                 $format = substr($pathInfo, ($pos + 1));
                 $pathInfo = substr($pathInfo, 0, $pos);
-
             }
 
             $this->server->set('PATH_INFO', $pathInfo);

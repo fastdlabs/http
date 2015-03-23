@@ -84,9 +84,7 @@ class ParametersBag implements ParametersBagInterface
             return $validate($this->parameters[$key]);
         }
 
-        $func = '\Dobee\Http\Bag\Filter::' . $validate;
-
-        return $func($this->parameters[$key]);
+        return call_user_func_array('\Dobee\Http\Bag\Filter::' . $validate, array($this->parameters[$key]));
     }
 
     /**
