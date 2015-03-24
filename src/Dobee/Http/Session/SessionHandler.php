@@ -45,7 +45,7 @@ class SessionHandler implements \SessionHandlerInterface
 
     public function hasSession($name)
     {
-        return isset($this->sessions[$name]) || isset($_SERVER[$name]);
+        return isset($this->sessions[$name]) || isset($_SESSION[$name]);
     }
 
     public function removeSession($name)
@@ -60,21 +60,14 @@ class SessionHandler implements \SessionHandlerInterface
     public function getSession($name)
     {
         if (!isset($this->sessions[$name])) {
-            if (!isset($_SERVER[$name])) {
+            if (!isset($_SESSION[$name])) {
                 throw new \InvalidArgumentException(sprintf('Session "%s" is undefined.', $name));
             }
 
-            $this->setSession($name, $_SERVER[$name]);
+            $this->setSession($name, $_SESSION[$name]);
         }
 
         return $this->sessions[$name];
-    }
-
-    public function setStorage(StorageInterface $storage)
-    {
-        $this->storage = $storage;
-
-        return $this;
     }
 
     /**
