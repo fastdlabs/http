@@ -21,8 +21,6 @@ class HeaderParametersBag extends ParametersBag
     public function __construct(array $parameters = array())
     {
         $this->parameters = $parameters;
-
-        header_remove('X-Powered-By');
     }
 
     /**
