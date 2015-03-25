@@ -172,11 +172,12 @@ class Request
     }
 
     /**
+     * @param bool $isNew
      * @return string
      */
-    public function getRequestUri()
+    public function getRequestUri($isNew = false)
     {
-        if (null === $this->requestUri) {
+        if (null === $this->requestUri|| true === $isNew) {
             $this->requestUri = $this->prepareRequestUri();
         }
 
@@ -327,11 +328,12 @@ class Request
     }
 
     /**
+     * @param bool $isNew
      * @return bool|string
      */
-    public function getBaseUrl()
+    public function getBaseUrl($isNew = false)
     {
-        if (null === $this->baseUrl) {
+        if (null === $this->baseUrl || true === $isNew) {
             $this->baseUrl = $this->prepareBaseUrl();
         }
 
@@ -339,11 +341,12 @@ class Request
     }
 
     /**
+     * @param bool $isNew
      * @return string
      */
-    public function getPathInfo()
+    public function getPathInfo($isNew = false)
     {
-        if (null === $this->pathInfo) {
+        if (null === $this->pathInfo || true === $isNew) {
             $this->pathInfo = $this->preparePathInfo();
         }
 
