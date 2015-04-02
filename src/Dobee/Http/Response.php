@@ -12,8 +12,7 @@
 
 namespace Dobee\Http;
 
-use Dobee\Http\Bag\CookieParametersBag;
-use Dobee\Http\Bag\HeaderParametersBag;
+use Dobee\Http\Bag\HeaderBag;
 
 class Response
 {
@@ -195,7 +194,7 @@ class Response
      */
     public function __construct($content = '', $status = 200, array $headers = array())
     {
-        $this->headers = new HeaderParametersBag($headers);
+        $this->headers = new HeaderBag($headers);
         $this->setContent($content);
         $this->setStatusCode($status);
     }
