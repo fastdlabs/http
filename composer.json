@@ -1,17 +1,11 @@
 {
     "name": "dobee/http",
-    "description": "dobee http component",
+    "description": "dobee php simple framework http component",
     "license": "MIT",
     "authors": [
         {
             "name": "janhuang",
-            "email": "384099566@qq.com"
-        }
-    ],
-    "repositories": [
-        {
-            "type": "git",
-            "url": ""
+            "email": "bboyjanhuang@gmail.com"
         }
     ],
     "minimum-stability": "dev",

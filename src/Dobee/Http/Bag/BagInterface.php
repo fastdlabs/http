@@ -18,7 +18,7 @@ namespace Dobee\Http\Bag;
  *
  * @package Dobee\Http\Bag
  */
-interface ParametersBagInterface
+interface BagInterface
 {
     /**
      * @param $key

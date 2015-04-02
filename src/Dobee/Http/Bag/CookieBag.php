@@ -21,7 +21,7 @@ use Dobee\Http\Cookie\CookieInterface;
  *
  * @package Dobee\Http\Bag
  */
-class CookieParametersBag implements \Iterator, \Countable
+class CookieBag implements \Iterator, \Countable
 {
     /**
      * @var Cookie[]|array

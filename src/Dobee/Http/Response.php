@@ -91,7 +91,7 @@ class Response
     /**
      * @var string
      */
-    protected $version;
+    protected $version = '1.1';
 
     /**
      * @var int
@@ -243,21 +243,11 @@ class Response
      */
     public function send()
     {
-        if (null === $this->version) {
-            $this->setProtocolVersion('v1.0');
-        }
-
-        if (null === $this->charset) {
-            $this->setCharset('utf-8');
-        }
-
         $this->sendHeaders();
         $this->sendContent();
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
-        } elseif ('cli' !== PHP_SAPI) {
-            static::closeOutputBuffers(0, true);
         }
 
         return $this;
@@ -803,34 +793,5 @@ class Response
     public function isEmpty()
     {
         return in_array($this->statusCode, array(204, 304));
-    }
-
-    /**
-     * Cleans or flushes output buffers up to target level.
-     *
-     * Resulting level can be greater than target level if a non-removable buffer has been encountered.
-     *
-     * @param int  $targetLevel The target output buffering level
-     * @param bool $flush       Whether to flush or clean the buffers
-     */
-    public static function closeOutputBuffers($targetLevel, $flush)
-    {
-        $status = ob_get_status(true);
-        $level = count($status);
-
-        while ($level-- > $targetLevel
-            && (!empty($status[$level]['del'])
-                || (isset($status[$level]['flags'])
-                    && ($status[$level]['flags'] & PHP_OUTPUT_HANDLER_REMOVABLE)
-                    && ($status[$level]['flags'] & ($flush ? PHP_OUTPUT_HANDLER_FLUSHABLE : PHP_OUTPUT_HANDLER_CLEANABLE))
-                )
-            )
-        ) {
-            if ($flush) {
-                ob_end_flush();
-            } else {
-                ob_end_clean();
-            }
-        }
     }
 }

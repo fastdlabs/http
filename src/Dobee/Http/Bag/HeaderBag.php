@@ -13,7 +13,7 @@
 
 namespace Dobee\Http\Bag;
 
-class HeaderParametersBag extends ParametersBag
+class HeaderBag extends ParametersBag
 {
     /**
      * @param array $parameters

@@ -20,7 +20,7 @@ use Dobee\Http\Files\FileCollections;
  *
  * @package Dobee\Http\Bag
  */
-class FilesParametersBag implements \Iterator, \Countable
+class FilesBag implements \Iterator, \Countable
 {
     /**
      * @var FileCollections[]

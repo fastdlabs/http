@@ -18,7 +18,7 @@ namespace Dobee\Http\Bag;
  *
  * @package Dobee\Http\Bag
  */
-class ParametersBag implements ParametersBagInterface
+class ParametersBag implements BagInterface
 {
     /**
      * @var array|null
