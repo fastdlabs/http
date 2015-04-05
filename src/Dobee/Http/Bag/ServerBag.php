@@ -121,6 +121,10 @@ class ServerBag extends ParametersBag
      */
     public function preparePathInfo()
     {
+        if ($this->get('REQUEST_URI') === $this->get('SCRIPT_NAME') || $this->get('REQUEST_URI') === pathinfo($this->get('SCRIPT_NAME'), PATHINFO_DIRNAME)) {
+            return '/';
+        }
+        
         return str_replace($this->get('SCRIPT_NAME'), '', $this->get('REQUEST_URI'));
     }
 
