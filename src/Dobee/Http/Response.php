@@ -105,7 +105,7 @@ class Response
     /**
      * @var string
      */
-    protected $charset;
+    protected $charset = 'utf-8';
 
     /**
      * Status codes translation table.

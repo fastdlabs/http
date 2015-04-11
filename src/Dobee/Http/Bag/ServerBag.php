@@ -89,11 +89,7 @@ class ServerBag extends ParametersBag
      */
     public function getBaseUrl()
     {
-        if ('' == pathinfo($this->get('SCRIPT_NAME'), PATHINFO_EXTENSION)) {
-            return $this->get('SCRIPT_NAME');
-        }
-
-        return pathinfo($this->get('SCRIPT_NAME'), PATHINFO_DIRNAME);
+        return $this->get('SCRIPT_NAME');
     }
 
     /**
