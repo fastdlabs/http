@@ -344,7 +344,7 @@ class Response
         $this->statusCode = $code;
 
         if ($this->isInvalid()) {
-            throw new \InvalidArgumentException(sprintf('The HTTP status code "%s" is not valid.', $code));
+            $this->statusCode = $code = Response::HTTP_INTERNAL_SERVER_ERROR;
         }
 
         if (null === $text) {
