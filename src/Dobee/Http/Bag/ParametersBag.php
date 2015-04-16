@@ -30,7 +30,9 @@ class ParametersBag implements BagInterface
      */
     public function __construct(array $parameters = array())
     {
-        $this->parameters = $parameters;
+        foreach ($parameters as $name => $value) {
+            $this->parameters[strtoupper($name)] = $value;
+        }
     }
 
     /**

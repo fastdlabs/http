@@ -234,12 +234,24 @@ class Request
     }
 
     /**
+     * @param array $get
+     * @param array $post
+     * @param array $files
+     * @param array $cookie
+     * @param array $server
      * @return Request|static
      */
-    public static function createGlobalRequest()
+    public static function createGlobalRequest($get = array(), $post = array(), $files = array(), $cookie = array(), $server = array())
     {
         if (null === self::$requestFactory) {
-            self::$requestFactory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
+
+            $get = empty($get) ? $_GET : $get;
+            $post = empty($post) ? $_POST : $post;
+            $files = empty($files) ? $_FILES : $files;
+            $cookie = empty($cookie) ? $_COOKIE : $cookie;
+            $server = empty($server) ? $_SERVER : $server;
+
+            self::$requestFactory = new static($get, $post, $files, $cookie, $server);
 
             if (0 === strpos(self::$requestFactory->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
                 && in_array(strtoupper(self::$requestFactory->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
