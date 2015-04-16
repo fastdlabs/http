@@ -70,7 +70,7 @@ class ServerBag extends ParametersBag
         $pathInfo = $this->has('PATH_INFO') ? $this->get('PATH_INFO') : $this->preparePathInfo();
 
         if ('' != pathinfo($pathInfo, PATHINFO_EXTENSION)) {
-            $pathInfo = '/' . pathinfo($pathInfo, PATHINFO_FILENAME);
+            $pathInfo = substr($pathInfo, 0, strpos($pathInfo, '.'));
         }
 
         return $pathInfo;
