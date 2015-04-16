@@ -21,6 +21,16 @@ namespace Dobee\Http\Bag;
 class ServerBag extends ParametersBag
 {
     /**
+     * @param array $parameters
+     */
+    public function setParameters(array $parameters = array())
+    {
+        foreach ($parameters as $name => $value) {
+            $this->set(strtoupper($name), $value);
+        }
+    }
+
+    /**
      * @return string
      */
     public function getFormat()

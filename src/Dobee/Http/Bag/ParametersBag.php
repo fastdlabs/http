@@ -30,6 +30,14 @@ class ParametersBag implements BagInterface
      */
     public function __construct(array $parameters = array())
     {
+        $this->setParameters($parameters);
+    }
+
+    /**
+     * @param array $parameters
+     */
+    public function setParameters(array $parameters = array())
+    {
         $this->parameters = $parameters;
     }
 
