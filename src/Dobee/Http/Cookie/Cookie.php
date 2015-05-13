@@ -247,4 +247,9 @@ class Cookie implements CookieInterface
 
         return isset($_COOKIE[$this->name]);
     }
+
+    public function __toString()
+    {
+        return $this->value;
+    }
 }
