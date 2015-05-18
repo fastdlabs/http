@@ -11,7 +11,7 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http\Bag;
+namespace Dobee\Http\Filter;
 
 class Filter 
 {

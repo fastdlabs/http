@@ -21,14 +21,14 @@ namespace Dobee\Http\Files;
 class FileCollections implements \Iterator, \Countable
 {
     /**
-     * @var File
+     * @var File[]
      */
-    private $files = array();
+    private $files = [];
 
     /**
      * @var int
      */
-    private $count;
+    private $count = 0;
 
     /**
      * @var string
@@ -66,6 +66,14 @@ class FileCollections implements \Iterator, \Countable
         $this->count = count($this->files);
 
         unset($createFile);
+    }
+
+    /**
+     * @return File[]
+     */
+    public function all()
+    {
+        return $this->files;
     }
 
     /**

@@ -54,6 +54,11 @@ class Cookie implements CookieInterface
     protected $httpOnly = false;
 
     /**
+     * @var array
+     */
+    protected $serialized;
+
+    /**
      * @param $name
      * @param $value
      * @param int $expire
@@ -72,21 +77,29 @@ class Cookie implements CookieInterface
         $httpOnly = false
     )
     {
-        $this->name = $name;
+        if (isset($_COOKIE[$name])) {
+            $this->unserialize($_COOKIE[$name]);
+        }
 
-        $this->value = $value;
+        if (!$this->serialized) {
+            $this->name     = $name;
+            $this->value    = $value;
+            $this->expire   = $expire;
+            $this->path     = $path;
+            $this->domain   = $domain;
+            $this->secure   = $secure;
+            $this->httpOnly = $httpOnly;
+        }
 
-        $this->expire = $expire;
-
-        $this->path = $path;
-
-        $this->domain = $domain;
-
-        $this->secure = $secure;
-
-        $this->httpOnly = $httpOnly;
-
-        setcookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        setcookie(
+            $this->name,
+            $this->serialize(),
+            $this->expire,
+            $this->path,
+            $this->domain,
+            $this->secure,
+            $this->httpOnly
+        );
     }
 
     /**
@@ -245,11 +258,59 @@ class Cookie implements CookieInterface
     {
         setcookie($this->name, null, -1, $this->path);
 
+        $this->serialized = null;
+
         return isset($_COOKIE[$this->name]);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->value;
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * String representation of object
+     *
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     */
+    public function serialize()
+    {
+        return serialize(
+            [
+                'value'     => $this->value,
+                'expire'    => $this->expire,
+                'path'      => $this->path,
+                'domain'    => $this->domain,
+                'secure'    => $this->secure,
+                'httpOnly'  => $this->httpOnly,
+            ]
+        );
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Constructs the object
+     *
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     *                           The string representation of the object.
+     *                           </p>
+     * @return void
+     */
+    public function unserialize($serialized = null)
+    {
+        $serialized = @unserialize($serialized);
+
+        if ($serialized) {
+            $this->serialized = $serialized;
+            foreach ($serialized as $name => $value) {
+                $this->$name = $value;
+            }
+        }
     }
 }

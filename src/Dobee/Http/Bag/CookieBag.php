@@ -29,16 +29,13 @@ class CookieBag implements \Iterator, \Countable
     private $cookies = array();
 
     /**
-     * @var array
+     * @param array $cookies
      */
-    private $parameters = array();
-
-    /**
-     * @param array $cookie
-     */
-    public function __construct(array $cookie)
+    public function __construct(array $cookies)
     {
-        $this->parameters = $cookie;
+        foreach ($cookies as $name => $value) {
+            $this->setCookie($name, $value);
+        }
     }
 
     /**
@@ -65,13 +62,8 @@ class CookieBag implements \Iterator, \Countable
     public function getCookie($name = null)
     {
         if (!isset($this->cookies[$name])) {
-            if (!isset($this->parameters[$name])) {
-                throw new \InvalidArgumentException(sprintf('Cookie "%s" is undefined.', $name));
-            }
-
-            $this->setCookie($name, $this->parameters[$name]);
+            throw new \InvalidArgumentException(sprintf('Cookie "%s" is undefined.', $name));
         }
-
 
         return $this->cookies[$name];
     }
@@ -82,7 +74,7 @@ class CookieBag implements \Iterator, \Countable
      */
     public function hasCookie($name)
     {
-        return isset($this->cookies[$name]) || isset($this->parameters[$name]);
+        return isset($this->cookies[$name]);
     }
 
     /**

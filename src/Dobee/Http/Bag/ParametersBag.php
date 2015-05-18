@@ -13,6 +13,8 @@
 
 namespace Dobee\Http\Bag;
 
+use Dobee\Http\Filter\Filter;
+
 /**
  * Class ParametersBag
  *
@@ -92,7 +94,7 @@ class ParametersBag implements BagInterface
             return $validate($this->parameters[$key]);
         }
 
-        return call_user_func_array('\Dobee\Http\Bag\Filter::' . $validate, array($this->parameters[$key]));
+        return call_user_func_array('\Dobee\Http\Filter\Filter::' . $validate, array($this->parameters[$key]));
     }
 
     /**

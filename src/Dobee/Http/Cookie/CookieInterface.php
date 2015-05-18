@@ -18,7 +18,7 @@ namespace Dobee\Http\Cookie;
  *
  * @package Dobee\Http\Cookie
  */
-interface CookieInterface
+interface CookieInterface extends \Serializable
 {
     /**
      * @param string $name

@@ -13,8 +13,6 @@
 
 namespace Dobee\Http\Session;
 
-use Dobee\Http\Storage\StorageInterface;
-
 /**
  * Class SessionHandler
  *

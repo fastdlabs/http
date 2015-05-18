@@ -24,4 +24,5 @@ echo 'Base Url: ' . $request->getBaseUrl() . '<br />';
 echo 'Path Info: ' . $request->getPathInfo() . '<br />';
 
 echo 'Request Uri: ' . $request->getRequestUri() . '<br />';
+
 echo 'Format: ' . $request->getFormat() . '<br />';
