@@ -18,56 +18,8 @@ namespace Dobee\Http\Session;
  *
  * @package Dobee\Http\Session
  */
-class SessionHandler implements \SessionHandlerInterface
+interface SessionHandler extends \SessionHandlerInterface
 {
-    /**
-     * @var
-     */
-    private $storage;
-
-    private $sessions;
-
-    public function __construct()
-    {
-        session_start();
-    }
-
-    public function setSession($name, $value, $expire = 0)
-    {
-        $this->sessions[$name] = new Session($name, $value, $expire);
-
-        $_SESSION[$name] = $value;
-
-        return $this;
-    }
-
-    public function hasSession($name)
-    {
-        return isset($this->sessions[$name]) || isset($_SESSION[$name]);
-    }
-
-    public function removeSession($name)
-    {
-        return $this->getSession($name)->clear();
-    }
-
-    /**
-     * @param $name
-     * @return Session
-     */
-    public function getSession($name)
-    {
-        if (!isset($this->sessions[$name])) {
-            if (!isset($_SESSION[$name])) {
-                throw new \InvalidArgumentException(sprintf('Session "%s" is undefined.', $name));
-            }
-
-            $this->setSession($name, $_SESSION[$name]);
-        }
-
-        return $this->sessions[$name];
-    }
-
     /**
      * PHP >= 5.4.0<br/>
      * Close the session
@@ -77,10 +29,7 @@ class SessionHandler implements \SessionHandlerInterface
      * Note this value is returned internally to PHP for processing.
      * </p>
      */
-    public function close()
-    {
-        echo 'session_stop' . '<br />';
-    }
+    public function close();
 
     /**
      * PHP >= 5.4.0<br/>
@@ -92,10 +41,7 @@ class SessionHandler implements \SessionHandlerInterface
      * Note this value is returned internally to PHP for processing.
      * </p>
      */
-    public function destroy($session_id)
-    {
-        echo 'destroy : ' . $session_id  . '<br />';
-    }
+    public function destroy($session_id);
 
     /**
      * PHP >= 5.4.0<br/>
@@ -110,10 +56,7 @@ class SessionHandler implements \SessionHandlerInterface
      * Note this value is returned internally to PHP for processing.
      * </p>
      */
-    public function gc($maxlifetime)
-    {
-        echo 'gc' . '<br />';
-    }
+    public function gc($maxlifetime);
 
     /**
      * PHP >= 5.4.0<br/>
@@ -126,10 +69,8 @@ class SessionHandler implements \SessionHandlerInterface
      * Note this value is returned internally to PHP for processing.
      * </p>
      */
-    public function open($save_path, $session_id)
-    {
-        echo 'session_start' . '<br />';
-    }
+    public function open($save_path, $session_id);
+
 
     /**
      * PHP >= 5.4.0<br/>
@@ -142,10 +83,7 @@ class SessionHandler implements \SessionHandlerInterface
      * Note this value is returned internally to PHP for processing.
      * </p>
      */
-    public function read($session_id)
-    {
-        echo 'session read ' . $session_id . '<br />';
-    }
+    public function read($session_id);
 
     /**
      * PHP >= 5.4.0<br/>
@@ -164,8 +102,5 @@ class SessionHandler implements \SessionHandlerInterface
      * Note this value is returned internally to PHP for processing.
      * </p>
      */
-    public function write($session_id, $session_data)
-    {
-        echo 'session write ' . $session_id . '<br />';
-    }
+    public function write($session_id, $session_data);
 }

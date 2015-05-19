@@ -35,20 +35,27 @@ class Session implements SessionInterface
      */
     private $expire;
 
-    private $serialized;
+    /**
+     * @var
+     */
+    protected $serialized = false;
 
     /**
      * @param     $name
      * @param     $value
      * @param int $expire
+     * @param boolean $force
      */
-    public function __construct($name, $value, $expire = 0)
+    public function __construct($name, $value, $expire = 0, $force = true)
     {
-        $this->name = $name;
+        $this->name     = $name;
+        $this->unserialize($value);
+        if (!$this->serialized || $force) {
+            $this->value    = $value;
+            $this->expire   = $expire;
+        }
 
-        $this->value = $value;
-
-        $this->expire = $expire;
+        $_SESSION[$name] = $this->serialize();
     }
 
     /**
@@ -122,9 +129,12 @@ class Session implements SessionInterface
         return true;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        return $this->value;
+        return (string)$this->value;
     }
 
     /**
@@ -136,7 +146,13 @@ class Session implements SessionInterface
      */
     public function serialize()
     {
-        // TODO: Implement serialize() method.
+        return serialize(
+            [
+                'name'      => $this->name,
+                'value'     => $this->value,
+                'expire'    => $this->expire
+            ]
+        );
     }
 
     /**
@@ -151,6 +167,12 @@ class Session implements SessionInterface
      */
     public function unserialize($serialized)
     {
-        // TODO: Implement unserialize() method.
+        $serialized = @unserialize($serialized);
+        if ($serialized) {
+            $this->serialized = true;
+            $this->name     = $serialized['name'];
+            $this->value    = $serialized['value'];
+            $this->expire   = $serialized['expire'];
+        }
     }
 }

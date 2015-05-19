@@ -17,8 +17,8 @@ use Dobee\Http\Bag\FilesBag;
 use Dobee\Http\Bag\HeaderBag;
 use Dobee\Http\Bag\ParametersBag;
 use Dobee\Http\Bag\ServerBag;
-use Dobee\Http\Cookie\Cookie;
 use Dobee\Http\Session\SessionHandler;
+use Dobee\Http\Session\SessionBag;
 
 /**
  * Class Request
@@ -58,7 +58,7 @@ class Request
     public $headers;
 
     /**
-     * @var SessionHandler
+     * @var SessionBag
      */
     protected $session;
 
@@ -199,12 +199,13 @@ class Request
     }
 
     /**
-     * @return SessionHandler
+     * @param SessionHandler $sessionHandler
+     * @return SessionBag
      */
-    public function getSession()
+    public function getSession(SessionHandler $sessionHandler = null)
     {
         if (null === $this->session) {
-            $this->session = new SessionHandler();
+            $this->session = new SessionBag($sessionHandler);
         }
 
         return $this->session;

@@ -56,7 +56,7 @@ class Cookie implements CookieInterface
     /**
      * @var array
      */
-    protected $serialized;
+    protected $serialized = false;
 
     /**
      * @param $name
@@ -66,6 +66,7 @@ class Cookie implements CookieInterface
      * @param string $domain
      * @param bool $secure
      * @param bool $httpOnly
+     * @param bool $force
      */
     public function __construct(
         $name,
@@ -74,15 +75,14 @@ class Cookie implements CookieInterface
         $path = '/',
         $domain = '',
         $secure = false,
-        $httpOnly = false
+        $httpOnly = false,
+        $force = false
     )
     {
-        if (isset($_COOKIE[$name])) {
-            $this->unserialize($_COOKIE[$name]);
-        }
-
-        if (!$this->serialized) {
-            $this->name     = $name;
+        $this->name = $name;
+        $this->unserialize($value);
+        if (!$this->serialized || $force) {
+            $this->serialized = null;
             $this->value    = $value;
             $this->expire   = $expire;
             $this->path     = $path;
@@ -268,7 +268,7 @@ class Cookie implements CookieInterface
      */
     public function __toString()
     {
-        return $this->value;
+        return (string)$this->value;
     }
 
     /**
@@ -305,12 +305,14 @@ class Cookie implements CookieInterface
     public function unserialize($serialized = null)
     {
         $serialized = @unserialize($serialized);
-
         if ($serialized) {
-            $this->serialized = $serialized;
-            foreach ($serialized as $name => $value) {
-                $this->$name = $value;
-            }
+            $this->serialized = true;
+            $this->value    = $serialized['value'];
+            $this->expire   = $serialized['expire'];
+            $this->path     = $serialized['path'];
+            $this->domain   = $serialized['domain'];
+            $this->secure   = $serialized['secure'];
+            $this->httpOnly = $serialized['httpOnly'];
         }
     }
 }
