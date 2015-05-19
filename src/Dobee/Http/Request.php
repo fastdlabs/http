@@ -19,6 +19,7 @@ use Dobee\Http\Bag\ParametersBag;
 use Dobee\Http\Bag\ServerBag;
 use Dobee\Http\Session\SessionHandler;
 use Dobee\Http\Session\SessionBag;
+use Dobee\Http\Session\SessionHandlerAbstract;
 
 /**
  * Class Request
@@ -199,10 +200,10 @@ class Request
     }
 
     /**
-     * @param SessionHandler $sessionHandler
+     * @param SessionHandlerAbstract $sessionHandler
      * @return SessionBag
      */
-    public function getSession(SessionHandler $sessionHandler = null)
+    public function getSession(SessionHandlerAbstract $sessionHandler = null)
     {
         if (null === $this->session) {
             $this->session = new SessionBag($sessionHandler);

@@ -26,9 +26,9 @@ class SessionBag implements \Iterator
     protected $sessions = [];
 
     /**
-     * @param SessionHandler $sessionHandler
+     * @param SessionHandlerAbstract $sessionHandler
      */
-    public function __construct(SessionHandler $sessionHandler = null)
+    public function __construct(SessionHandlerAbstract $sessionHandler = null)
     {
         if (null !== $sessionHandler) {
             session_set_save_handler($sessionHandler, true);
