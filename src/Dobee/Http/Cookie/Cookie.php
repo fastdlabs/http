@@ -54,11 +54,6 @@ class Cookie implements CookieInterface
     protected $httpOnly = false;
 
     /**
-     * @var array
-     */
-    protected $serialized = false;
-
-    /**
      * @param $name
      * @param $value
      * @param int $expire
@@ -76,30 +71,30 @@ class Cookie implements CookieInterface
         $domain = '',
         $secure = false,
         $httpOnly = false,
-        $force = false
+        $force = true
     )
     {
-        $this->name = $name;
-        $this->unserialize($value);
-        if (!$this->serialized || $force) {
-            $this->serialized = null;
+        if ($force || !isset($_COOKIE[$name])) {
+            $this->name     = $name;
             $this->value    = $value;
             $this->expire   = $expire;
             $this->path     = $path;
             $this->domain   = $domain;
             $this->secure   = $secure;
             $this->httpOnly = $httpOnly;
-        }
 
-        setcookie(
-            $this->name,
-            $this->serialize(),
-            $this->expire,
-            $this->path,
-            $this->domain,
-            $this->secure,
-            $this->httpOnly
-        );
+            setcookie(
+                $this->name,
+                $this->serialize(),
+                $this->expire,
+                $this->path,
+                $this->domain,
+                $this->secure,
+                $this->httpOnly
+            );
+        } else {
+            $this->unserialize($_COOKIE[$name]);
+        }
     }
 
     /**
@@ -304,15 +299,13 @@ class Cookie implements CookieInterface
      */
     public function unserialize($serialized = null)
     {
-        $serialized = @unserialize($serialized);
-        if ($serialized) {
-            $this->serialized = true;
-            $this->value    = $serialized['value'];
-            $this->expire   = $serialized['expire'];
-            $this->path     = $serialized['path'];
-            $this->domain   = $serialized['domain'];
-            $this->secure   = $serialized['secure'];
-            $this->httpOnly = $serialized['httpOnly'];
+        if (!empty($serialized)) {
+            $serialized = @unserialize($serialized);
+            if ($serialized) {
+                foreach ($serialized as $name => $value) {
+                    $this->$name = $value;
+                }
+            }
         }
     }
 }
