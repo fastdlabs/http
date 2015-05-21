@@ -26,4 +26,4 @@ echo '<pre>';
 $session->setSession('name', 'janhaung');
 print_r($session);
 print_r($_SESSION);
-print_r($session->getSession('name'));
+print_r($session->getSession('manager_info'));

@@ -93,7 +93,9 @@ class Cookie implements CookieInterface
                 $this->httpOnly
             );
         } else {
-            $this->unserialize($_COOKIE[$name]);
+            if (is_string($_COOKIE[$name])) {
+                $this->unserialize($_COOKIE[$name]);
+            }
         }
     }
 
@@ -299,7 +301,7 @@ class Cookie implements CookieInterface
      */
     public function unserialize($serialized = null)
     {
-        if (!empty($serialized)) {
+        if (!empty($serialized) && substr($serialized, -1) === '}') {
             $serialized = @unserialize($serialized);
             if ($serialized) {
                 foreach ($serialized as $name => $value) {

@@ -49,8 +49,10 @@ class Session implements SessionInterface
     public function __construct($name, $value, $expire = 0, $force = true)
     {
         $this->name     = $name;
-        $this->unserialize($value);
-        if (!$this->serialized || $force) {
+        if (is_string($value)) {
+            $this->unserialize($value);
+        }
+        if ($force) {
             $this->value    = $value;
             $this->expire   = $expire;
         }
@@ -134,7 +136,9 @@ class Session implements SessionInterface
      */
     public function __toString()
     {
-        return (string)$this->value;
+        if (!is_array($this->value)) {
+            return (string)$this->value;
+        }
     }
 
     /**
