@@ -10,13 +10,14 @@
  * Blog: http://segmentfault.com/blog/janhuang
  * Gmail: bboyjanhuang@gmail.com
  */
-
+echo '<pre>';
+print_r($_COOKIE);
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
 
 $cookies = $request->cookies;
 
-$cookies->setCookie('name', 'janhuang', time()+200);
+$cookies->setCookie('name', 'janhuang', time()+200, 'local');
 
 print_r($cookies->getCookie('name'));

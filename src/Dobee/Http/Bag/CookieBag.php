@@ -34,7 +34,7 @@ class CookieBag implements \Iterator, \Countable
     public function __construct(array $cookies)
     {
         foreach ($cookies as $name => $value) {
-            $this->setCookie($name, $value);
+            $this->setCookie($name, $value, 0, '', '', false, false, false);
         }
     }
 
@@ -46,11 +46,12 @@ class CookieBag implements \Iterator, \Countable
      * @param string $domain
      * @param bool $secure
      * @param bool $httpOnly
+     * @param bool $force
      * @return $this
      */
-    public function setCookie($name, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httpOnly = false)
+    public function setCookie($name, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httpOnly = false, $force = true)
     {
-        $this->cookies[$name] = new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        $this->cookies[$name] = new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly, $force);
 
         return $this;
     }

@@ -54,11 +54,6 @@ class Cookie implements CookieInterface
     protected $httpOnly = false;
 
     /**
-     * @var array
-     */
-    protected $serialized;
-
-    /**
      * @param $name
      * @param $value
      * @param int $expire
@@ -66,6 +61,7 @@ class Cookie implements CookieInterface
      * @param string $domain
      * @param bool $secure
      * @param bool $httpOnly
+     * @param bool $force
      */
     public function __construct(
         $name,
@@ -74,14 +70,11 @@ class Cookie implements CookieInterface
         $path = '/',
         $domain = '',
         $secure = false,
-        $httpOnly = false
+        $httpOnly = false,
+        $force = true
     )
     {
-        if (isset($_COOKIE[$name])) {
-            $this->unserialize($_COOKIE[$name]);
-        }
-
-        if (!$this->serialized) {
+        if ($force || !isset($_COOKIE[$name])) {
             $this->name     = $name;
             $this->value    = $value;
             $this->expire   = $expire;
@@ -89,17 +82,19 @@ class Cookie implements CookieInterface
             $this->domain   = $domain;
             $this->secure   = $secure;
             $this->httpOnly = $httpOnly;
-        }
 
-        setcookie(
-            $this->name,
-            $this->serialize(),
-            $this->expire,
-            $this->path,
-            $this->domain,
-            $this->secure,
-            $this->httpOnly
-        );
+            setcookie(
+                $this->name,
+                $this->serialize(),
+                $this->expire,
+                $this->path,
+                $this->domain,
+                $this->secure,
+                $this->httpOnly
+            );
+        } else {
+            $this->unserialize($_COOKIE[$name]);
+        }
     }
 
     /**
@@ -304,12 +299,12 @@ class Cookie implements CookieInterface
      */
     public function unserialize($serialized = null)
     {
-        $serialized = @unserialize($serialized);
-
-        if ($serialized) {
-            $this->serialized = $serialized;
-            foreach ($serialized as $name => $value) {
-                $this->$name = $value;
+        if (!empty($serialized)) {
+            $serialized = @unserialize($serialized);
+            if ($serialized) {
+                foreach ($serialized as $name => $value) {
+                    $this->$name = $value;
+                }
             }
         }
     }
