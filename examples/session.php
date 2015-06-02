@@ -23,7 +23,5 @@ $session = $request->getSession();
 
 echo '<pre>';
 
-$session->setSession('name', 'janhaung');
+//$session->setSession('name', 'janhaung');
 print_r($session);
-print_r($_SESSION);
-print_r($session->getSession('manager_info'));

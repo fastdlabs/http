@@ -18,6 +18,6 @@ $request = \Dobee\Http\Request::createGlobalRequest();
 
 $cookies = $request->cookies;
 
-$cookies->setCookie('name', 'janhuang', time()+200, 'local');
+//$cookies->setCookie('name', 'janhuang', time()+200, 'local');
 
 print_r($cookies->getCookie('name'));
