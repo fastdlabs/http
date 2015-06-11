@@ -15,7 +15,7 @@ namespace Dobee\Http;
 
 class RedirectResponse extends Response
 {
-    public function __construct($url = '', $status = 200, $headers = array())
+    public function __construct($url = '', $status = 302, $headers = array())
     {
         parent::__construct('', $status, $headers);
 

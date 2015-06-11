@@ -15,6 +15,10 @@ $composer = include __DIR__ . '/../vendor/autoload.php';
 
 $request = \Dobee\Http\Request::createGlobalRequest();
 
+$response = new \Dobee\Http\Response('demo');
+
+$response->send();
+
 print_r($_SERVER);
 
 print_r($request->headers);
