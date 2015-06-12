@@ -11,7 +11,7 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http\Session;
+namespace Dobee\Protocol\Http\Session;
 
 /**
  * Class SessionHandlerAbstract
@@ -26,16 +26,20 @@ abstract class SessionHandlerAbstract implements \SessionHandlerInterface
     abstract public function close();
 
     /**
+     * @param $session_id
      * @return bool
      */
     abstract public function destroy($session_id);
 
     /**
+     * @param $maxlifetime
      * @return bool
      */
     abstract public function gc($maxlifetime);
 
     /**
+     * @param $save_path
+     * @param $session_id
      * @return bool
      */
     abstract public function open($save_path, $session_id);
@@ -43,11 +47,14 @@ abstract class SessionHandlerAbstract implements \SessionHandlerInterface
     /**
      * Return session formatter string.
      *
+     * @param $session_id
      * @return string
      */
     abstract public function read($session_id);
 
     /**
+     * @param $session_id
+     * @param $session_data
      * @return bool
      */
     abstract public function write($session_id, $session_data);

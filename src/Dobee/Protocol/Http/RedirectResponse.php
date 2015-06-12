@@ -11,7 +11,7 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http;
+namespace Dobee\Protocol\Http;
 
 class RedirectResponse extends Response
 {

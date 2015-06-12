@@ -15,16 +15,12 @@ error_reporting(E_ALL);
 
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
-$request = \Dobee\Http\Request::createGlobalRequest();
+$request = \Dobee\Protocol\Http\Request::createRequestHandle();
 
 if ($request->isMethod('post')) {
     echo '<pre>';
 
-    foreach ($request->files as $key => $files) {
-        foreach($files as $name => $file) {
-            print_r($file);
-        }
-    }
+    print_r($request->files);
 }
 ?>
 
@@ -34,7 +30,7 @@ if ($request->isMethod('post')) {
     <meta charset="utf-8"/>
 </head>
 <body>
-<form action="" method="post" enctype="multipart/form-data">
+<form action="http://localhost/me/dobee/component/http/examples/file.php" method="post" enctype="multipart/form-data">
     <input type="file" name="file[]" id=""/>
     <input type="file" name="file[]" id=""/>
     <input type="file" name="file2" id=""/>

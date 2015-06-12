@@ -10,9 +10,9 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace Dobee\Http;
+namespace Dobee\Protocol\Http;
 
-use Dobee\Http\Bag\HeaderBag;
+use Dobee\Protocol\Http\Attribute\HeaderAttribute;
 
 class Response
 {
@@ -78,31 +78,43 @@ class Response
     const HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;                             // RFC6585
 
     /**
+     * Http response header
+     * 
      * @var
      */
-    public $headers;
+    public $header;
 
     /**
+     * Http response content.
+     * 
      * @var string
      */
     protected $content;
 
     /**
+     * Http protocol version
+     * 
      * @var string
      */
     protected $version = '1.1';
 
     /**
+     * Http response status code.
+     *
      * @var int
      */
     protected $statusCode;
 
     /**
+     * Http response status text.
+     *
      * @var string
      */
     protected $statusText;
 
     /**
+     * Http response charset.
+     *
      * @var string
      */
     protected $charset = 'utf-8';
@@ -194,7 +206,7 @@ class Response
      */
     public function __construct($content = '', $status = 200, array $headers = array())
     {
-        $this->headers = new HeaderBag($headers);
+        $this->header = new HeaderAttribute($headers);
         $this->setContent($content);
         $this->setStatusCode($status);
     }
@@ -214,7 +226,7 @@ class Response
         // status
         header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
 
-        foreach ($this->headers->all() as $name => $value) {
+        foreach ($this->header->all() as $name => $value) {
             header(sprintf('%s: %s', $name, $value), false, $this->statusCode);
         }
 
@@ -250,14 +262,6 @@ class Response
         }
 
         return $this;
-    }
-
-    /**
-     * @return float
-     */
-    public function getResponseTimestamp()
-    {
-        return microtime(true);
     }
 
     /**
@@ -422,7 +426,7 @@ class Response
      */
     public function isValidateable()
     {
-        return $this->headers->has('Last-Modified') || $this->headers->has('ETag');
+        return $this->header->has('Last-Modified') || $this->header->has('ETag');
     }
 
     /**
@@ -434,15 +438,20 @@ class Response
     {
     }
 
-    /**
-     * Marks the response stale by setting the Age header to be equal to the maximum age of the response.
-     *
-     * @return Response
-     *
-     * @api
-     */
-    public function expire()
+    public function setPrivate()
     {
+        $this->header->remove('Cache-Control');
+        $this->header->set('Cache-Control', 'private');
+
+        return $this;
+    }
+
+    public function setPublic()
+    {
+        $this->header->remove('Cache-Control');
+        $this->header->set('Cache-Control', 'public');
+
+        return $this;
     }
 
     /**
@@ -469,6 +478,10 @@ class Response
      */
     public function setExpires(\DateTime $date = null)
     {
+        $this->header->remove('Expires');
+        $this->header->set('Expires', $date->format('D, d M Y H:i:s').' GMT');
+
+        return $this;
     }
 
     /**
@@ -573,6 +586,7 @@ class Response
      */
     public function getLastModified()
     {
+        return $this->header->get('Last-Modified');
     }
 
     /**
@@ -588,6 +602,10 @@ class Response
      */
     public function setLastModified(\DateTime $date = null)
     {
+        $this->header->remove('Last-Modified');
+        $this->header->set('Last-Modified', $date->format('D, d M Y H:i:s').' GMT');
+
+        return $this;
     }
 
     /**
@@ -599,7 +617,7 @@ class Response
      */
     public function getEtag()
     {
-        return $this->headers->get('ETag');
+        return $this->header->get('ETag');
     }
 
     /**
@@ -614,6 +632,10 @@ class Response
      */
     public function setEtag($etag = null, $weak = false)
     {
+        $this->header->remove('Etag');
+        $this->header->set('ETag', (true === $weak ? 'W/' : '') . $etag);
+
+        return $this;
     }
 
     /**
@@ -653,14 +675,15 @@ class Response
 
         // remove headers that MUST NOT be included with 304 Not Modified responses
         foreach (array('Allow', 'Content-Encoding', 'Content-Language', 'Content-Length', 'Content-MD5', 'Content-Type', 'Last-Modified') as $header) {
-            $this->headers->remove($header);
+            $this->header->remove($header);
         }
 
         return $this;
     }
 
-    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
     /**
+     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+     *
      * Is response invalid?
      *
      * @return bool
@@ -779,7 +802,7 @@ class Response
      */
     public function isRedirect($location = null)
     {
-        return in_array($this->statusCode, array(201, 301, 302, 303, 307, 308)) && (null === $location ?: $location == $this->headers->get('Location'));
+        return in_array($this->statusCode, array(201, 301, 302, 303, 307, 308)) && (null === $location ?: $location == $this->header->get('Location'));
     }
 
     /**
@@ -793,4 +816,23 @@ class Response
     {
         return in_array($this->statusCode, array(204, 304));
     }
+
+    /**
+     * Returns the Response as an HTTP string.
+     *
+     * The string representation of the Response is the same as the
+     * one that will be sent to the client only if the prepare() method
+     * has been called before.
+     *
+     * @return string The Response as an HTTP string
+     *
+     * @see prepare()
+     */
+    /*public function __toString()
+    {
+        return
+            sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)."\r\n".
+            $this->header."\r\n".
+            $this->getContent();
+    }*/
 }

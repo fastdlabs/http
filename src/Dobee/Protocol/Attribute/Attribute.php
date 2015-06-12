@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/5/19
- * Time: 上午11:34
+ * Date: 15/6/12
+ * Time: 下午3:50
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -11,79 +11,89 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http\Session;
+namespace Dobee\Protocol\Attribute;
 
 /**
- * Class SessionBag
+ * Class AttributeAbstract
  *
- * @package Dobee\Http\Session
+ * @package Protocol\Attribute
  */
-class SessionBag implements \Iterator
+class Attribute implements \Iterator, \Countable
 {
     /**
-     * @var Session[]
+     * @var array
      */
-    protected $sessions = [];
+    protected $parameters = [];
 
     /**
-     * @param SessionHandlerAbstract $sessionHandler
+     * @param array $parameters
      */
-    public function __construct(SessionHandlerAbstract $sessionHandler = null)
+    public function __construct(array $parameters = [])
     {
-        if (null !== $sessionHandler) {
-            session_set_save_handler($sessionHandler, true);
-        }
-
-        session_start();
-
-        foreach ($_SESSION as $name => $value) {
-            $this->setSession($name, $value, 0, false);
-        }
+        $this->parameters = $parameters;
     }
 
     /**
      * @param $name
-     * @return Session
+     * @return bool
      */
-    public function getSession($name)
+    public function remove($name)
     {
-        if (!$this->hasSession($name)) {
-            throw new \InvalidArgumentException(sprintf('Session "%s" is undefined.', $name));
+        if ($this->has($name)) {
+            unset($this->parameters[$name]);
         }
 
-        return $this->sessions[$name];
+        return $this->has($name) ? false : true;
     }
 
     /**
-     * @param     $name
-     * @param     $value
-     * @param int $expire
-     * @param boolean $force
+     * @param $name
+     * @return string|int|array
+     */
+    public function get($name)
+    {
+        if (!$this->has($name)) {
+            throw new \InvalidArgumentException(sprintf('Attribute %s is undefined.', $name));
+        }
+
+        return $this->parameters[$name];
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function has($name)
+    {
+        return isset($this->parameters[$name]);
+    }
+
+    /**
+     * @param $name
+     * @param $value
      * @return $this
      */
-    public function setSession($name, $value, $expire = 0, $force = true)
+    public function set($name, $value)
     {
-        $this->sessions[$name] = new Session($name, $value, $expire, $force);
+        $this->parameters[$name] = $value;
 
         return $this;
     }
 
     /**
-     * @param $name
-     * @return bool
+     * @return array
      */
-    public function hasSession($name)
+    public function all()
     {
-        return isset($this->sessions[$name]);
+        return $this->parameters;
     }
 
     /**
-     * @param $name
-     * @return bool
+     * @return array
      */
-    public function removeSession($name)
+    public function keys()
     {
-        return $this->getSession($name)->clear();
+        return array_keys($this->parameters);
     }
 
     /**
@@ -95,7 +105,7 @@ class SessionBag implements \Iterator
      */
     public function current()
     {
-        return current($this->sessions);
+        return current($this->parameters);
     }
 
     /**
@@ -107,7 +117,7 @@ class SessionBag implements \Iterator
      */
     public function next()
     {
-        next($this->sessions);
+        next($this->parameters);
     }
 
     /**
@@ -119,7 +129,7 @@ class SessionBag implements \Iterator
      */
     public function key()
     {
-        return key($this->sessions);
+        return key($this->parameters);
     }
 
     /**
@@ -132,7 +142,7 @@ class SessionBag implements \Iterator
      */
     public function valid()
     {
-        return isset($this->sessions[$this->key()]);
+        return isset($this->parameters[$this->key()]);
     }
 
     /**
@@ -144,6 +154,21 @@ class SessionBag implements \Iterator
      */
     public function rewind()
     {
-        reset($this->sessions);
+        reset($this->parameters);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.1.0)<br/>
+     * Count elements of an object
+     *
+     * @link http://php.net/manual/en/countable.count.php
+     * @return int The custom count as an integer.
+     *       </p>
+     *       <p>
+     *       The return value is cast to an integer.
+     */
+    public function count()
+    {
+        return count($this->parameters);
     }
 }

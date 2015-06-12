@@ -1,0 +1,156 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: janhuang
+ * Date: 15/6/12
+ * Time: 下午3:58
+ * Github: https://www.github.com/janhuang 
+ * Coding: https://www.coding.net/janhuang
+ * SegmentFault: http://segmentfault.com/u/janhuang
+ * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
+ */
+
+namespace Dobee\Protocol\Http\Attribute;
+
+use Dobee\Protocol\Attribute\Attribute;
+
+/**
+ * Class ServerAttribute
+ *
+ * @package Dobee\Protocol\Http\Attribute
+ */
+class ServerAttribute extends Attribute
+{
+    /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->has('REQUEST_FORMAT') ? $this->get('REQUEST_FORMAT') : $this->prepareFormat();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders()
+    {
+        $headers = array();
+
+        foreach ($this->all() as $key => $value) {
+            if (0 === strpos($key, 'HTTP_')) {
+                $headers[substr($key, 5)] = $value;
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPathInfo()
+    {
+        $pathInfo = $this->has('PATH_INFO') ? $this->get('PATH_INFO') : $this->preparePathInfo();
+
+        if ('' != pathinfo($pathInfo, PATHINFO_EXTENSION)) {
+            $pathInfo = substr($pathInfo, 0, strpos($pathInfo, '.'));
+        }
+
+        return $pathInfo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestUri()
+    {
+        return $this->has('REQUEST_URI') ? $this->get('REQUEST_URI') : $this->prepareRequestUri();
+    }
+
+    /**
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->get('SCRIPT_NAME');
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function getRequestTime()
+    {
+        if (!$this->has('REQUEST_TIME_FLOAT')) {
+            $this->set('REQUEST_TIME_FLOAT', microtime(true));
+        }
+
+        return $this->get('REQUEST_TIME_FLOAT');
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function prepareRequestUri()
+    {
+        return $this->get('PHP_SELF');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function preparePathInfo()
+    {
+        if ($this->get('REQUEST_URI') === $this->get('SCRIPT_NAME') || $this->get('REQUEST_URI') === pathinfo($this->get('SCRIPT_NAME'), PATHINFO_DIRNAME) . '/') {
+            return '/';
+        }
+
+        return str_replace($this->get('SCRIPT_NAME'), '', $this->get('REQUEST_URI'));
+    }
+
+    /**
+     * @return string
+     */
+    public function prepareFormat()
+    {
+        $pathInfo = $this->has('PATH_INFO') ? $this->get('PATH_INFO') : $this->preparePathInfo();
+
+        $format = '' == ($format = pathinfo($pathInfo, PATHINFO_EXTENSION)) ? 'php' : $format;
+
+        $this->set('REQUEST_FORMAT', $format);
+
+        return $format;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClientIp()
+    {
+        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        }
+
+        if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+
+        if(isset($_SERVER['HTTP_X_FORWARDED'])) {
+            return $_SERVER['HTTP_X_FORWARDED'];
+        }
+
+        if(isset($_SERVER['HTTP_FORWARDED_FOR'])) {
+            return $_SERVER['HTTP_FORWARDED_FOR'];
+        }
+
+        if(isset($_SERVER['HTTP_FORWARDED'])) {
+            return $_SERVER['HTTP_FORWARDED'];
+        }
+
+        if(isset($_SERVER['REMOTE_ADDR'])) {
+            return $_SERVER['REMOTE_ADDR'];
+        }
+
+        return 'unknown';
+    }
+}

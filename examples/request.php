@@ -11,22 +11,8 @@
  */
 error_reporting(E_ALL);
 echo '<pre>';
-$composer = include __DIR__ . '/../vendor/autoload.php';
+include __DIR__ . '/../vendor/autoload.php';
 
-$request = \Dobee\Http\Request::createGlobalRequest();
+$request = \Dobee\Protocol\Http\Request::createRequestHandle();
 
-$response = new \Dobee\Http\Response('demo');
-
-$response->send();
-
-print_r($_SERVER);
-
-print_r($request->headers);
-
-echo 'Base Url: ' . $request->getBaseUrl() . '<br />';
-
-echo 'Path Info: ' . $request->getPathInfo() . '<br />';
-
-echo 'Request Uri: ' . $request->getRequestUri() . '<br />';
-
-echo 'Format: ' . $request->getFormat() . '<br />';
+print_r($request->request->get('name'));

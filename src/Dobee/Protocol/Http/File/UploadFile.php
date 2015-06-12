@@ -1,0 +1,116 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: janhuang
+ * Date: 15/6/12
+ * Time: 下午3:56
+ * Github: https://www.github.com/janhuang 
+ * Coding: https://www.coding.net/janhuang
+ * SegmentFault: http://segmentfault.com/u/janhuang
+ * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
+ */
+
+namespace Dobee\Protocol\Http\File;
+
+/**
+ * Class UploadFile
+ *
+ * @package Dobee\Protocol\Attribute\File
+ */
+class UploadFile
+{
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var string
+     */
+    protected $type;
+
+    /**
+     * @var string
+     */
+    protected $tmpName;
+
+    /**
+     * @var int
+     */
+    protected $size;
+
+    /**
+     * @var int
+     */
+    protected $error;
+
+    /**
+     * @var string
+     */
+    protected $hash;
+
+    /**
+     * @param $name
+     * @param $type
+     * @param $tmpName
+     * @param $size
+     * @param int $error
+     */
+    public function __construct($name, $type, $tmpName, $size, $error)
+    {
+        $this->name = $name;
+        $this->type = $type;
+        $this->size = $size;
+        $this->tmpName = $tmpName;
+        $this->hash = md5($name . $type . $size);
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTmpName()
+    {
+        return $this->tmpName;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHash()
+    {
+        return $this->hash;
+    }
+
+    /**
+     * @return int
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+}

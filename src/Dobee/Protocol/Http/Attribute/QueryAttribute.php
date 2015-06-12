@@ -1,19 +1,21 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: JanHuang
- * Date: 2015/3/1
- * Time: 15:07
- * Email: bboyjanhuang@gmail.com
+ * User: janhuang
+ * Date: 15/6/12
+ * Time: 下午3:58
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace Dobee\Http\Session;
+namespace Dobee\Protocol\Http\Attribute;
 
-class SessionException extends \Exception
+use Dobee\Protocol\Attribute\Attribute;
+
+class QueryAttribute extends Attribute
 {
 
 }

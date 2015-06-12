@@ -10,16 +10,17 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace Dobee\Http;
+namespace Dobee\Protocol\Http;
 
-use Dobee\Http\Bag\CookieBag;
-use Dobee\Http\Bag\FilesBag;
-use Dobee\Http\Bag\HeaderBag;
-use Dobee\Http\Bag\ParametersBag;
-use Dobee\Http\Bag\ServerBag;
-use Dobee\Http\Session\SessionHandler;
-use Dobee\Http\Session\SessionBag;
-use Dobee\Http\Session\SessionHandlerAbstract;
+use Dobee\Protocol\Http\Session\Session;
+use Dobee\Protocol\Http\Attribute\FilesAttribute;
+use Dobee\Protocol\Http\Attribute\CookiesAttribute;
+use Dobee\Protocol\Http\Attribute\HeaderAttribute;
+use Dobee\Protocol\Http\Attribute\QueryAttribute;
+use Dobee\Protocol\Http\Attribute\RequestAttribute;
+use Dobee\Protocol\Http\Attribute\ServerAttribute;
+use Dobee\Protocol\Http\Launcher\RequestLauncher;
+use Dobee\Protocol\Http\Session\SessionHandlerAbstract;
 
 /**
  * Class Request
@@ -29,37 +30,55 @@ use Dobee\Http\Session\SessionHandlerAbstract;
 class Request
 {
     /**
-     * @var ParametersBag
+     * $_GET
+     *
+     * @var QueryAttribute
      */
     public $query;
 
     /**
-     * @var ParametersBag
+     * $_POST
+     *
+     * @var QueryAttribute
      */
     public $request;
 
     /**
-     * @var FilesBag
+     * $_FILES
+     *
+     * @var QueryAttribute
      */
     public $files;
 
     /**
-     * @var CookieBag
+     * $_COOKIE
+     *
+     * @var QueryAttribute
      */
     public $cookies;
 
     /**
-     * @var ServerBag
+     * $_SERVER
+     *
+     * @var QueryAttribute
      */
     public $server;
 
     /**
-     * @var HeaderBag
+     * Http request headers or response headers.
+     *
+     * new HeaderAttribute($sever->getHeaders());
+     *
+     * @var QueryAttribute
      */
-    public $headers;
+    public $header;
 
     /**
-     * @var SessionBag
+     * Session management.
+     *
+     * $_SESSION
+     *
+     * @var QueryAttribute
      */
     protected $session;
 
@@ -74,6 +93,13 @@ class Request
     private static $requestFactory;
 
     /**
+     * Allow request methods.
+     *
+     * @var array
+     */
+    protected $methods = ['GET', 'POST', 'PUT', 'HEAD', 'OPTIONS', 'PATCH', 'DELETE', 'TRACE', 'PURGE'];
+
+    /**
      * The http request is has once request object.
      *
      * @param $get
@@ -84,12 +110,12 @@ class Request
      */
     private function __construct($get, $post, $files, $cookie, $server)
     {
-        $this->query    = new ParametersBag($get);
-        $this->request  = new ParametersBag($post);
-        $this->files    = new FilesBag($files);
-        $this->cookies  = new CookieBag($cookie);
-        $this->server   = new ServerBag($server);
-        $this->headers  = new HeaderBag($this->server->getHeaders());
+        $this->query    = new QueryAttribute($get);
+        $this->request  = new RequestAttribute($post);
+        $this->files    = new FilesAttribute($files);
+        $this->cookies  = new CookiesAttribute($cookie);
+        $this->server   = new ServerAttribute($server);
+        $this->header   = new HeaderAttribute($this->server->getHeaders());
     }
 
     /**
@@ -105,7 +131,7 @@ class Request
      */
     public function getHttpAndHost()
     {
-        return $this->getSchema() . '://' . $this->getHost();
+        return ('' == ($schema = $this->getSchema()) ? '//' : ($schema . '://')) . $this->getHost();
     }
 
     /**
@@ -187,7 +213,7 @@ class Request
      */
     public function isXmlHttpRequest()
     {
-        return 'xmlhttprequest' === strtolower($this->headers->get('X-Requested-With'));
+        return 'xmlhttprequest' === strtolower($this->server->get('X-Requested-With'));
     }
 
     /**
@@ -201,33 +227,22 @@ class Request
 
     /**
      * @param SessionHandlerAbstract $sessionHandler
-     * @return SessionBag
+     * @return Session
      */
     public function getSession(SessionHandlerAbstract $sessionHandler = null)
     {
         if (null === $this->session) {
-            $this->session = new SessionBag($sessionHandler);
+            $this->session = new Session($sessionHandler);
         }
 
         return $this->session;
     }
 
     /**
-     * @param bool $asResource
      * @return resource|string
      */
-    public function getContent($asResource = false)
+    public function getContent()
     {
-        if (false === $this->content || (true === $asResource && null !== $this->content)) {
-            throw new \LogicException('getContent() can only be called once when using the resource return type.');
-        }
-
-        if (true === $asResource) {
-            $this->content = false;
-
-            return fopen('php://input', 'rb');
-        }
-
         if (null === $this->content) {
             $this->content = file_get_contents('php://input');
         }
@@ -236,21 +251,33 @@ class Request
     }
 
     /**
+     * Create one http request handle.
+     *
      * @return Request|static
      */
-    public static function createGlobalRequest()
+    public static function createRequestHandle()
     {
         if (null === self::$requestFactory) {
             self::$requestFactory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
 
-            if (0 === strpos(self::$requestFactory->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
-                && in_array(strtoupper(self::$requestFactory->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
+            if (in_array(self::$requestFactory->server->get('REQUEST_METHOD'), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
             ) {
-                parse_str(self::$requestFactory->getContent(), $data);
-                self::$requestFactory->request = new ParametersBag($data);
+                parse_str(self::$requestFactory->getContent(), $arguments);
+                self::$requestFactory->request = new RequestAttribute($arguments);
             }
         }
 
         return self::$requestFactory;
+    }
+
+    /**
+     * @param        $url
+     * @param array  $arguments
+     * @param int    $timeout
+     * @return RequestLauncher
+     */
+    public function createRequest($url, array $arguments = array(), $timeout = 3)
+    {
+        return new RequestLauncher($url, $arguments, $timeout);
     }
 }

@@ -10,7 +10,7 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace Dobee\Http;
+namespace Dobee\Protocol\Http;
 
 /**
  * Class JsonResponse

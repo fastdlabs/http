@@ -2,20 +2,20 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/5/18
- * Time: 下午11:42
+ * Date: 15/6/12
+ * Time: 下午3:57
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
  * Gmail: bboyjanhuang@gmail.com
  */
-echo '<pre>';
 
-$composer = include __DIR__ . '/../vendor/autoload.php';
+namespace Dobee\Protocol\Http\Attribute;
 
-$request = \Dobee\Protocol\Http\Request::createRequestHandle();
+use Dobee\Protocol\Attribute\Attribute;
 
-$cookies = $request->cookies;
+class HeaderAttribute extends Attribute
+{
 
-//print_r($cookies->get('mz_id'));
+}
