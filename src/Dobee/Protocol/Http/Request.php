@@ -103,6 +103,20 @@ class Request
      */
     public function __construct($get, $post, $files, $cookie, $server)
     {
+        $this->initialize($get, $post, $files, $cookie, $server);
+    }
+
+    /**
+     * The http request is has once request object.
+     *
+     * @param $get
+     * @param $post
+     * @param $files
+     * @param $cookie
+     * @param $server
+     */
+    public function initialize($get, $post, $files, $cookie, $server)
+    {
         $this->query    = new QueryAttribute($get);
         $this->request  = new RequestAttribute($post);
         $this->files    = new FilesAttribute($files);

@@ -13,7 +13,12 @@
 
 namespace Dobee\Protocol\Http\Tests;
 
+use Dobee\Protocol\Http\Request;
+
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
-
+    public function testInitialize()
+    {
+        $request = new Request();
+    }
 }

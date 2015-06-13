@@ -11,7 +11,7 @@
         <ini name="error_reporting" value="-16385"/>
     </php>
     <testsuites>
-        <testsuite name="Dobee php simple framework Routing Component Tests">
+        <testsuite name="Dobee Protocol Testing">
             <directory>./src/Dobee/Protocol/*/Tests/</directory>
         </testsuite>
     </testsuites>
