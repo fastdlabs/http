@@ -13,39 +13,122 @@
 
 namespace Dobee\Protocol\Http\File\Uploaded;
 
+use Dobee\Protocol\Http\File\UploadFile;
+
+/**
+ * Class Uploaded
+ *
+ * @package Dobee\Protocol\Http\File\Uploaded
+ */
 class Uploaded implements UploadedInterface
 {
+    /**
+     * @var array
+     */
     private $regularErrors = [];
 
-    private $errors;
+    /**
+     * @var array
+     */
+    private $uploadedErrors;
 
+    /**
+     * @var array
+     */
+    private $uploadedInfo;
+
+    /**
+     * @var array
+     */
     protected $config;
 
-    public function __construct(array $config)
+    /**
+     * @var UploadFile[]
+     */
+    protected $files;
+
+    public function __construct(array $config, array $files)
     {
         $this->config = $config;
+        $this->files = $files;
     }
 
     public function upload()
     {
-
+        foreach ($this->files as $file) {
+            $moveFile = $this->config['save.path'] . DIRECTORY_SEPARATOR . $file->getHash() . '.' . $file->getOriginalExtension();
+            if (file_exists($moveFile)) {
+                continue;
+            }
+            if (move_uploaded_file($file->getTmpName(), $moveFile)) {
+                $this->uploadedInfo[$file->getName()] = [
+                    'save.dir'  => $this->config['save.path'],
+                    'save.name' => $file->getHash() . '.' . $file->getOriginalExtension(),
+                    'save.path' => $moveFile,
+                    'save.date' => date('Y-m-d H:i:s')
+                ];
+            } else {
+                
+            }
+        }
     }
 
+    /**
+     * @return array
+     */
     public function getUploadInfo()
     {
-
+        return $this->uploadedInfo;
     }
 
+    /**
+     * @return array
+     */
     public function getErrorInfo()
     {
+        return $this->uploadedErrors;
+    }
 
+    /**
+     * Target save directory. If dir is not exists. Tray make it.
+     *
+     * @param $directory
+     * @return bool
+     */
+    public function targetDirectory($directory)
+    {
+        if (!is_dir($directory)) {
+            if (false === mkdir($directory, 0777, true)) {
+                throw new \RuntimeException(sprintf('Unable to create the "%s" directory', $directory));
+            }
+        } else if (!is_writeable($directory)) {
+            throw new \RuntimeException(sprintf('Unable to create the "%s" directory', $directory));
+        }
+
+        return true;
     }
 
     /**
      * @return bool
      */
-    public function verify()
+    public function isValid()
     {
+        if (empty($this->config['save.path'])) {
+            throw new \RuntimeException('Upload file save path is cannot empty.');
+        }
 
+        foreach ($this->files as $file) {
+            if ($file->getSize() > $this->config['max.size']) {
+                throw new \RuntimeException(sprintf('The file %s size is over the range.', $file->getName()));
+            }
+
+            if (!in_array($file->getMimeType(), $this->config['allow.ext'])) {
+                throw new \RuntimeException(sprintf('The file %s extension is invalid.', $file->getMimeType()));
+            }
+        }
+
+        $this->targetDirectory($this->config['save.path']);
+
+        return true;
     }
 }

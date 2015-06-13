@@ -28,7 +28,7 @@ class UploadFile
     /**
      * @var string
      */
-    protected $type;
+    protected $mimeType;
 
     /**
      * @var string
@@ -52,18 +52,26 @@ class UploadFile
 
     /**
      * @param $name
-     * @param $type
+     * @param $mimeType
      * @param $tmpName
      * @param $size
      * @param int $error
      */
-    public function __construct($name, $type, $tmpName, $size, $error)
+    public function __construct($name, $mimeType, $tmpName, $size, $error)
     {
         $this->name = $name;
-        $this->type = $type;
+        $this->mimeType = $mimeType;
         $this->size = $size;
         $this->tmpName = $tmpName;
-        $this->hash = md5($name . $type . $size);
+        $this->hash = md5($name . $mimeType . $size);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOriginalExtension()
+    {
+        return pathinfo($this->getName(), PATHINFO_EXTENSION);
     }
 
     /**
@@ -77,9 +85,9 @@ class UploadFile
     /**
      * @return string
      */
-    public function getType()
+    public function getMimeType()
     {
-        return $this->type;
+        return $this->mimeType;
     }
 
     /**

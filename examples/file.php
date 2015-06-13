@@ -22,11 +22,12 @@ if ($request->isMethod('post')) {
 
     print_r($request->files);
 
-    print_r($request->files->getUploader([
-        'max.size' => '2M',
-        'allow.types' => ['jpeg'],
-        'save.path' => __DIR__ . '/',
-    ]));
+    $uploaded = $request->files->getUploader([
+        'max.size' => '10M',
+        'save.path' => __DIR__,
+    ]);
+
+    $uploaded->uploading();
 }
 ?>
 

@@ -22,8 +22,9 @@ interface UploadedInterface
 {
     /**
      * @param array $config
+     * @param array $files
      */
-    public function __construct(array $config);
+    public function __construct(array $config, array $files);
 
     /**
      * @return bool
@@ -43,5 +44,5 @@ interface UploadedInterface
     /**
      * @return bool
      */
-    public function verify();
+    public function isValid();
 }
