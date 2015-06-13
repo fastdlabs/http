@@ -38,7 +38,7 @@ class CookiesAttribute extends Attribute
      * @param Cookie $cookie
      * @return $this
      */
-    public function set($name, Cookie $cookie)
+    public function set($name, $cookie)
     {
         return parent::set($name, $cookie);
     }

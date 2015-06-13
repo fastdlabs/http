@@ -14,6 +14,7 @@
 namespace Dobee\Protocol\Http\Attribute;
 
 use Dobee\Protocol\Attribute\Attribute;
+use Dobee\Protocol\Http\File\Uploaded\Uploader;
 use Dobee\Protocol\Http\File\UploadFile;
 
 /**
@@ -49,5 +50,14 @@ class FilesAttribute extends Attribute
 
             $this->set($name, new UploadFile($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
         }
+    }
+
+    /**
+     * @param array $config
+     * @return Uploader
+     */
+    public function getUploader(array $config = [])
+    {
+        return new Uploader($config, $this->all());
     }
 }

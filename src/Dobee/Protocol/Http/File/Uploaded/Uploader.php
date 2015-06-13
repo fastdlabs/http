@@ -1,0 +1,84 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: janhuang
+ * Date: 15/6/13
+ * Time: 下午12:05
+ * Github: https://www.github.com/janhuang 
+ * Coding: https://www.coding.net/janhuang
+ * SegmentFault: http://segmentfault.com/u/janhuang
+ * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
+ */
+
+namespace Dobee\Protocol\Http\File\Uploaded;
+
+/**
+ * Class Uploader
+ *
+ * @package Dobee\Protocol\Http\File\Uploaded
+ */
+class Uploader
+{
+    /**
+     * @var array
+     */
+    private $files;
+
+    /**
+     * @var UploadedInterface
+     */
+    private $uploaded;
+
+    /**
+     * @var array
+     */
+    private $config;
+
+    /**
+     * @param array $config
+     * @param array $files
+     */
+    public function __construct(array $config, array $files)
+    {
+        $this->config= $config;
+        $this->files = $files;
+    }
+
+    /**
+     * @param UploadedInterface $uploaded
+     * @return bool|void
+     * @throws \Exception
+     */
+    public function uploading(UploadedInterface $uploaded = null)
+    {
+        if (null !== $uploaded) {
+            $this->uploaded = $uploaded;
+        } else {
+            $this->uploaded = new Uploaded($this->config);
+        }
+
+        try {
+            $this->uploaded->verify();
+            return $this->uploaded->upload();
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getUploadedInfo()
+    {
+        return $this->uploaded->getUploadInfo();
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorInfo()
+    {
+        return $this->uploaded->getErrorInfo();
+    }
+}

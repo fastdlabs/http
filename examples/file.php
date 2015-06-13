@@ -21,6 +21,12 @@ if ($request->isMethod('post')) {
     echo '<pre>';
 
     print_r($request->files);
+
+    print_r($request->files->getUploader([
+        'max.size' => '2M',
+        'allow.types' => ['jpeg'],
+        'save.path' => __DIR__ . '/',
+    ]));
 }
 ?>
 
@@ -30,7 +36,7 @@ if ($request->isMethod('post')) {
     <meta charset="utf-8"/>
 </head>
 <body>
-<form action="http://localhost/me/dobee/component/http/examples/file.php" method="post" enctype="multipart/form-data">
+<form action="" method="post" enctype="multipart/form-data">
     <input type="file" name="file[]" id=""/>
     <input type="file" name="file[]" id=""/>
     <input type="file" name="file2" id=""/>

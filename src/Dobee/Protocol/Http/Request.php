@@ -295,6 +295,14 @@ class Request
     }
 
     /**
+     * @return File\Uploaded\Uploader
+     */
+    public function getUploader()
+    {
+        return $this->files->getUploader();
+    }
+
+    /**
      * @return resource|string
      */
     public function getContent()

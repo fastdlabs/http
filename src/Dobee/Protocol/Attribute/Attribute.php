@@ -48,15 +48,28 @@ class Attribute implements \Iterator, \Countable
 
     /**
      * @param $name
+     * @param bool $raw
+     * @param $callback
      * @return string|int|array
      */
-    public function get($name)
+    public function get($name, $raw = false, $callback = null)
     {
         if (!$this->has($name)) {
             throw new \InvalidArgumentException(sprintf('Attribute %s is undefined.', $name));
         }
 
-        return $this->parameters[$name];
+        $parameter = $this->parameters[$name];
+
+        if (!$raw) {
+            preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<iframe.*?\>.*?\<\/iframe.*?\>)/ui', '', $parameter);
+            $parameter = strip_tags($parameter);
+        }
+
+        if (is_callable($callback)) {
+            $parameter = $callback($parameter);
+        }
+
+        return $parameter;
     }
 
     /**
