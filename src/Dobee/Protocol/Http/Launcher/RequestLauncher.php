@@ -40,7 +40,7 @@ class RequestLauncher
     /**
      * @var int
      */
-    private $timeout = 3;
+    private $timeout = 5;
 
     /**
      * @var array
@@ -114,7 +114,7 @@ class RequestLauncher
      * @param int    $timeout
      * @param array  $headers
      */
-    public function __construct($url, array $arguments = [], $timeout = 3, array $headers = [])
+    public function __construct($url, array $arguments = [], $timeout = 5, array $headers = [])
     {
         $this->setUrl($url);
 

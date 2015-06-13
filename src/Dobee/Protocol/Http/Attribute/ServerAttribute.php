@@ -100,7 +100,7 @@ class ServerAttribute extends Attribute
     /**
      * @return bool|string
      */
-    public function prepareRequestUri()
+    protected function prepareRequestUri()
     {
         return $this->get('PHP_SELF');
     }
@@ -108,7 +108,7 @@ class ServerAttribute extends Attribute
     /**
      * @return string
      */
-    public function preparePathInfo()
+    protected function preparePathInfo()
     {
         $baseUrl = $this->getBaseUrl();
 
@@ -130,7 +130,7 @@ class ServerAttribute extends Attribute
     /**
      * @return string
      */
-    public function prepareFormat()
+    protected function prepareFormat()
     {
         $pathInfo = $this->has('PATH_INFO') ? $this->get('PATH_INFO') : $this->preparePathInfo();
 
@@ -146,7 +146,7 @@ class ServerAttribute extends Attribute
      */
     public function getClientIp()
     {
-        foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED'] as $value) {
+        foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'] as $value) {
             if ($this->has($value)) {
                 return $this->get($value);
             }
