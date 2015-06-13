@@ -101,7 +101,7 @@ class Request
      * @param $cookie
      * @param $server
      */
-    public function __construct($get, $post, $files, $cookie, $server)
+    public function __construct(array $get = [], array $post = [], array $files = [], array $cookie = [], array $server = [])
     {
         $this->initialize($get, $post, $files, $cookie, $server);
     }
@@ -115,7 +115,7 @@ class Request
      * @param $cookie
      * @param $server
      */
-    public function initialize($get, $post, $files, $cookie, $server)
+    public function initialize(array $get = [], array $post = [], array $files = [], array $cookie = [], array $server = [])
     {
         $this->query    = new QueryAttribute($get);
         $this->request  = new RequestAttribute($post);

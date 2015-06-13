@@ -61,7 +61,7 @@ class Attribute implements \Iterator, \Countable
         $parameter = $this->parameters[$name];
 
         if (!$raw) {
-            preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<iframe.*?\>.*?\<\/iframe.*?\>)/ui', '', $parameter);
+            preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $parameter);
             $parameter = strip_tags($parameter);
         }
 
