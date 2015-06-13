@@ -12,7 +12,7 @@
     </php>
     <testsuites>
         <testsuite name="Dobee php simple framework Routing Component Tests">
-            <directory>./src/Dobee/Http/Tests/</directory>
+            <directory>./src/Dobee/Protocol/*/Tests/</directory>
         </testsuite>
     </testsuites>
 </phpunit>

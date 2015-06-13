@@ -101,7 +101,7 @@ class Request
      * @param $cookie
      * @param $server
      */
-    private function __construct($get, $post, $files, $cookie, $server)
+    public function __construct($get, $post, $files, $cookie, $server)
     {
         $this->query    = new QueryAttribute($get);
         $this->request  = new RequestAttribute($post);
