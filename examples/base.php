@@ -15,4 +15,8 @@ include __DIR__ . '/../vendor/autoload.php';
 $request = \Dobee\Protocol\Http\Request::createRequestHandle();
 
 echo '<pre>';
-print_r($request);
+print_r($_SERVER);
+var_dump($request->isXmlHttpRequest());
+var_dump($request->getMethod());
+var_dump($request->getPathInfo());
+var_dump($request->getFormat());

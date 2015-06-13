@@ -120,7 +120,7 @@ class Request
     }
 
     /**
-     * @return array|int|string
+     * @return string
      */
     public function getDomain()
     {
@@ -190,7 +190,7 @@ class Request
      */
     public function isXmlHttpRequest()
     {
-        return 'xmlhttprequest' === strtolower($this->header->get('X-Requested-With'));
+        return $this->header->has('X-Requested-With') ? 'xmlhttprequest' === strtolower($this->header->get('X-Requested-With')) : false;
     }
 
     /**

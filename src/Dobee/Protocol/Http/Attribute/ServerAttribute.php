@@ -22,6 +22,8 @@ use Dobee\Protocol\Attribute\Attribute;
  */
 class ServerAttribute extends Attribute
 {
+    protected $pathInfo;
+
     /**
      * @return string
      */
@@ -51,13 +53,20 @@ class ServerAttribute extends Attribute
      */
     public function getPathInfo()
     {
+        if ($this->pathInfo) {
+            return $this->pathInfo;
+        }
+
         $pathInfo = $this->has('PATH_INFO') ? $this->get('PATH_INFO') : $this->preparePathInfo();
 
         if ('' != pathinfo($pathInfo, PATHINFO_EXTENSION)) {
             $pathInfo = substr($pathInfo, 0, strpos($pathInfo, '.'));
         }
 
-        return $pathInfo;
+        $this->pathInfo = $pathInfo;
+        unset($pathInfo);
+
+        return $this->pathInfo;
     }
 
     /**
@@ -97,15 +106,25 @@ class ServerAttribute extends Attribute
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function preparePathInfo()
     {
-        if ($this->get('REQUEST_URI') === $this->get('SCRIPT_NAME') || $this->get('REQUEST_URI') === pathinfo($this->get('SCRIPT_NAME'), PATHINFO_DIRNAME) . '/') {
+        $baseUrl = $this->getBaseUrl();
+
+        if (null === $baseUrl || null === ($requestUri = $this->getRequestUri()) || $baseUrl === $requestUri) {
             return '/';
         }
 
-        return str_replace($this->get('SCRIPT_NAME'), '', $this->get('REQUEST_URI'));
+        if (false !== ($pos = strpos($requestUri, '?'))) {
+            $requestUri = substr($requestUri, 0, $pos);
+        }
+
+        if (false === ($pathInfo = substr($requestUri, strlen($baseUrl)))) {
+            return '/';
+        }
+
+        return $pathInfo;
     }
 
     /**
@@ -127,28 +146,10 @@ class ServerAttribute extends Attribute
      */
     public function getClientIp()
     {
-        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
-        }
-
-        if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return $_SERVER['HTTP_X_FORWARDED_FOR'];
-        }
-
-        if(isset($_SERVER['HTTP_X_FORWARDED'])) {
-            return $_SERVER['HTTP_X_FORWARDED'];
-        }
-
-        if(isset($_SERVER['HTTP_FORWARDED_FOR'])) {
-            return $_SERVER['HTTP_FORWARDED_FOR'];
-        }
-
-        if(isset($_SERVER['HTTP_FORWARDED'])) {
-            return $_SERVER['HTTP_FORWARDED'];
-        }
-
-        if(isset($_SERVER['REMOTE_ADDR'])) {
-            return $_SERVER['REMOTE_ADDR'];
+        foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED'] as $value) {
+            if ($this->has($value)) {
+                return $this->get($value);
+            }
         }
 
         return 'unknown';
