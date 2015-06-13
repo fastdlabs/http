@@ -32,14 +32,9 @@ interface UploadedInterface
     public function upload();
 
     /**
-     * @return array
+     * @return \Dobee\Protocol\Http\File\File[]
      */
-    public function getUploadInfo();
-
-    /**
-     * @return array
-     */
-    public function getErrorInfo();
+    public function getUploadFiles();
 
     /**
      * @return bool

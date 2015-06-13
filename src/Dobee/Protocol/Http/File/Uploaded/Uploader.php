@@ -66,7 +66,7 @@ class Uploader
 
     /**
      * @param UploadedInterface $uploaded
-     * @return bool|void
+     * @return UploadedInterface
      * @throws \Exception
      */
     public function uploading(UploadedInterface $uploaded = null)
@@ -83,21 +83,5 @@ class Uploader
         } catch (\Exception $e) {
             throw $e;
         }
-    }
-
-    /**
-     * @return array
-     */
-    public function getUploadedInfo()
-    {
-        return $this->uploaded->getUploadInfo();
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrorInfo()
-    {
-        return $this->uploaded->getErrorInfo();
     }
 }

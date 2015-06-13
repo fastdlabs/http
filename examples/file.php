@@ -20,14 +20,14 @@ $request = \Dobee\Protocol\Http\Request::createRequestHandle();
 if ($request->isMethod('post')) {
     echo '<pre>';
 
-    print_r($request->files);
-
     $uploaded = $request->files->getUploader([
         'max.size' => '10M',
-        'save.path' => __DIR__,
+        'save.path' => __DIR__ . '/uploaded',
     ]);
 
-    $uploaded->uploading();
+    $uploadFiles = $uploaded->uploading()->getUploadFiles();
+
+    print_r($uploadFiles);
 }
 ?>
 

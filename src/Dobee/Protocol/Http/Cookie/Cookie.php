@@ -222,12 +222,7 @@ class Cookie implements \Serializable
         return $this;
     }
 
-    /**
-     * Returns the cookie as a string.
-     *
-     * @return string The cookie
-     */
-    public function __toString()
+    public function asString()
     {
         $str = urlencode($this->getName()) . '=';
 
@@ -258,6 +253,16 @@ class Cookie implements \Serializable
         }
 
         return $str;
+    }
+
+    /**
+     * Returns the cookie's value.
+     *
+     * @return string The cookie value
+     */
+    public function __toString()
+    {
+        return (string)$this->value;
     }
 
     /**

@@ -13,6 +13,7 @@
 
 namespace Dobee\Protocol\Http\File\Uploaded;
 
+use Dobee\Protocol\Http\File\File;
 use Dobee\Protocol\Http\File\UploadFile;
 
 /**
@@ -22,16 +23,6 @@ use Dobee\Protocol\Http\File\UploadFile;
  */
 class Uploaded implements UploadedInterface
 {
-    /**
-     * @var array
-     */
-    private $regularErrors = [];
-
-    /**
-     * @var array
-     */
-    private $uploadedErrors;
-
     /**
      * @var array
      */
@@ -61,32 +52,22 @@ class Uploaded implements UploadedInterface
                 continue;
             }
             if (move_uploaded_file($file->getTmpName(), $moveFile)) {
-                $this->uploadedInfo[$file->getName()] = [
-                    'save.dir'  => $this->config['save.path'],
-                    'save.name' => $file->getHash() . '.' . $file->getOriginalExtension(),
-                    'save.path' => $moveFile,
-                    'save.date' => date('Y-m-d H:i:s')
-                ];
-            } else {
-                
+                $uploadFile = new File($moveFile);
+                $uploadFile->setOriginalExtension($file->getName());
+                $uploadFile->setOriginalName($file->getOriginalExtension());
+                $this->uploadedInfo[] = $uploadFile;
             }
         }
+
+        return $this;
     }
 
     /**
-     * @return array
+     * @return \Dobee\Protocol\Http\File\File[]
      */
-    public function getUploadInfo()
+    public function getUploadFiles()
     {
         return $this->uploadedInfo;
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrorInfo()
-    {
-        return $this->uploadedErrors;
     }
 
     /**
