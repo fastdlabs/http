@@ -14,6 +14,11 @@ namespace Dobee\Protocol\Http;
 
 use Dobee\Protocol\Http\Attribute\HeaderAttribute;
 
+/**
+ * Class Response
+ *
+ * @package Dobee\Protocol\Http
+ */
 class Response
 {
     const HTTP_CONTINUE = 100;

@@ -18,4 +18,8 @@ $request = \Dobee\Protocol\Http\Request::createRequestHandle();
 
 $cookies = $request->cookies;
 
+// $cookies->setCookie('name', 'janhuang', 3600, '/me/dobee', 'localhost');
+print_r($cookies->getCookie('name'));
+
+
 //print_r($cookies->get('mz_id'));

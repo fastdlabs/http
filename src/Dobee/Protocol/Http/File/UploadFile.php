@@ -16,7 +16,7 @@ namespace Dobee\Protocol\Http\File;
 /**
  * Class UploadFile
  *
- * @package Dobee\Protocol\Attribute\File
+ * @package Dobee\Protocol\File
  */
 class UploadFile
 {

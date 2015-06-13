@@ -13,12 +13,17 @@
 
 namespace Dobee\Protocol\Http;
 
+/**
+ * Class RedirectResponse
+ *
+ * @package Dobee\Protocol\Http
+ */
 class RedirectResponse extends Response
 {
     public function __construct($url = '', $status = 302, $headers = array())
     {
         parent::__construct('', $status, $headers);
 
-        $this->headers->set('Location', $url);
+        $this->header->set('Location', $url);
     }
 }

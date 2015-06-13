@@ -15,7 +15,7 @@ namespace Dobee\Protocol\Http;
 /**
  * Class JsonResponse
  *
- * @package Dobee\Http
+ * @package Dobee\Protocol\Http
  */
 class JsonResponse extends Response
 {
@@ -32,7 +32,7 @@ class JsonResponse extends Response
 
         $data = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 
-        $this->headers->set('Content-Type', 'application/json; charset=utf-8;');
+        $this->header->set('Content-Type', 'application/json; charset=utf-8;');
 
         $this->setContent($data);
     }

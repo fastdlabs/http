@@ -16,7 +16,7 @@ namespace Dobee\Protocol\Http\Session;
 /**
  * Class SessionHandlerAbstract
  *
- * @package Dobee\Http\Session
+ * @package Dobee\Protocol\Http\Session
  */
 abstract class SessionHandlerAbstract implements \SessionHandlerInterface
 {

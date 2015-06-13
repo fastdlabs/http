@@ -18,16 +18,69 @@ use Dobee\Protocol\Attribute\Attribute;
 /**
  * Class Session
  *
- * @package Dobee\Http\Session
+ * @package Dobee\Protocol\Http\Session
  */
 class Session extends Attribute
 {
-    public function __construct(SessionHandlerAbstract $sessionHandlerAbstract = null)
+    /**
+     * Constructor.
+     *
+     * @param SessionHandlerAbstract $sessionHandler
+     */
+    public function __construct(SessionHandlerAbstract $sessionHandler = null)
     {
+        if ($sessionHandler instanceof \SessionHandlerInterface) {
+            session_set_save_handler($sessionHandler, true);
+        }
+
         session_start();
 
-        if (null === $sessionHandlerAbstract) {
-            parent::__construct($_SESSION);
+        parent::__construct($_SESSION);
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     */
+    public function setSession($name, $value)
+    {
+        $_SESSION[$name] = $value;
+        return parent::set($name, $value);
+    }
+
+    /**
+     * @param $name
+     * @return array|int|string
+     */
+    public function getSession($name)
+    {
+        return parent::get($name);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasSession($name)
+    {
+        return parent::has($name);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function clearSession($name)
+    {
+        if (isset($_SERVER[$name])) {
+            unset($_SESSION[$name]);
         }
+
+        if (isset($_SESSION[$name])) {
+            return false;
+        }
+
+        return true;
     }
 }

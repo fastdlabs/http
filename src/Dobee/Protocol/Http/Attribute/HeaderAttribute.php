@@ -17,5 +17,14 @@ use Dobee\Protocol\Attribute\Attribute;
 
 class HeaderAttribute extends Attribute
 {
+    public function __toString()
+    {
+        $header = '';
 
+        foreach ($this->all() as $name => $value) {
+            $header .= sprintf('%s: %s', $name, $value);
+        }
+
+        return $header;
+    }
 }

@@ -18,7 +18,7 @@ use Dobee\Protocol\Http\Response;
 /**
  * Class RequestLauncher
  *
- * @package Dobee\Http
+ * @package Dobee\Protocol\Http\Launcher
  */
 class RequestLauncher
 {

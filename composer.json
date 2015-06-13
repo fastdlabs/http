@@ -1,5 +1,5 @@
 {
-    "name": "dobee/http",
+    "name": "dobee/protocol",
     "description": "dobee php simple framework http component",
     "license": "MIT",
     "authors": [

@@ -25,7 +25,7 @@ use Dobee\Protocol\Http\Session\SessionHandlerAbstract;
 /**
  * Class Request
  *
- * @package Dobee\Http
+ * @package Dobee\Protocol\Http
  */
 class Request
 {
@@ -78,7 +78,7 @@ class Request
      *
      * $_SESSION
      *
-     * @var QueryAttribute
+     * @var Session
      */
     protected $session;
 
@@ -91,13 +91,6 @@ class Request
      * @var Request
      */
     private static $requestFactory;
-
-    /**
-     * Allow request methods.
-     *
-     * @var array
-     */
-    protected $methods = ['GET', 'POST', 'PUT', 'HEAD', 'OPTIONS', 'PATCH', 'DELETE', 'TRACE', 'PURGE'];
 
     /**
      * The http request is has once request object.
@@ -121,33 +114,17 @@ class Request
     /**
      * @return string
      */
-    public function getHost()
+    public function getHttpAndDomain()
+    {
+        return ('' == ($schema = $this->server->get('REQUEST_SCHEME')) ? '//' : ($schema . '://')) . $this->getDomain();
+    }
+
+    /**
+     * @return array|int|string
+     */
+    public function getDomain()
     {
         return $this->server->get('SERVER_NAME');
-    }
-
-    /**
-     * @return string
-     */
-    public function getHttpAndHost()
-    {
-        return ('' == ($schema = $this->getSchema()) ? '//' : ($schema . '://')) . $this->getHost();
-    }
-
-    /**
-     * @return string
-     */
-    public function getSchema()
-    {
-        return $this->server->get('REQUEST_SCHEME');
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserAgent()
-    {
-        return $this->server->get('HTTP_USER_AGENT');
     }
 
     /**
@@ -187,7 +164,7 @@ class Request
     /**
      * @return float
      */
-    public function getRequestTimestamp()
+    public function getRequestTime()
     {
         return $this->server->getRequestTime();
     }
@@ -213,7 +190,7 @@ class Request
      */
     public function isXmlHttpRequest()
     {
-        return 'xmlhttprequest' === strtolower($this->server->get('X-Requested-With'));
+        return 'xmlhttprequest' === strtolower($this->header->get('X-Requested-With'));
     }
 
     /**
@@ -229,13 +206,92 @@ class Request
      * @param SessionHandlerAbstract $sessionHandler
      * @return Session
      */
-    public function getSession(SessionHandlerAbstract $sessionHandler = null)
+    public function getSessionHandle(SessionHandlerAbstract $sessionHandler = null)
     {
         if (null === $this->session) {
             $this->session = new Session($sessionHandler);
         }
 
         return $this->session;
+    }
+
+    /**
+     * @param $name
+     * @return array|int|string
+     */
+    public function getSession($name)
+    {
+        return $this->getSessionHandle()->getSession($name);
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     */
+    public function setSession($name, $value)
+    {
+        return $this->getSessionHandle()->setSession($name, $value);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasSession($name)
+    {
+        return $this->getSessionHandle()->hasSession($name);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function clearSession($name)
+    {
+        return $this->getSessionHandle()->clearSession($name);
+    }
+
+    /**
+     * @param $name
+     * @return Cookie\Cookie
+     */
+    public function getCookie($name)
+    {
+        return $this->cookies->getCookie($name);
+    }
+
+    /**
+     * @param        $name
+     * @param null   $value
+     * @param int    $expire
+     * @param string $path
+     * @param null   $domain
+     * @param bool   $secure
+     * @param bool   $httpOnly
+     * @return CookiesAttribute
+     */
+    public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true)
+    {
+        return $this->cookies->setCookie($name, $value, $expire, $path, $domain, $secure, $httpOnly, true);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasCookie($name)
+    {
+        return $this->cookies->hasCookie($name);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function clearCookie($name)
+    {
+        return $this->cookies->clearCookie($name);
     }
 
     /**
