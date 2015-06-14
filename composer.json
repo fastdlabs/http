@@ -2,6 +2,8 @@
     "name": "dobee/protocol",
     "description": "dobee php simple framework http component",
     "license": "MIT",
+    "type": "library",
+    "keywords": ["protocol", "http", "dobee"],
     "authors": [
         {
             "name": "janhuang",
@@ -11,9 +13,6 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "4.5.*"
     },
     "autoload": {
         "psr-4": {
