@@ -39,28 +39,28 @@ class Request
     /**
      * $_POST
      *
-     * @var QueryAttribute
+     * @var RequestAttribute
      */
     public $request;
 
     /**
      * $_FILES
      *
-     * @var QueryAttribute
+     * @var FilesAttribute
      */
     public $files;
 
     /**
      * $_COOKIE
      *
-     * @var QueryAttribute
+     * @var CookiesAttribute
      */
     public $cookies;
 
     /**
      * $_SERVER
      *
-     * @var QueryAttribute
+     * @var ServerAttribute
      */
     public $server;
 
@@ -69,7 +69,7 @@ class Request
      *
      * new HeaderAttribute($sever->getHeaders());
      *
-     * @var QueryAttribute
+     * @var HeaderAttribute
      */
     public $header;
 
@@ -309,11 +309,12 @@ class Request
     }
 
     /**
+     * @param array $config
      * @return File\Uploaded\Uploader
      */
-    public function getUploader()
+    public function getUploader(array $config = [])
     {
-        return $this->files->getUploader();
+        return $this->files->getUploader($config);
     }
 
     /**
