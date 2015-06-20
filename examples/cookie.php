@@ -14,7 +14,7 @@ echo '<pre>';
 
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
-$request = \Dobee\Protocol\Http\Request::createRequestHandle();
+$request = \FastD\Protocol\Http\Request::createRequestHandle();
 
 $cookies = $request->cookies;
 

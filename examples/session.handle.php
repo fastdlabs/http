@@ -13,7 +13,7 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-class SessionHandle extends \Dobee\Protocol\Http\Session\SessionHandlerAbstract
+class SessionHandle extends \FastD\Protocol\Http\Session\SessionHandlerAbstract
 {
     protected $db = '';
 
@@ -82,7 +82,7 @@ class SessionHandle extends \Dobee\Protocol\Http\Session\SessionHandlerAbstract
     }
 }
 
-$session = new \Dobee\Protocol\Http\Session\Session(new SessionHandle());
+$session = new \FastD\Protocol\Http\Session\Session(new SessionHandle());
 echo '<pre>';
 print_r($session);
 

@@ -1,9 +1,9 @@
 {
-    "name": "dobee/protocol",
-    "description": "dobee php simple framework http component",
+    "name": "fastd/protocol",
+    "description": "FastD and fastd php simple framework http component",
     "license": "MIT",
     "type": "library",
-    "keywords": ["protocol", "http", "dobee"],
+    "keywords": ["protocol", "http", "FastD"],
     "authors": [
         {
             "name": "janhuang",
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Dobee\\": "src/Dobee"
+            "FastD\\": "src/FastD"
         }
     }
 }
