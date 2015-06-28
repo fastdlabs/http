@@ -24,32 +24,15 @@ use FastD\Protocol\Http\Cookie\Cookie;
 class CookiesAttribute extends Attribute
 {
     /**
-     * @param array $parameters
-     */
-    public function __construct(array $parameters = [])
-    {
-        foreach ($parameters as $name => $value) {
-            $this->setCookie($name, $value, 0, '/', null, false, true, false);
-        }
-    }
-
-    /**
-     * @param        $name
-     * @param Cookie $cookie
-     * @return $this
-     */
-    public function set($name, $cookie)
-    {
-        return parent::set($name, $cookie);
-    }
-
-    /**
      * @param $name
      * @return bool
      */
     public function remove($name)
     {
-        setcookie($name, null, -1);
+        if (isset($_COOKIE[$name])) {
+            unset($_COOKIE[$name]);
+            setcookie($name, null, -1, '/');
+        }
         return parent::remove($name);
     }
 
@@ -61,17 +44,17 @@ class CookiesAttribute extends Attribute
      * @param null   $domain
      * @param bool   $secure
      * @param bool   $httpOnly
-     * @param bool   $force
      * @return CookiesAttribute
      */
-    public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true, $force = true)
+    public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = false)
     {
-        return $this->set($name, new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly, $force));
+        setcookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        return parent::set($name, $value);
     }
 
     /**
      * @param $name
-     * @return Cookie
+     * @return mixed
      */
     public function getCookie($name)
     {
