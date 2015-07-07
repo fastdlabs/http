@@ -105,7 +105,7 @@ class ServerAttribute extends Attribute
      */
     public function getBaseUrl()
     {
-        return str_replace($this->getPathInfo(), '', $this->getRequestUri());
+        return str_replace([$this->getPathInfo() . '.' . $this->getFormat(), $this->getPathInfo()], '', $this->getRequestUri());
     }
 
     /**
