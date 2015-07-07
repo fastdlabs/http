@@ -120,12 +120,14 @@ class ServerAttribute extends Attribute
     public function getBaseUrl()
     {
         if (null === $this->baseUrl) {
-            $url = $this->getRequestUri();
-
-            $url = str_replace(str_replace([$this->get('SCRIPT_NAME'), dirname($this->get('SCRIPT_NAME'))], '', $url), '', $url);
-
-            $this->baseUrl = $url;
-            unset($url);
+            $uri = $this->getRequestUri();
+            if ($uri === $this->get('PHP_SELF') || ($this->get('SCRIPT_NAME') . $uri) === $this->get('PHP_SELF')) {
+                $uri = '/';
+            } else {
+                $uri = str_replace(str_replace([$this->get('SCRIPT_NAME'), dirname($this->get('SCRIPT_NAME'))], '', $uri), '', $uri);
+            }
+            $this->baseUrl = $uri;
+            unset($uri);
         }
 
         return $this->baseUrl;
