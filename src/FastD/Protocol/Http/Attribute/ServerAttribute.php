@@ -33,6 +33,11 @@ class ServerAttribute extends Attribute
     protected $basePath;
 
     /**
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
      * @return string
      */
     public function getBasePath()
@@ -105,7 +110,20 @@ class ServerAttribute extends Attribute
      */
     public function getBaseUrl()
     {
-        return str_replace([$this->getPathInfo() . '.' . $this->getFormat(), $this->getPathInfo()], '', $this->getRequestUri());
+        if (null === $this->baseUrl) {
+            $url = $this->getRequestUri();
+
+            if (false !== ($index = strpos($url, '?'))) {
+                $url = substr($url, 0, $index);
+            }
+
+            $url = str_replace([$this->getPathInfo() . '.' . $this->getFormat(), $this->getPathInfo()], '', $url);
+
+            $this->baseUrl = $url;
+            unset($url);
+        }
+
+        return $this->baseUrl;
     }
 
     /**
