@@ -38,6 +38,11 @@ class ServerAttribute extends Attribute
     protected $baseUrl;
 
     /**
+     * @var string
+     */
+    protected $requestUri;
+
+    /**
      * @return string
      */
     public function getBasePath()
@@ -102,7 +107,11 @@ class ServerAttribute extends Attribute
      */
     public function getRequestUri()
     {
-        return $this->has('REQUEST_URI') ? $this->get('REQUEST_URI') : $this->prepareRequestUri();
+        if (null === $this->requestUri) {
+            $this->requestUri = $this->has('REQUEST_URI') ? $this->get('REQUEST_URI') : $this->prepareRequestUri();
+        }
+
+        return $this->requestUri;
     }
 
     /**
@@ -113,11 +122,7 @@ class ServerAttribute extends Attribute
         if (null === $this->baseUrl) {
             $url = $this->getRequestUri();
 
-            if (false !== ($index = strpos($url, '?'))) {
-                $url = substr($url, 0, $index);
-            }
-
-            $url = str_replace([$this->getPathInfo() . '.' . $this->getFormat(), $this->getPathInfo()], '', $url);
+            $url = str_replace(str_replace($this->get('SCRIPT_NAME'), '', $url), '', $url);
 
             $this->baseUrl = $url;
             unset($url);
