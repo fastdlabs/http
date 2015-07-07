@@ -122,7 +122,7 @@ class ServerAttribute extends Attribute
         if (null === $this->baseUrl) {
             $url = $this->getRequestUri();
 
-            $url = str_replace(str_replace($this->get('SCRIPT_NAME'), '', $url), '', $url);
+            $url = str_replace(str_replace([$this->get('SCRIPT_NAME'), dirname($this->get('SCRIPT_NAME'))], '', $url), '', $url);
 
             $this->baseUrl = $url;
             unset($url);
