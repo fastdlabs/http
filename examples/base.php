@@ -23,3 +23,4 @@ var_dump($request->getFormat());
 var_dump($request->getClientIp());
 var_dump($request->getBaseUrl());
 var_dump($request->getRequestUri());
+var_dump($request->getBaseUrl());

@@ -22,7 +22,30 @@ use FastD\Protocol\Attribute\Attribute;
  */
 class ServerAttribute extends Attribute
 {
+    /**
+     * @var string
+     */
     protected $pathInfo;
+
+    /**
+     * @var string
+     */
+    protected $basePath;
+
+    /**
+     * @return string
+     */
+    public function getBasePath()
+    {
+        if (null === $this->basePath) {
+            $this->basePath = $this->getBaseUrl();
+            if ('' != pathinfo($this->basePath, PATHINFO_EXTENSION)) {
+                $this->basePath = pathinfo($this->basePath, PATHINFO_DIRNAME);
+            }
+        }
+
+        return $this->basePath;
+    }
 
     /**
      * @return string

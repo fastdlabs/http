@@ -170,6 +170,14 @@ class Request
     /**
      * @return string
      */
+    public function getBasePath()
+    {
+        return $this->server->getBasePath();
+    }
+
+    /**
+     * @return string
+     */
     public function getPathInfo()
     {
         return $this->server->getPathInfo();
