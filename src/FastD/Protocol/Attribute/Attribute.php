@@ -60,9 +60,8 @@ class Attribute implements \Iterator, \Countable
 
         $parameter = $this->parameters[$name];
 
-        if (!$raw && is_string($parameter)) {
-            preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $parameter);
-            $parameter = strip_tags($parameter);
+        if (!$raw) {
+            $parameter = $this->filter($parameter);
         }
 
         if (is_callable($callback)) {
@@ -73,12 +72,42 @@ class Attribute implements \Iterator, \Countable
     }
 
     /**
+     * @param $value
+     * @return string
+     */
+    public function filter($value)
+    {
+        if (is_string($value)) {
+            preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $value);
+            $value = strip_tags($value);
+        }
+
+        return $value;
+    }
+
+    /**
      * @param $name
      * @return bool
      */
     public function has($name)
     {
         return isset($this->parameters[$name]);
+    }
+
+    /**
+     * @param            $name
+     * @param            $default
+     * @param bool|false $raw
+     * @param null       $callback
+     * @return array|int|string
+     */
+    public function hasGet($name, $default, $raw = false, $callback = null)
+    {
+        try {
+            return $this->get($name, $raw, $callback);
+        } catch (\Exception $e) {
+            return $default;
+        }
     }
 
     /**
