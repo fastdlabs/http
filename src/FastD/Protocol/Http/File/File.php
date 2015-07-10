@@ -31,6 +31,30 @@ class File extends \SplFileInfo
     protected $originalExtension;
 
     /**
+     * @var string
+     */
+    protected $hash;
+
+    /**
+     * @return mixed
+     */
+    public function getHash()
+    {
+        return $this->hash;
+    }
+
+    /**
+     * @param mixed $hash
+     * @return $this
+     */
+    public function setHash($hash)
+    {
+        $this->hash = $hash;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getOriginalExtension()

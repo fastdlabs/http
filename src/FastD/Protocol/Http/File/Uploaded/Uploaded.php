@@ -24,7 +24,7 @@ use FastD\Protocol\Http\File\UploadFile;
 class Uploaded implements UploadedInterface
 {
     /**
-     * @var array
+     * @var \FastD\Protocol\Http\File\File[]
      */
     private $uploadedInfo;
 
@@ -48,16 +48,21 @@ class Uploaded implements UploadedInterface
     {
         foreach ($this->files as $file) {
             $moveFile = $this->config['save.path'] . DIRECTORY_SEPARATOR . $file->getHash() . '.' . $file->getOriginalExtension();
-            if (file_exists($moveFile)) {
-                continue;
+
+            if (!file_exists($moveFile)) {
+                if (!move_uploaded_file($file->getTmpName(), $moveFile)) {
+                    continue;
+                }
             }
-            if (move_uploaded_file($file->getTmpName(), $moveFile)) {
-                $uploadFile = new File($moveFile);
-                $uploadFile->setOriginalExtension($file->getOriginalExtension());
-                $uploadFile->setOriginalName($file->getName());
-                $this->uploadedInfo[] = $uploadFile;
-            }
+
+            $uploaded = new File($moveFile);
+            $uploaded->setHash($file->getHash());
+            $uploaded->setOriginalName($file->getName());
+            $uploaded->setOriginalExtension($file->getOriginalExtension());
+            $this->uploadedInfo[] = $uploaded;
         }
+
+        unset($uploaded);
 
         return $this;
     }
