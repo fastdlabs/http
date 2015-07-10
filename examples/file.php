@@ -39,8 +39,6 @@ if ($request->isMethod('post')) {
 <body>
 <form action="" method="post" enctype="multipart/form-data">
     <input type="file" name="file[]" id=""/>
-    <input type="file" name="file[]" id=""/>
-    <input type="file" name="file2" id=""/>
     <input type="submit" value=""/>
 </form>
 </body>

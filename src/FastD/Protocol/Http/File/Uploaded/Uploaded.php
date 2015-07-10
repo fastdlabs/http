@@ -53,8 +53,8 @@ class Uploaded implements UploadedInterface
             }
             if (move_uploaded_file($file->getTmpName(), $moveFile)) {
                 $uploadFile = new File($moveFile);
-                $uploadFile->setOriginalExtension($file->getName());
-                $uploadFile->setOriginalName($file->getOriginalExtension());
+                $uploadFile->setOriginalExtension($file->getOriginalExtension());
+                $uploadFile->setOriginalName($file->getName());
                 $this->uploadedInfo[] = $uploadFile;
             }
         }
