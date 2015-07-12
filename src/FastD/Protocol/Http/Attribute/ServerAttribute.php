@@ -30,7 +30,7 @@ class ServerAttribute extends Attribute
     /**
      * @var string
      */
-    protected $basePath;
+    protected $rootPath;
 
     /**
      * @var string
@@ -45,16 +45,16 @@ class ServerAttribute extends Attribute
     /**
      * @return string
      */
-    public function getBasePath()
+    public function getRootPath()
     {
-        if (null === $this->basePath) {
-            $this->basePath = $this->getBaseUrl();
-            if ('' != pathinfo($this->basePath, PATHINFO_EXTENSION)) {
-                $this->basePath = pathinfo($this->basePath, PATHINFO_DIRNAME);
+        if (null === $this->rootPath) {
+            $this->rootPath = $this->getBaseUrl();
+            if ('' != pathinfo($this->rootPath, PATHINFO_EXTENSION)) {
+                $this->rootPath = pathinfo($this->rootPath, PATHINFO_DIRNAME);
             }
         }
 
-        return $this->basePath;
+        return $this->rootPath;
     }
 
     /**
@@ -121,12 +121,7 @@ class ServerAttribute extends Attribute
     {
         if (null === $this->baseUrl) {
             $uri = $this->getRequestUri();
-            if ($uri === $this->get('PHP_SELF') || ($this->get('SCRIPT_NAME') . $uri) === $this->get('PHP_SELF')) {
-                $uri = '/';
-            } else {
-                $uri = str_replace(str_replace([$this->get('SCRIPT_NAME'), dirname($this->get('SCRIPT_NAME'))], '', $uri), '', $uri);
-            }
-            $this->baseUrl = $uri;
+            $this->baseUrl = str_replace(str_replace([$this->get('SCRIPT_NAME'), dirname($this->get('SCRIPT_NAME'))], '', $uri), '', $uri);
             unset($uri);
         }
 

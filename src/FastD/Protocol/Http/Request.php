@@ -170,9 +170,9 @@ class Request
     /**
      * @return string
      */
-    public function getBasePath()
+    public function getRootPath()
     {
-        return $this->server->getBasePath();
+        return $this->server->getRootPath();
     }
 
     /**
