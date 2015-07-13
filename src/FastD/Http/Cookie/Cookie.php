@@ -11,7 +11,7 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Cookie;
+namespace FastD\Http\Cookie;
 
 /**
  * Class Cookie

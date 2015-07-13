@@ -10,12 +10,12 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace FastD\Protocol\Http;
+namespace FastD\Http;
 
 /**
  * Class JsonResponse
  *
- * @package FastD\Protocol\Http
+ * @package FastD\Http
  */
 class JsonResponse extends Response
 {

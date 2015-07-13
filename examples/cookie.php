@@ -14,7 +14,7 @@ echo '<pre>';
 
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
-$request = \FastD\Protocol\Http\Request::createRequestHandle();
+$request = \FastD\Http\Request::createRequestHandle();
 
 $cookies = $request->cookies;
 print_r($cookies);

@@ -11,12 +11,12 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http;
+namespace FastD\Http;
 
 /**
  * Class RedirectResponse
  *
- * @package FastD\Protocol\Http
+ * @package FastD\Http
  */
 class RedirectResponse extends Response
 {

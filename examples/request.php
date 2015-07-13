@@ -13,6 +13,6 @@ error_reporting(E_ALL);
 echo '<pre>';
 include __DIR__ . '/../vendor/autoload.php';
 
-$request = \FastD\Protocol\Http\Request::createRequestHandle();
+$request = \FastD\Http\Request::createRequestHandle();
 
 print_r($request->request->get('name'));

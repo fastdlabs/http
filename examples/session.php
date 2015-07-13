@@ -13,7 +13,7 @@
 
 $composer = include __DIR__ . '/../vendor/autoload.php';
 
-$request = \FastD\Protocol\Http\Request::createRequestHandle();
+$request = \FastD\Http\Request::createRequestHandle();
 
 $session = $request->getSessionHandle();
 //$session->set('name', 'janhuang');

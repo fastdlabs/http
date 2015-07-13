@@ -11,12 +11,12 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\File\Uploaded;
+namespace FastD\Http\File\Uploaded;
 
 /**
  * Interface UploadedInterface
  *
- * @package FastD\Protocol\Http\File\Uploaded
+ * @package FastD\Http\File\Uploaded
  */
 interface UploadedInterface
 {
@@ -32,7 +32,7 @@ interface UploadedInterface
     public function upload();
 
     /**
-     * @return \FastD\Protocol\Http\File\File[]
+     * @return \FastD\Http\File\File[]
      */
     public function getUploadFiles();
 

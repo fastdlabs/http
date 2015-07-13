@@ -11,16 +11,15 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Attribute;
+namespace FastD\Http\Attribute;
 
-use FastD\Protocol\Attribute\Attribute;
-use FastD\Protocol\Http\File\Uploaded\Uploader;
-use FastD\Protocol\Http\File\UploadFile;
+use FastD\Http\File\Uploaded\Uploader;
+use FastD\Http\File\UploadFile;
 
 /**
  * Class FilesAttribute
  *
- * @package FastD\Protocol\Http\Attribute
+ * @package FastD\Http\Attribute
  */
 class FilesAttribute extends Attribute
 {

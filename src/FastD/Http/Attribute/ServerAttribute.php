@@ -11,14 +11,12 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Attribute;
-
-use FastD\Protocol\Attribute\Attribute;
+namespace FastD\Http\Attribute;
 
 /**
  * Class ServerAttribute
  *
- * @package FastD\Protocol\Http\Attribute
+ * @package FastD\Http\Attribute
  */
 class ServerAttribute extends Attribute
 {
@@ -213,7 +211,7 @@ class ServerAttribute extends Attribute
     {
         $baseUrl = $this->getBaseUrl();
 
-        if (null === $baseUrl || null === ($requestUri = $this->getRequestUri()) || $baseUrl === $requestUri) {
+        if (null === ($requestUri = $this->getRequestUri()) || $baseUrl === $requestUri) {
             return '/';
         }
 

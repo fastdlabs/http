@@ -10,7 +10,7 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace FastD\Protocol\Http;
+namespace FastD\Http;
 
 class XmlResponse extends Response
 {

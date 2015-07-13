@@ -11,9 +11,7 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Attribute;
-
-use FastD\Protocol\Attribute\Attribute;
+namespace FastD\Http\Attribute;
 
 class HeaderAttribute extends Attribute
 {

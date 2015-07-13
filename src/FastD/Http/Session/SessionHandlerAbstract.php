@@ -11,12 +11,12 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Session;
+namespace FastD\Http\Session;
 
 /**
  * Class SessionHandlerAbstract
  *
- * @package FastD\Protocol\Http\Session
+ * @package FastD\Http\Session
  */
 abstract class SessionHandlerAbstract implements \SessionHandlerInterface
 {

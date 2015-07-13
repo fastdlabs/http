@@ -12,7 +12,7 @@
  */
 include __DIR__ . '/../vendor/autoload.php';
 
-$request = \FastD\Protocol\Http\Request::createRequestHandle();
+$request = \FastD\Http\Request::createRequestHandle();
 
 echo '<pre>';
 print_r($request->server);

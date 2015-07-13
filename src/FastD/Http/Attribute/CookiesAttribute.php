@@ -11,15 +11,12 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Attribute;
-
-use FastD\Protocol\Attribute\Attribute;
-use FastD\Protocol\Http\Cookie\Cookie;
+namespace FastD\Http\Attribute;
 
 /**
  * Class CookiesAttribute
  *
- * @package FastD\Protocol\Http\Attribute
+ * @package FastD\Http\Attribute
  */
 class CookiesAttribute extends Attribute
 {

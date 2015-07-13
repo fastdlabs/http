@@ -14,7 +14,7 @@
 echo '<pre>';
 include __DIR__ . '/../vendor/autoload.php';
 
-$request = \FastD\Protocol\Http\Request::createRequestHandle();
+$request = \FastD\Http\Request::createRequestHandle();
 
 $url = 'http://lhl.mmc/local.php/api/v1/festivals.json';
 

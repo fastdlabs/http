@@ -11,20 +11,20 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\File\Uploaded;
+namespace FastD\Http\File\Uploaded;
 
-use FastD\Protocol\Http\File\File;
-use FastD\Protocol\Http\File\UploadFile;
+use FastD\Http\File\File;
+use FastD\Http\File\UploadFile;
 
 /**
  * Class Uploaded
  *
- * @package FastD\Protocol\Http\File\Uploaded
+ * @package FastD\Http\File\Uploaded
  */
 class Uploaded implements UploadedInterface
 {
     /**
-     * @var \FastD\Protocol\Http\File\File[]
+     * @var \FastD\Http\File\File[]
      */
     private $uploadedInfo;
 
@@ -68,7 +68,7 @@ class Uploaded implements UploadedInterface
     }
 
     /**
-     * @return \FastD\Protocol\Http\File\File[]
+     * @return \FastD\Http\File\File[]
      */
     public function getUploadFiles()
     {

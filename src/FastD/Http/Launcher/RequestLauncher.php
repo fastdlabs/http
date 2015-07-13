@@ -11,14 +11,14 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Launcher;
+namespace FastD\Http\Launcher;
 
-use FastD\Protocol\Http\Response;
+use FastD\Http\Response;
 
 /**
  * Class RequestLauncher
  *
- * @package FastD\Protocol\Http\Launcher
+ * @package FastD\Http\Launcher
  */
 class RequestLauncher
 {

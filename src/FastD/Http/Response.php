@@ -10,14 +10,14 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace FastD\Protocol\Http;
+namespace FastD\Http;
 
-use FastD\Protocol\Http\Attribute\HeaderAttribute;
+use FastD\Http\Attribute\HeaderAttribute;
 
 /**
  * Class Response
  *
- * @package FastD\Protocol\Http
+ * @package FastD\Http
  */
 class Response
 {

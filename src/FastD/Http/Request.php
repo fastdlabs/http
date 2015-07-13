@@ -10,22 +10,22 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace FastD\Protocol\Http;
+namespace FastD\Http;
 
-use FastD\Protocol\Http\Session\Session;
-use FastD\Protocol\Http\Attribute\FilesAttribute;
-use FastD\Protocol\Http\Attribute\CookiesAttribute;
-use FastD\Protocol\Http\Attribute\HeaderAttribute;
-use FastD\Protocol\Http\Attribute\QueryAttribute;
-use FastD\Protocol\Http\Attribute\RequestAttribute;
-use FastD\Protocol\Http\Attribute\ServerAttribute;
-use FastD\Protocol\Http\Launcher\RequestLauncher;
-use FastD\Protocol\Http\Session\SessionHandlerAbstract;
+use FastD\Http\Session\Session;
+use FastD\Http\Attribute\FilesAttribute;
+use FastD\Http\Attribute\CookiesAttribute;
+use FastD\Http\Attribute\HeaderAttribute;
+use FastD\Http\Attribute\QueryAttribute;
+use FastD\Http\Attribute\RequestAttribute;
+use FastD\Http\Attribute\ServerAttribute;
+use FastD\Http\Launcher\RequestLauncher;
+use FastD\Http\Session\SessionHandlerAbstract;
 
 /**
  * Class Request
  *
- * @package FastD\Protocol\Http
+ * @package FastD\Http
  */
 class Request
 {

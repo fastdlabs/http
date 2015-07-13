@@ -1,6 +1,6 @@
 {
-    "name": "fastd/protocol",
-    "description": "FastD and fastd php simple framework http component",
+    "name": "fastd/http",
+    "description": "FastD simple http component.",
     "license": "MIT",
     "type": "library",
     "keywords": ["protocol", "http", "FastD"],
@@ -12,7 +12,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4"
     },
     "autoload": {
         "psr-4": {

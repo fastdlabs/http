@@ -11,14 +11,14 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Session;
+namespace FastD\Http\Session;
 
-use FastD\Protocol\Attribute\Attribute;
+use FastD\Http\Attribute\Attribute;
 
 /**
  * Class Session
  *
- * @package FastD\Protocol\Http\Session
+ * @package FastD\Http\Session
  */
 class Session extends Attribute
 {

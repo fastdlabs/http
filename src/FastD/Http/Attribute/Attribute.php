@@ -11,12 +11,12 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Attribute;
+namespace FastD\Http\Attribute;
 
 /**
  * Class AttributeAbstract
  *
- * @package Protocol\Attribute
+ * @package Attribute
  */
 class Attribute implements \Iterator, \Countable
 {

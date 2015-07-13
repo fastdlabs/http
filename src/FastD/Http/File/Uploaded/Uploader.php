@@ -11,12 +11,12 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\File\Uploaded;
+namespace FastD\Http\File\Uploaded;
 
 /**
  * Class Uploader
  *
- * @package FastD\Protocol\Http\File\Uploaded
+ * @package FastD\Http\File\Uploaded
  */
 class Uploader
 {

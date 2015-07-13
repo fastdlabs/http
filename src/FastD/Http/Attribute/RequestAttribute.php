@@ -11,11 +11,9 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Protocol\Http\Attribute;
+namespace FastD\Http\Attribute;
 
-use FastD\Protocol\Attribute\Attribute;
-
-class QueryAttribute extends Attribute
+class RequestAttribute extends Attribute
 {
 
 }
