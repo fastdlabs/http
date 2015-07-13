@@ -146,21 +146,25 @@ class ServerAttribute extends Attribute
         return $this->get('PHP_SELF');
     }
 
+    /**
+     * The symfony prepareBaseUrl method.
+     *
+     * @return array|int|string
+     */
     protected function prepareBaseUrl()
     {
         $filename = $this->has('SCRIPT_FILENAME') ? basename($this->get('SCRIPT_FILENAME')) : '';
 
-        if (isset($_SERVER['SCRIPT_NAME']) && basename($_SERVER['SCRIPT_NAME']) === $filename) {
-            $baseUrl = $_SERVER['SCRIPT_NAME'];
-        } elseif (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) === $filename) {
+        if ($this->has('SCRIPT_NAME') && basename($this->get('SCRIPT_NAME') === $filename)) {
+            $baseUrl = $this->get('SCRIPT_NAME');
+        } elseif ($this->has('PHP_SELF') && basename($this->get('PHP_SELF') === $filename)) {
             $baseUrl = $_SERVER['PHP_SELF'];
-        } elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $filename) {
-            $baseUrl = $_SERVER['ORIG_SCRIPT_NAME']; // 1and1 shared hosting compatibility
+        } elseif ($this->has('ORIG_SCRIPT_NAME') && basename($this->get('ORIG_SCRIPT_NAME')) === $filename) {
+            $baseUrl = $this->get('ORIG_SCRIPT_NAME'); // 1and1 shared hosting compatibility
         } else {
-            // Backtrack up the script_filename to find the portion matching
-            // php_self
-            $path    = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : '';
-            $file    = isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '';
+
+            $path    = $this->hasGet('PHP_SELF', '');
+            $file    = $this->hasGet('SCRIPT_FILENAME', '');
             $segs    = explode('/', trim($file, '/'));
             $segs    = array_reverse($segs);
             $index   = 0;
@@ -173,16 +177,13 @@ class ServerAttribute extends Attribute
             } while (($last > $index) && (false !== ($pos = strpos($path, $baseUrl))) && (0 != $pos));
         }
 
-        // Does the baseUrl have anything in common with the request_uri?
         $requestUri = $this->getRequestUri();
 
         if (0 === strpos($requestUri, $baseUrl)) {
-            // full $baseUrl matches
             return $baseUrl;
         }
 
         if (0 === strpos($requestUri, dirname($baseUrl))) {
-            // directory portion of $baseUrl matches
             return rtrim(dirname($baseUrl), '/');
         }
 
@@ -193,13 +194,9 @@ class ServerAttribute extends Attribute
 
         $basename = basename($baseUrl);
         if (empty($basename) || !strpos($truncatedRequestUri, $basename)) {
-            // no match whatsoever; set it blank
             return '';
         }
 
-        // If using mod_rewrite or ISAPI_Rewrite strip the script filename
-        // out of baseUrl. $pos !== 0 makes sure it is not matching a value
-        // from PATH_INFO or QUERY_STRING
         if ((strlen($requestUri) >= strlen($baseUrl))
             && ((false !== ($pos = strpos($requestUri, $baseUrl))) && ($pos !== 0)))
         {
