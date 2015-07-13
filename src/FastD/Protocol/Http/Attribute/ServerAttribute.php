@@ -90,7 +90,7 @@ class ServerAttribute extends Attribute
             return $this->pathInfo;
         }
 
-        $pathInfo = $this->has('PATH_INFO') ? $this->get('PATH_INFO') : $this->preparePathInfo();
+        $pathInfo = $this->hasGet('PATH_INFO', $this->preparePathInfo());
 
         if ('' != pathinfo($pathInfo, PATHINFO_EXTENSION)) {
             $pathInfo = substr($pathInfo, 0, strpos($pathInfo, '.'));
@@ -108,7 +108,7 @@ class ServerAttribute extends Attribute
     public function getRequestUri()
     {
         if (null === $this->requestUri) {
-            $this->requestUri = $this->has('REQUEST_URI') ? $this->get('REQUEST_URI') : $this->prepareRequestUri();
+            $this->requestUri = $this->hasGet('REQUEST_URI', $this->prepareRequestUri());
         }
 
         return $this->requestUri;
