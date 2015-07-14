@@ -131,6 +131,14 @@ class Attribute implements \Iterator, \Countable
     }
 
     /**
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return [] === $this->parameters;
+    }
+
+    /**
      * @return array
      */
     public function keys()

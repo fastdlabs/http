@@ -18,14 +18,15 @@ use FastD\Http\Response;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
-    public function testContent()
+    public function testResponseContent()
     {
         $response = new Response('demo');
         $this->assertEquals('demo', $response->getContent());
-        echo PHP_EOL;
-        $response->addHeader('Server', "Apache");
-        print_r($response->getHeader());
+    }
+
+    public function testReponseHeader()
+    {
+        $response = new Response('header demo', 202);
         echo $response;
-        echo PHP_EOL;
     }
 }
