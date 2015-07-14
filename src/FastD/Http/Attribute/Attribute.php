@@ -61,7 +61,7 @@ class Attribute implements \Iterator, \Countable
         $parameter = $this->parameters[$name];
 
         if (!$raw) {
-            $parameter = $this->filter($parameter);
+            $parameter = $this->raw($parameter);
         }
 
         if (is_callable($callback)) {
@@ -75,7 +75,7 @@ class Attribute implements \Iterator, \Countable
      * @param $value
      * @return string
      */
-    public function filter($value)
+    public function raw($value)
     {
         if (is_string($value)) {
             preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $value);

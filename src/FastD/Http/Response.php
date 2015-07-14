@@ -85,7 +85,7 @@ class Response
     /**
      * Http response header
      * 
-     * @var
+     * @var HeaderAttribute
      */
     public $header;
 
@@ -209,11 +209,53 @@ class Response
      *
      * @api
      */
-    public function __construct($content = '', $status = 200, array $headers = array())
+    public function __construct($content = '', $status = 200, array $headers = array('Content-Type' => 'text/html; charset=utf-8;'))
     {
         $this->header = new HeaderAttribute($headers);
         $this->setContent($content);
         $this->setStatusCode($status);
+    }
+
+    /**
+     * @return HeaderAttribute
+     */
+    public function getHeader()
+    {
+        return $this->header;
+    }
+
+    /**
+     * @param HeaderAttribute $headerAttribute
+     * @return $this
+     */
+    public function setHeader(HeaderAttribute $headerAttribute)
+    {
+        $this->header = $headerAttribute;
+
+        return $this;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     */
+    public function addHeader($name, $value)
+    {
+        $this->header->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function removeHeader($name)
+    {
+        $this->header->remove($name);
+
+        return $this;
     }
 
     /**
@@ -234,6 +276,8 @@ class Response
         foreach ($this->header->all() as $name => $value) {
             header(sprintf('%s: %s', $name, $value), false, $this->statusCode);
         }
+
+        header('X-Powered-By:FastD');
 
         return $this;
     }
@@ -833,11 +877,11 @@ class Response
      *
      * @see prepare()
      */
-    /*public function __toString()
+    public function __toString()
     {
         return
             sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)."\r\n".
             $this->header."\r\n".
             $this->getContent();
-    }*/
+    }
 }

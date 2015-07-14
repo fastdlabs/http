@@ -20,7 +20,7 @@ class HeaderAttribute extends Attribute
         $header = '';
 
         foreach ($this->all() as $name => $value) {
-            $header .= sprintf('%s: %s', $name, $value);
+            $header .= sprintf('%s: %s', $name, $value) . "\r\n";
         }
 
         return $header;

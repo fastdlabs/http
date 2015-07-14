@@ -60,7 +60,7 @@ class ServerAttribute extends Attribute
      */
     public function getFormat()
     {
-        return $this->has('REQUEST_FORMAT') ? $this->get('REQUEST_FORMAT') : $this->prepareFormat();
+        return $this->hasGet('REQUEST_FORMAT', $this->prepareFormat());
     }
 
     /**
@@ -77,6 +77,22 @@ class ServerAttribute extends Attribute
         }
 
         return $headers;
+    }
+
+    /**
+     * @return array|int|string
+     */
+    public function getScheme()
+    {
+        return $this->hasGet('REQUEST_SCHEME', 'http');
+    }
+
+    /**
+     * @return array|int|string
+     */
+    public function getHttpAndHost()
+    {
+        return $this->hasGet('SERVER_NAME', $this->get('HTTP_HOST'));
     }
 
     /**

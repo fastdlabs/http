@@ -128,9 +128,9 @@ class Request
     /**
      * @return string
      */
-    public function getHttpAndDomain()
+    public function getSchemeAndHttpAndHost()
     {
-        return ('' == ($schema = $this->server->get('REQUEST_SCHEME')) ? '//' : ($schema . '://')) . $this->getDomain();
+        return $this->server->getScheme() . '://' . $this->getDomain();
     }
 
     /**
@@ -138,7 +138,7 @@ class Request
      */
     public function getDomain()
     {
-        return $this->server->get('SERVER_NAME');
+        return $this->server->getHttpAndHost();
     }
 
     /**
