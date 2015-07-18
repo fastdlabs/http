@@ -15,4 +15,12 @@ include __DIR__ . '/../vendor/autoload.php';
 
 $request = \FastD\Http\Request::createRequestHandle();
 
-print_r($request->request->get('name'));
+print_r($request->request->hasGet('name', 'default'));
+
+$response = $request->createRequest('http://fast-d.cn/')->get();
+
+print_r($response->getHeader());
+$response->sendHeaders();
+$response->send();
+
+
