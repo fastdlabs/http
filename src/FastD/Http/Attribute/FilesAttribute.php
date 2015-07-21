@@ -28,6 +28,7 @@ class FilesAttribute extends Attribute
      */
     public function __construct(array $files = [])
     {
+        parent::__construct([]);
         $this->initializeUploadFilesArray($files);
     }
 

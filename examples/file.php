@@ -20,14 +20,8 @@ $request = \FastD\Http\Request::createRequestHandle();
 if ($request->isMethod('post')) {
     echo '<pre>';
 
-    $uploaded = $request->files->getUploader([
-        'max.size' => '10M',
-        'save.path' => __DIR__ . '/uploaded',
-    ]);
-
-    $uploadFiles = $uploaded->uploading()->getUploadFiles();
-
-    print_r($uploadFiles);
+    print_r($request->files);
+    var_dump($request->files->isEmpty());
 }
 ?>
 
