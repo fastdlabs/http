@@ -73,7 +73,7 @@ class Session extends Attribute
      */
     public function clearSession($name)
     {
-        if (isset($_SERVER[$name])) {
+        if (isset($_SESSION[$name])) {
             unset($_SESSION[$name]);
         }
 
