@@ -261,6 +261,7 @@ class RequestLauncher
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->getMethod());
         curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(['Content-type: ' . implode(',' ,$this->getFormat())], $this->getHeaders()));
         $content = curl_exec($ch);
