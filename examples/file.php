@@ -20,7 +20,7 @@ $request = \FastD\Http\Request::createRequestHandle();
 if ($request->isMethod('post')) {
     echo '<pre>';
 
-    print_r($request->files);
+    print_r($request->getUploader(['save.path' => __DIR__ . '/uploaded'])->uploading());
     var_dump($request->files->isEmpty());
 }
 ?>

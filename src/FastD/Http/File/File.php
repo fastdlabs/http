@@ -36,6 +36,29 @@ class File extends \SplFileInfo
     protected $hash;
 
     /**
+     * @return string
+     */
+    public function getRelativePath()
+    {
+        return $this->relativePath;
+    }
+
+    /**
+     * @param string $relativePath
+     * @return $this
+     */
+    public function setRelativePath($relativePath)
+    {
+        $this->relativePath = $relativePath;
+        return $this;
+    }
+
+    /**
+     * @var string
+     */
+    protected $relativePath;
+
+    /**
      * @return mixed
      */
     public function getHash()
