@@ -38,12 +38,19 @@ class Uploaded implements UploadedInterface
      */
     protected $files;
 
+    /**
+     * @param array $config
+     * @param array $files
+     */
     public function __construct(array $config, array $files)
     {
         $this->config = $config;
         $this->files = $files;
     }
 
+    /**
+     * @return $this
+     */
     public function upload()
     {
         foreach ($this->files as $file) {
