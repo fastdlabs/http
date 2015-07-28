@@ -66,7 +66,7 @@ class Uploaded implements UploadedInterface
             $uploaded->setHash($file->getHash());
             $uploaded->setOriginalName($file->getName());
             $uploaded->setOriginalExtension($file->getOriginalExtension());
-            $uploaded->setRelativePath(str_replace(realpath('./') . DIRECTORY_SEPARATOR, '', $moveFile));
+            $uploaded->setRelativePath(str_replace(realpath('./') . DIRECTORY_SEPARATOR, '', realpath($moveFile)));
             $this->uploadedInfo[] = $uploaded;
         }
 

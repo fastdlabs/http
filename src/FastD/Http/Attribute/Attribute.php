@@ -106,6 +106,9 @@ class Attribute implements \Iterator, \Countable
         try {
             return $this->get($name, $raw, $callback);
         } catch (\Exception $e) {
+            if (is_callable($callback)) {
+                return $callback($default);
+            }
             return $default;
         }
     }
