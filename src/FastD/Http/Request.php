@@ -358,6 +358,29 @@ class Request
     }
 
     /**
+     * @param array $get
+     * @param array $post
+     * @param array $files
+     * @param array $cookie
+     * @param array $server
+     * @return Request|static
+     */
+    public static function createSwooleRequestHandle(array $get = [], array $post = [], array $files = [], array $cookie =[], array $server = [])
+    {
+        if (null === self::$requestFactory) {
+            self::$requestFactory = new static($get, $post, $files, $cookie, $server);
+
+            if (in_array(self::$requestFactory->server->hasGet('REQUEST_METHOD', 'GET'), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
+            ) {
+                parse_str(self::$requestFactory->getContent(), $arguments);
+                self::$requestFactory->request = new RequestAttribute($arguments);
+            }
+        }
+
+        return self::$requestFactory;
+    }
+
+    /**
      * @param        $url
      * @param array  $arguments
      * @param int    $timeout
