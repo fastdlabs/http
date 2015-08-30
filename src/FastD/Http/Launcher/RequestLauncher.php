@@ -280,7 +280,7 @@ class RequestLauncher
         }
         unset($responseHeaders);
 
-        return new Response(substr($content, $responseHeaderInfo['header_size']), $responseHeaderInfo['http_code']);
+        return new ResponseLauncher(substr($content, $responseHeaderInfo['header_size']), $responseHeaderInfo['http_code']);
     }
 
     /**

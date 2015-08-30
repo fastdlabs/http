@@ -350,6 +350,25 @@ class Response
     }
 
     /**
+     * @param $contentType
+     * @return $this
+     */
+    public function setContentType($contentType)
+    {
+        $this->header->set('Content-Type', $contentType);
+
+        return $this;
+    }
+
+    /**
+     * @return array|int|string
+     */
+    public function getContentType()
+    {
+        return $this->header->get('Content-Type');
+    }
+
+    /**
      * Sets the HTTP protocol version (1.0 or 1.1).
      *
      * @param string $version The HTTP protocol version
@@ -422,6 +441,25 @@ class Response
     }
 
     /**
+     * @param $text
+     * @return $this
+     */
+    public function setStatusText($text)
+    {
+        $this->statusText = $text;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusText()
+    {
+        return $this->statusText;
+    }
+
+    /**
      * Sets the response charset.
      *
      * @param string $charset Character set
@@ -485,8 +523,16 @@ class Response
      */
     public function getAge()
     {
+        if (null !== $age = $this->headers->get('Age')) {
+            return (int) $age;
+        }
+
+        return max(time() - $this->getDate()->format('U'), 0);
     }
 
+    /**
+     * @return $this
+     */
     public function setPrivate()
     {
         $this->header->remove('Cache-Control');
@@ -495,6 +541,9 @@ class Response
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function setPublic()
     {
         $this->header->remove('Cache-Control');
@@ -512,6 +561,12 @@ class Response
      */
     public function getExpires()
     {
+        try {
+            return $this->header->getDate('Expires');
+        } catch (\RuntimeException $e) {
+            // according to RFC 2616 invalid date formats (e.g. "0" and "-1") must be treated as in the past
+            return \DateTime::createFromFormat(DATE_RFC2822, 'Sat, 01 Jan 00 00:00:00 +0000');
+        }
     }
 
     /**
@@ -528,7 +583,8 @@ class Response
     public function setExpires(\DateTime $date = null)
     {
         $this->header->remove('Expires');
-        $this->header->set('Expires', $date->format('D, d M Y H:i:s').' GMT');
+        $date->setTimezone(new \DateTimeZone("PRC"));
+        $this->header->set('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
     }
@@ -546,6 +602,7 @@ class Response
      */
     public function getMaxAge()
     {
+        return $this->header->hasGet('Cache-Control', $this->getExpires());
     }
 
     /**
@@ -561,6 +618,16 @@ class Response
      */
     public function setMaxAge($value)
     {
+        $caches = ['max-age=' . $value];
+
+        $cacheControl = $this->header->hasGet('Cache-Control', null);
+        if (null !== $cacheControl) {
+            array_unshift($caches, $cacheControl);
+        }
+
+        $this->header->set('Cache-Control',  implode(',', $caches));
+
+        return $this;
     }
 
     /**
@@ -576,6 +643,8 @@ class Response
      */
     public function setSharedMaxAge($value)
     {
+        $this->setPublic();
+        $this->header->set('Cache-Control', implode(',', [$this->header->get('Cache-Control'), 's-maxage=' . $value]) );
     }
 
     /**
@@ -652,7 +721,7 @@ class Response
     public function setLastModified(\DateTime $date = null)
     {
         $this->header->remove('Last-Modified');
-        $this->header->set('Last-Modified', $date->format('D, d M Y H:i:s').' GMT');
+        $this->header->set('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
     }
@@ -702,7 +771,31 @@ class Response
      */
     public function setCache(array $options)
     {
+        if (isset($options['etag'])) {
+            $this->setEtag($options['etag']);
+        }
 
+        if (isset($options['last_modified'])) {
+            $this->setLastModified($options['last_modified']);
+        }
+
+        if (isset($options['max_age'])) {
+            $this->setMaxAge($options['max_age']);
+        }
+
+        if (isset($options['s_maxage'])) {
+            $this->setSharedMaxAge($options['s_maxage']);
+        }
+
+        if (isset($options['public']) || in_array('public', $options)) {
+            $this->setPublic();
+        }
+
+        if (isset($options['private']) || in_array('private', $options)) {
+            $this->setPrivate();
+        }
+
+        return $this;
     }
 
     /**
@@ -880,8 +973,8 @@ class Response
     public function __toString()
     {
         return
-            sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)."\r\n".
-            $this->header."\r\n".
+            sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText) . "\r\n" .
+            $this->header . "\r\n" .
             $this->getContent();
     }
 }

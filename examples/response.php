@@ -14,6 +14,6 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-$response = new \FastD\Http\Response('demo');
-
+$response = new \FastD\Http\Response('demo', 403);
+$response->setCache(['private']);
 $response->send();

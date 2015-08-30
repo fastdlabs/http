@@ -24,9 +24,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('demo', $response->getContent());
     }
 
-    public function testReponseHeader()
+    public function testErrorResponse()
     {
-        $response = new Response('header demo', 202);
-        echo $response;
+        $response = new Response('demo', 403);
+        print_r($response->getStatusText());
     }
 }
