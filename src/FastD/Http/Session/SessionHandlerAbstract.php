@@ -21,6 +21,40 @@ namespace FastD\Http\Session;
 abstract class SessionHandlerAbstract implements \SessionHandlerInterface
 {
     /**
+     * @var SessionStorageInterface
+     */
+    protected $storage;
+
+    /**
+     * @param SessionStorageInterface|null $sessionStorageInterface
+     */
+    public function __construct(SessionStorageInterface $sessionStorageInterface = null)
+    {
+        if (null !== $sessionStorageInterface) {
+            $this->storage = $sessionStorageInterface;
+        }
+    }
+
+    /**
+     * @param SessionStorageInterface $sessionStorageInterface
+     * @return $this
+     */
+    public function setStorage(SessionStorageInterface $sessionStorageInterface)
+    {
+        $this->storage = $sessionStorageInterface;
+
+        return $this;
+    }
+
+    /**
+     * @return SessionStorageInterface
+     */
+    public function getStorage()
+    {
+        return $this->storage;
+    }
+
+    /**
      * @return bool
      */
     abstract public function close();
