@@ -22,14 +22,18 @@ use FastD\Http\Attribute\Attribute;
  */
 class Session extends Attribute
 {
+    protected $handler;
+
     /**
      * Constructor.
      *
-     * @param SessionHandlerAbstract $sessionHandler
+     * @param SessionHandler
      */
-    public function __construct(SessionHandlerAbstract $sessionHandler = null)
+    public function __construct(SessionHandler $sessionHandler = null)
     {
-        if ($sessionHandler instanceof \SessionHandlerInterface) {
+        $this->handler = $sessionHandler;
+
+        if ($sessionHandler instanceof SessionHandler) {
             session_set_save_handler($sessionHandler, true);
         }
 
@@ -41,10 +45,12 @@ class Session extends Attribute
     /**
      * @param $name
      * @param $value
+     * @param $expire
      * @return $this
      */
-    public function setSession($name, $value)
+    public function setSession($name, $value, $expire = 3600)
     {
+        $this->handler->setTtl($expire);
         $_SESSION[$name] = $value;
         return parent::set($name, $value);
     }
@@ -77,10 +83,6 @@ class Session extends Attribute
             unset($_SESSION[$name]);
         }
 
-        if (isset($_SESSION[$name])) {
-            return false;
-        }
-
-        return true;
+        return isset($_SESSION[$name]) ? false : true;
     }
 }

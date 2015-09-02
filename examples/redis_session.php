@@ -14,6 +14,15 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-$session = new \FastD\Http\Session\Session(new \FastD\Http\Session\RedisSessionHandler());
+$storage = new \FastD\Http\Session\Storage\RedisStorage('11.11.11.33', 6379);
+
+$handler = new \FastD\Http\Session\SessionHandler($storage);
+
+$session = new \FastD\Http\Session\Session($handler);
+
+//$session->setSession('name', 'janhuang', 30);
+$session->clearSession('name');
+var_dump($_SESSION);
+var_dump($session);
 
 

@@ -2,23 +2,21 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/2/23
- * Time: 上午10:23
- * Github: https://www.github.com/janhuang 
+ * Date: 15/9/2
+ * Time: 下午4:07
+ * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
  * Gmail: bboyjanhuang@gmail.com
+ * WebSite: http://www.janhuang.me
  */
 
 namespace FastD\Http\Session;
 
-/**
- * Class SessionHandlerAbstract
- *
- * @package FastD\Http\Session
- */
-abstract class SessionHandlerAbstract implements \SessionHandlerInterface
+use FastD\Http\Session\Storage\SessionStorageInterface;
+
+class SessionHandler implements \SessionHandlerInterface
 {
     /**
      * @var SessionStorageInterface
@@ -28,11 +26,28 @@ abstract class SessionHandlerAbstract implements \SessionHandlerInterface
     /**
      * @param SessionStorageInterface|null $sessionStorageInterface
      */
-    public function __construct(SessionStorageInterface $sessionStorageInterface = null)
+    public function __construct(SessionStorageInterface $sessionStorageInterface)
     {
         if (null !== $sessionStorageInterface) {
             $this->storage = $sessionStorageInterface;
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getTtl()
+    {
+        return $this->storage->getTtl();
+    }
+
+    /**
+     * @param int $ttl
+     * @return $this
+     */
+    public function setTtl($ttl)
+    {
+        return $this->storage->setTtl($ttl);
     }
 
     /**
@@ -57,26 +72,40 @@ abstract class SessionHandlerAbstract implements \SessionHandlerInterface
     /**
      * @return bool
      */
-    abstract public function close();
+    public function close()
+    {
+        $this->storage = null;
+        unset($this->storage);
+    }
 
     /**
      * @param $session_id
      * @return bool
      */
-    abstract public function destroy($session_id);
+    public function destroy($session_id)
+    {
+        return $this->storage->remove($session_id);
+    }
 
     /**
      * @param $maxlifetime
      * @return bool
      */
-    abstract public function gc($maxlifetime);
+    public function gc($maxlifetime)
+    {
+        return true;
+    }
 
     /**
      * @param $save_path
      * @param $session_id
      * @return bool
      */
-    abstract public function open($save_path, $session_id);
+    public function open($save_path, $session_id)
+    {
+        $_SESSION = $this->storage->get('*');
+        return true;
+    }
 
     /**
      * Return session formatter string.
@@ -84,12 +113,22 @@ abstract class SessionHandlerAbstract implements \SessionHandlerInterface
      * @param $session_id
      * @return string
      */
-    abstract public function read($session_id);
+    public function read($session_id)
+    {
+        return $this->storage->get($session_id);
+    }
 
     /**
      * @param $session_id
      * @param $session_data
      * @return bool
      */
-    abstract public function write($session_id, $session_data);
+    public function write($session_id, $session_data)
+    {
+        if (null === $session_data || empty($session_data)) {
+            return $this->storage->remove($session_id);
+        }
+
+        return $this->storage->set($session_id, $session_data);
+    }
 }
