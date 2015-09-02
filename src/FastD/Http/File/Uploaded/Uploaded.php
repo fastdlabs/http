@@ -54,7 +54,7 @@ class Uploaded implements UploadedInterface
     public function upload()
     {
         foreach ($this->files as $file) {
-            $moveFile = $this->config['save.path'] . DIRECTORY_SEPARATOR . $file->getHash() . '.' . $file->getOriginalExtension();
+            $moveFile = $this->config['path'] . DIRECTORY_SEPARATOR . $file->getHash() . '.' . $file->getOriginalExtension();
 
             if (!file_exists($moveFile)) {
                 if (!move_uploaded_file($file->getTmpName(), $moveFile)) {
@@ -107,21 +107,21 @@ class Uploaded implements UploadedInterface
      */
     public function isValid()
     {
-        if (empty($this->config['save.path'])) {
+        if (empty($this->config['path'])) {
             throw new \RuntimeException('Upload file save path is cannot empty.');
         }
 
         foreach ($this->files as $file) {
-            if ($file->getSize() > $this->config['max.size']) {
+            if ($file->getSize() > $this->config['size']) {
                 throw new \RuntimeException(sprintf('The file %s size is over the range.', $file->getName()));
             }
 
-            if (!in_array($file->getMimeType(), $this->config['allow.ext'])) {
+            if (!in_array($file->getMimeType(), $this->config['exts'])) {
                 throw new \RuntimeException(sprintf('The file %s extension is invalid.', $file->getMimeType()));
             }
         }
 
-        $this->targetDirectory($this->config['save.path']);
+        $this->targetDirectory($this->config['path']);
 
         return true;
     }

@@ -278,9 +278,10 @@ class RequestLauncher
             list($name, $value) = explode(': ', $value);
             $headers[$name] = $value;
         }
+
         unset($responseHeaders);
 
-        return new ResponseLauncher(substr($content, $responseHeaderInfo['header_size']), $responseHeaderInfo['http_code']);
+        return new ResponseLauncher(substr($content, $responseHeaderInfo['header_size']), $responseHeaderInfo['http_code'], $headers);
     }
 
     /**

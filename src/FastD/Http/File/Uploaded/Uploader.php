@@ -34,11 +34,11 @@ class Uploader
      * @var array
      */
     private $config = [
-        'save.path' => null,
-        'allow.ext' => [
+        'path' => null,
+        'exts' => [
             'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/icon'
         ],
-        'max.size' => '2M'
+        'size' => '2M'
     ];
 
     /**
@@ -60,7 +60,7 @@ class Uploader
         };
 
         $this->config= array_merge($this->config, $config);
-        $this->config['max.size'] = $convertSize($this->config['max.size']);
+        $this->config['size'] = $convertSize($this->config['size']);
         $this->files = $files;
     }
 
