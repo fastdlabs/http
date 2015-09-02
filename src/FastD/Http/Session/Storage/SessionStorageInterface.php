@@ -14,17 +14,46 @@
 
 namespace FastD\Http\Session\Storage;
 
+/**
+ * Interface SessionStorageInterface
+ *
+ * @package FastD\Http\Session\Storage
+ */
 interface SessionStorageInterface
 {
+    /**
+     * @param $ttl
+     * @return $this
+     */
     public function setTtl($ttl);
 
+    /**
+     * @return int
+     */
     public function getTtl();
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     public function get($name);
 
+    /**
+     * @param $name
+     * @param $value
+     * @return bool
+     */
     public function set($name, $value);
 
+    /**
+     * @param $name
+     * @return bool
+     */
     public function exists($name);
 
+    /**
+     * @param $name
+     * @return bool
+     */
     public function remove($name);
 }

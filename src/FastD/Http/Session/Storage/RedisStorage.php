@@ -14,14 +14,34 @@
 
 namespace FastD\Http\Session\Storage;
 
+/**
+ * Class RedisStorage
+ *
+ * @package FastD\Http\Session\Storage
+ */
 class RedisStorage implements SessionStorageInterface
 {
+    /**
+     * @var \Redis
+     */
     protected $redis;
 
+    /**
+     * @var int
+     */
     protected $ttl = 7200;
 
+    /**
+     * @var string
+     */
     protected $prefix = 'PHPSESSID:';
 
+    /**
+     * @param      $host
+     * @param      $port
+     * @param null $auth
+     * @param int  $timeout
+     */
     public function __construct($host, $port, $auth = null, $timeout = 2)
     {
         $this->redis = new \Redis();
@@ -49,6 +69,10 @@ class RedisStorage implements SessionStorageInterface
         return $this;
     }
 
+    /**
+     * @param $prefix
+     * @return $this
+     */
     public function setPrefix($prefix)
     {
         $this->prefix = $prefix;
@@ -56,11 +80,18 @@ class RedisStorage implements SessionStorageInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getPrefix()
     {
         return $this->prefix;
     }
 
+    /**
+     * @param $name
+     * @return bool|null|string
+     */
     public function get($name)
     {
         $name = $this->getPrefix() . $name;
@@ -70,6 +101,11 @@ class RedisStorage implements SessionStorageInterface
         return $this->redis->get($name);
     }
 
+    /**
+     * @param $name
+     * @param $value
+     * @return bool
+     */
     public function set($name, $value)
     {
         $name = $this->getPrefix() . $name;
@@ -77,11 +113,19 @@ class RedisStorage implements SessionStorageInterface
         return $this->redis->expire($name, $this->getTtl());
     }
 
+    /**
+     * @param $name
+     * @return bool
+     */
     public function exists($name)
     {
         return $this->redis->exists($this->getPrefix() . $name);
     }
 
+    /**
+     * @param $name
+     * @return int
+     */
     public function remove($name)
     {
         return $this->redis->del($this->getPrefix() . $name);
