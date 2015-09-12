@@ -264,7 +264,7 @@ class RequestLauncher
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->getMethod());
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getArguments());
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(['Content-type: ' . implode(',' ,$this->getFormat())], $this->getHeaders()));
+//        curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(['Content-type: ' . implode(',' ,$this->getFormat())], $this->getHeaders()));
         $content = curl_exec($ch);
         $responseHeaderInfo = curl_getinfo($ch);
         curl_close($ch);
