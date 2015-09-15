@@ -230,7 +230,7 @@ class Request
      */
     public function getSessionHandle(\SessionHandlerInterface $handlerInterface = null)
     {
-        if (null === $this->session) {
+        if (null === $this->session && null !== $handlerInterface) {
             $this->session = new Session($handlerInterface);
         }
 
