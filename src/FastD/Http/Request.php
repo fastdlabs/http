@@ -228,7 +228,7 @@ class Request
      * @param \SessionHandlerInterface $handlerInterface
      * @return Session
      */
-    public function getSessionHandle(\SessionHandlerInterface $handlerInterface)
+    public function getSessionHandle(\SessionHandlerInterface $handlerInterface = null)
     {
         if (null === $this->session) {
             $this->session = new Session($handlerInterface);
