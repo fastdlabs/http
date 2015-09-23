@@ -257,6 +257,14 @@ class ServerAttribute extends Attribute
     }
 
     /**
+     * @return array|int|string
+     */
+    public function getUserAgent()
+    {
+        return $this->hasGet('HTTP_USER_AGENT', null);
+    }
+
+    /**
      * @return string
      */
     public function getClientIp()

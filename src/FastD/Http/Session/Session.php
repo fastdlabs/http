@@ -50,10 +50,10 @@ class Session extends Attribute
      */
     public function setSession($name, $value, $expire = 3600)
     {
+        $_SESSION[$name] = $value;
         if ($this->handler instanceof SessionHandler) {
             $this->handler->setTtl($expire);
         }
-        $_SESSION[$name] = $value;
         return parent::set($name, $value);
     }
 

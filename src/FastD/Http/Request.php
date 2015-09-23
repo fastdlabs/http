@@ -326,6 +326,14 @@ class Request
     }
 
     /**
+     * @return array|int|string
+     */
+    public function getUserAgent()
+    {
+        return $this->server->getUserAgent();
+    }
+
+    /**
      * @return resource|string
      */
     public function getContent()

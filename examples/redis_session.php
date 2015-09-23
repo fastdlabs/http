@@ -20,9 +20,8 @@ $handler = new \FastD\Http\Session\SessionHandler($storage);
 
 $session = new \FastD\Http\Session\Session($handler);
 
-//$session->setSession('name', 'janhuang', 30);
+$session->setSession('name', 'janhuang', 5);
 //$session->clearSession('name');
-var_dump($_SESSION);
 var_dump($session);
 
 
