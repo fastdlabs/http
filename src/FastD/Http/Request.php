@@ -20,7 +20,7 @@ use FastD\Http\Attribute\QueryAttribute;
 use FastD\Http\Attribute\RequestAttribute;
 use FastD\Http\Attribute\ServerAttribute;
 use FastD\Http\Launcher\RequestLauncher;
-use FastD\Http\Session\SessionHandlerAbstract;
+use SessionHandlerInterface;
 
 /**
  * Class Request
