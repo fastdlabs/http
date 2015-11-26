@@ -376,7 +376,6 @@ class Request
     public static function createSwooleRequestHandle(array $get = [], array $post = [], array $files = [], array $cookie =[], array $server = [])
     {
         $request = new static($get, $post, $files, $cookie, $server);
-
         if (in_array($request->server->hasGet('REQUEST_METHOD', 'GET'), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
         ) {
             parse_str($request->getContent(), $arguments);
