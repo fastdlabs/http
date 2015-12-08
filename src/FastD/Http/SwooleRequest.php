@@ -28,7 +28,7 @@ class SwooleRequest extends Request
      * @param array $config
      * @return Request|static
      */
-    public static function createRequestHandle(\swoole_http_request $request, array $config = [])
+    public static function createSwooleRequestHandle(\swoole_http_request $request, array $config = [])
     {
         $config = array_merge([
             'document_root'     => '',
