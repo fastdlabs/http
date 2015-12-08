@@ -28,13 +28,16 @@ class SwooleRequest extends Request
      * @param array $config
      * @return Request|static
      */
-    public static function createRequestHandle(\swoole_http_request $request, array $config = null)
+    public static function createRequestHandle(\swoole_http_request $request, array $config = [])
     {
         $config = array_merge([
             'document_root'     => '',
             'script_name'       => '',
-            'script_filename'   => '', // Equal nginx fastcgi_params $document_root$fastcgi_script_name
         ], $config);
+
+        $config['script_filename'] = str_replace('//', '/', $config['document_root'] . '/' . $config['script_name']); // Equal nginx fastcgi_params $document_root$fastcgi_script_name;
+
+        unset($presetConfig);
 
         $get        = isset($request->get) ? $request->get : [];
         $post       = isset($request->post) ? $request->post : [];
@@ -52,7 +55,7 @@ class SwooleRequest extends Request
      * @param array $config
      * @return array
      */
-    public static function initSwooleHttpRequestServer(\swoole_http_request $request, array $config = null)
+    public static function initSwooleHttpRequestServer(\swoole_http_request $request, array $config = [])
     {
         return [
             // Server
@@ -63,17 +66,17 @@ class SwooleRequest extends Request
             'GATEWAY_INTERFACE' => 'fastd_swoole/' . SWOOLE_VERSION,
             // Swoole and general server proxy or server configuration.
             'SERVER_PROTOCOL'   => isset($request->header['server_protocol']) ? $request->header['server_protocol'] : $request->server['server_protocol'],
-            'REQUEST_SCHEMA'    => isset($request->header['request_scheme']) ? $request->header['request_scheme'] : 'http',
+            'REQUEST_SCHEMA'    => isset($request->header['request_scheme']) ? $request->header['request_scheme'] : explode('/',$request->server['server_protocol'])[0],
             'SERVER_NAME'       => isset($request->header['server_name']) ? $request->header['server_name'] : $request->header['host'],
             'SERVER_ADDR'       => isset($request->header['server_addr']) ? $request->header['server_addr'] : $request->header['host'],
             'SERVER_PORT'       => isset($request->header['server_port']) ? $request->header['server_port'] : $request->server['server_port'],
             'REMOTE_ADDR'       => isset($request->header['remote_addr']) ? $request->header['remote_addr'] : $request->server['remote_addr'],
             'REMOTE_PORT'       => isset($request->header['remote_port']) ? $request->header['remote_port'] : $request->server['remote_port'],
             'QUERY_STRING'      => isset($request->server['query_string']) ? $request->server['query_string'] : '',
-            'DOCUMENT_ROOT'     => isset($request->header['document_root']) ? $request->header['document_root']: $config['document_root'],
-            'SCRIPT_FILENAME'   => isset($request->header['script_filename']) ? $request->header['script_filename'] : $config['script_filename'],
-            'SCRIPT_NAME'       => isset($request->header['script_name']) ? $request->header['script_name'] : $config['script_name'],
-            'PHP_SELF'          => isset($request->header['script_name']) ? $request->header['script_name'] : $config['script_name'],
+            'DOCUMENT_ROOT'     => $config['document_root'],
+            'SCRIPT_FILENAME'   => $config['script_filename'],
+            'SCRIPT_NAME'       => '/' . $config['script_name'],
+            'PHP_SELF'          => '/' . $config['script_name'],
             'HTTP_FD'           => $request->fd,
 
             // Header
@@ -83,7 +86,7 @@ class SwooleRequest extends Request
             'HTTP_ACCEPT_LANGUAGE'  => $request->header['accept-language'],
             'HTTP_ACCEPT_ENCODING'  => $request->header['accept-encoding'],
             'HTTP_CONNECTION'       => $request->header['connection'],
-            'HTTP_CACHE_CONTROL'    => $request->header['cache-control'],
+            'HTTP_CACHE_CONTROL'    => isset($request->header['cache-control']) ? $request->header['cache-control'] : '',
         ];
     }
 }

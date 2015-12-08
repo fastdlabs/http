@@ -88,11 +88,27 @@ class ServerAttribute extends Attribute
     }
 
     /**
+     * @return int
+     */
+    public function getPort()
+    {
+        return 'https' === $this->getScheme() ? 443 : 80;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSecure()
+    {
+        return 'https' === $this->getScheme() ? true : false;
+    }
+
+    /**
      * @return array|int|string
      */
     public function getHttpAndHost()
     {
-        return $this->hasGet('SERVER_NAME', $this->get('HTTP_HOST'));
+        return $this->getScheme() . '://' . $this->hasGet('SERVER_NAME', $this->get('HTTP_HOST'));
     }
 
     /**
@@ -134,8 +150,8 @@ class ServerAttribute extends Attribute
     public function getBaseUrl()
     {
         if (null === $this->baseUrl) {
-            //
-            $this->baseUrl = $this->hasGet('BASE_URL', $this->prepareBaseUrl());
+            // Handle base http request and swoole.
+            $this->baseUrl = $this->prepareBaseUrl();
         }
 
         return $this->baseUrl;
@@ -199,7 +215,7 @@ class ServerAttribute extends Attribute
         }
 
         if (0 === strpos($requestUri, dirname($baseUrl))) {
-            return rtrim(dirname($baseUrl), '/');
+            return ('' === ($baseUrl = rtrim(dirname($baseUrl), '/'))) ? '/' : $baseUrl;
         }
 
         $truncatedRequestUri = $requestUri;
@@ -209,7 +225,7 @@ class ServerAttribute extends Attribute
 
         $basename = basename($baseUrl);
         if (empty($basename) || !strpos($truncatedRequestUri, $basename)) {
-            return '';
+            return '/';
         }
 
         if ((strlen($requestUri) >= strlen($baseUrl))

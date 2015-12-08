@@ -17,12 +17,19 @@ include __DIR__ . '/../vendor/autoload.php';
 $server = new \swoole_http_server('0.0.0.0', 9600);
 
 $server->on('request', function ($request, $response) {
+    $document_root = __DIR__;
+    $script_name = 'swoole.php';
     print_r($request);
     $request = \FastD\Http\SwooleRequest::createRequestHandle($request, [
-
+        'document_root'     => $document_root,
+        'script_name'       => $script_name
     ]);
     print_r($request);
-    $response->end('hello fd http');
+
+    $response->write('base : ' . $request->getBaseUrl() . '<br />');
+    $response->write('request_uri: ' . $request->getRequestUri() . '<br />');
+    $response->write('path_info: ' . $request->getPathInfo());
+    $response->end('');
 });
 
 $server->start();
