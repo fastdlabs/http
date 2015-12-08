@@ -18,7 +18,9 @@ $server = new \swoole_http_server('0.0.0.0', 9600);
 
 $server->on('request', function ($request, $response) {
     print_r($request);
-    $request = \FastD\Http\SwooleRequest::createRequestHandle($request);
+    $request = \FastD\Http\SwooleRequest::createRequestHandle($request, [
+
+    ]);
     print_r($request);
     $response->end('hello fd http');
 });

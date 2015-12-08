@@ -30,11 +30,19 @@ class SwooleRequest extends Request
      */
     public static function createRequestHandle(\swoole_http_request $request, array $config = null)
     {
+        $config = array_merge([
+            'document_root'     => '',
+            'script_name'       => '',
+            'script_filename'   => '', // Equal nginx fastcgi_params $document_root$fastcgi_script_name
+        ], $config);
+
         $get        = isset($request->get) ? $request->get : [];
         $post       = isset($request->post) ? $request->post : [];
         $cookies    = isset($request->cookie) ? $request->cookie : [];
         $files      = isset($request->files) ? $request->files : [];
         $server     = self::initSwooleHttpRequestServer($request, $config);
+
+        unset($config);
 
         return new Request($get, $post, $files, $cookies, $server);
     }
@@ -51,27 +59,31 @@ class SwooleRequest extends Request
             'REQUEST_METHOD'    => $request->server['request_method'],
             'REQUEST_URI'       => $request->server['request_uri'],
             'PATH_INFO'         => $request->server['path_info'],
+            'REQUEST_TIME'      => $request->server['request_time'],
+            'GATEWAY_INTERFACE' => 'fastd_swoole/' . SWOOLE_VERSION,
+            // Swoole and general server proxy or server configuration.
             'SERVER_PROTOCOL'   => isset($request->header['server_protocol']) ? $request->header['server_protocol'] : $request->server['server_protocol'],
+            'REQUEST_SCHEMA'    => isset($request->header['request_scheme']) ? $request->header['request_scheme'] : 'http',
             'SERVER_NAME'       => isset($request->header['server_name']) ? $request->header['server_name'] : $request->header['host'],
             'SERVER_ADDR'       => isset($request->header['server_addr']) ? $request->header['server_addr'] : $request->header['host'],
-            'REMOTE_ADDR'       => isset($request->header['remote_addr']) ? $request->header['remote_addr'] : $request->server['remote_addr'],
             'SERVER_PORT'       => isset($request->header['server_port']) ? $request->header['server_port'] : $request->server['server_port'],
-            'REQUEST_TIME'      => $request->server['request_time'],
-            'SCRIPT_FILENAME'   => isset($request->header['script_filename']) ? $request->header['script_filename'] : __FILE__,
-            'DOCUMENT_ROOT'     => isset($request->header['document_root']) ? $request->header['document_root']: '',
-            'GATEWAY_INTERFACE' => 'fastd_swoole/' . SWOOLE_VERSION,
-            'QUERY_STRING'      => isset($request->header['query_string']) ? $request->header['query_string'] : '',
-            'SCRIPT_NAME'       => '',
-            'PHP_SELF'          => '',
+            'REMOTE_ADDR'       => isset($request->header['remote_addr']) ? $request->header['remote_addr'] : $request->server['remote_addr'],
+            'REMOTE_PORT'       => isset($request->header['remote_port']) ? $request->header['remote_port'] : $request->server['remote_port'],
+            'QUERY_STRING'      => isset($request->server['query_string']) ? $request->server['query_string'] : '',
+            'DOCUMENT_ROOT'     => isset($request->header['document_root']) ? $request->header['document_root']: $config['document_root'],
+            'SCRIPT_FILENAME'   => isset($request->header['script_filename']) ? $request->header['script_filename'] : $config['script_filename'],
+            'SCRIPT_NAME'       => isset($request->header['script_name']) ? $request->header['script_name'] : $config['script_name'],
+            'PHP_SELF'          => isset($request->header['script_name']) ? $request->header['script_name'] : $config['script_name'],
+            'HTTP_FD'           => $request->fd,
 
             // Header
-            'HTTP_HOST'         => $request->header['host'],
-            'HTTP_USER_AGENT'   => $request->header['user-agent'],
-            'HTTP_ACCEPT'       => $request->header['accept'],
-            'HTTP_ACCEPT_LANGUAGE' => $request->header['accept-language'],
-            'HTTP_ACCEPT_ENCODING' => $request->header['accept-encoding'],
-            'HTTP_CONNECTION'   => $request->header['connection'],
-            'HTTP_CACHE_CONTROL'=> $request->header['cache-control'],
+            'HTTP_HOST'             => $request->header['host'],
+            'HTTP_USER_AGENT'       => $request->header['user-agent'],
+            'HTTP_ACCEPT'           => $request->header['accept'],
+            'HTTP_ACCEPT_LANGUAGE'  => $request->header['accept-language'],
+            'HTTP_ACCEPT_ENCODING'  => $request->header['accept-encoding'],
+            'HTTP_CONNECTION'       => $request->header['connection'],
+            'HTTP_CACHE_CONTROL'    => $request->header['cache-control'],
         ];
     }
 }

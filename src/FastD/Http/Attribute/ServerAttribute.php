@@ -134,7 +134,8 @@ class ServerAttribute extends Attribute
     public function getBaseUrl()
     {
         if (null === $this->baseUrl) {
-            $this->baseUrl = $this->prepareBaseUrl();
+            //
+            $this->baseUrl = $this->hasGet('BASE_URL', $this->prepareBaseUrl());
         }
 
         return $this->baseUrl;
