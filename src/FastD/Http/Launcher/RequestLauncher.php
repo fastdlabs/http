@@ -92,6 +92,8 @@ class RequestLauncher
      */
     const METHOD_PATCH = 'PATCH';
 
+    const METHOD_AJAX = 'AJAX';
+
     /**
      * @var array
      */
@@ -170,89 +172,111 @@ class RequestLauncher
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    public function get()
+    public function get(array $headers = [])
     {
         $this->method = self::METHOD_GET;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    public function post()
+    public function post(array $headers = [])
     {
         $this->method = self::METHOD_POST;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    public function put()
+    public function put(array $headers = [])
     {
         $this->method = self::METHOD_PUT;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    public function head()
+    public function head(array $headers = [])
     {
         $this->method = self::METHOD_HEAD;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param string $method
      * @return Response
      */
-    public function patch()
+    public function ajax($method = 'GET')
+    {
+        $this->method = $method;
+
+        return $this->launchHttpRequest([
+            'X-REQUESTED-WITH: XmlHttpRequest'
+        ]);
+    }
+
+    /**
+     * @param array $headers
+     * @return Response
+     */
+    public function patch(array $headers = [])
     {
         $this->method = self::METHOD_PATCH;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    public function delete()
+    public function delete(array $headers = [])
     {
         $this->method = self::METHOD_DELETE;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    public function options()
+    public function options(array $headers = [])
     {
         $this->method = self::METHOD_OPTIONS;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    public function trace()
+    public function trace(array $headers = [])
     {
         $this->method = self::METHOD_TRACE;
 
-        return $this->launchHttpRequest();
+        return $this->launchHttpRequest($headers);
     }
 
     /**
+     * @param array $headers
      * @return Response
      */
-    protected function launchHttpRequest()
+    protected function launchHttpRequest(array $headers = [])
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getUrl());
@@ -264,7 +288,7 @@ class RequestLauncher
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->getMethod());
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getArguments());
-//        curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(['Content-type: ' . implode(',' ,$this->getFormat())], $this->getHeaders()));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $content = curl_exec($ch);
         $responseHeaderInfo = curl_getinfo($ch);
         curl_close($ch);
