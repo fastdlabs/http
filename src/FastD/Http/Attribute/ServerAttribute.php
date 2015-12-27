@@ -106,9 +106,9 @@ class ServerAttribute extends Attribute
     /**
      * @return array|int|string
      */
-    public function getHttpAndHost()
+    public function getHost()
     {
-        return $this->getScheme() . '://' . $this->hasGet('SERVER_NAME', $this->get('HTTP_HOST'));
+        return $this->hasGet('SERVER_NAME', $this->get('HTTP_HOST'));
     }
 
     /**

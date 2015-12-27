@@ -128,17 +128,33 @@ class Request
     /**
      * @return string
      */
-    public function getSchemeAndHttpAndHost()
+    public function getSchemaAndHost()
     {
-        return $this->server->getScheme() . '://' . $this->getDomain();
+        return $this->getScheme() . '://' . $this->getHost();
     }
 
     /**
      * @return string
      */
-    public function getDomain()
+    public function getScheme()
     {
-        return $this->server->getHttpAndHost();
+        return $this->server->getScheme();
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->server->getHost();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSecure()
+    {
+        return $this->server->isSecure();
     }
 
     /**
