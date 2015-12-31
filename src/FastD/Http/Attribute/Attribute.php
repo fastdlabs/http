@@ -79,7 +79,7 @@ class Attribute implements \Iterator, \Countable
     {
         if (is_string($value)) {
             preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $value);
-            $value = strip_tags($value);
+            $value = strip_tags(trim($value));
         }
 
         return $value;
