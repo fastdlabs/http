@@ -18,10 +18,7 @@ $composer = include __DIR__ . '/../vendor/autoload.php';
 $request = \FastD\Http\Request::createRequestHandle();
 
 if ($request->isMethod('post')) {
-    $launcher = $request->createRequest('http://localhost/demo/file_demo/upload.php', ['file' => new CURLFile('/Users/janhuang/Documents/htdocs/demo/file_demo/dmeo')]);
-    $launcher->setFormat('form');
-    $result = $launcher->post();
-    var_dump($result);
+    var_dump($request->files->isEmpty());
 }
 ?>
 
