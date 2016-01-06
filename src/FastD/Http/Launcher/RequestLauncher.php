@@ -306,7 +306,7 @@ class RequestLauncher
 
         unset($responseHeaders);
 
-        return new ResponseLauncher(substr($content, $responseHeaderInfo['header_size']), $responseHeaderInfo['http_code'], $headers);
+        return new ResponseLauncher((substr($content, $responseHeaderInfo['header_size']) ?: ''), $responseHeaderInfo['http_code'], $headers);
     }
 
     /**
