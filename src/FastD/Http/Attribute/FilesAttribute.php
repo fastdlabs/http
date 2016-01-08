@@ -60,4 +60,21 @@ class FilesAttribute extends Attribute
     {
         return new Uploader($config, $this->all());
     }
+
+    /**
+     * @return UploadFile[]
+     */
+    public function getFiles()
+    {
+        return $this->all();
+    }
+
+    /**
+     * @param $name
+     * @return UploadFile
+     */
+    public function getFile($name)
+    {
+        return $this->get($name);
+    }
 }
