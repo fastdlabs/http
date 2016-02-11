@@ -128,7 +128,7 @@ class Request
     /**
      * @return string
      */
-    public function getSchemaAndHost()
+    public function getSchemeAndHost()
     {
         return $this->getScheme() . '://' . $this->getHost();
     }
