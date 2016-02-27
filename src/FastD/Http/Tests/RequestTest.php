@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/12/23
- * Time: 下午4:02
+ * Date: 16/2/16
+ * Time: 下午12:19
  * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -12,10 +12,12 @@
  * WebSite: http://www.janhuang.me
  */
 
-include __DIR__ . '/../vendor/autoload.php';
+namespace FastD\Protocol\Http\Tests;
 
-$request = \FastD\Http\Request::createRequestHandle();
+class RequestTest extends \PHPUnit_Framework_TestCase
+{
+    public function testHeader()
+    {
 
-$response = $request->createRequest('http://localhost/me/fastd/library/http/examples/base.php')->ajax();
-echo '<pre>';
-print_r($response);
+    }
+}

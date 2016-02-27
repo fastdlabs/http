@@ -311,7 +311,7 @@ class Request
      */
     public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true)
     {
-        return $this->cookies->setCookie($name, $value, $expire, $path, $domain, $secure, $httpOnly, true);
+        return $this->cookies->setCookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
     }
 
     /**
@@ -342,7 +342,7 @@ class Request
     }
 
     /**
-     * @return array|int|string
+     * @return string
      */
     public function getUserAgent()
     {
