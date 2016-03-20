@@ -87,7 +87,7 @@ class Response
      * 
      * @var HeaderAttribute
      */
-    public $header;
+    protected $header;
 
     /**
      * Http response content.
@@ -200,6 +200,8 @@ class Response
 
     /**
      * Constructor.
+     *
+     * {@inheritdoc}
      *
      * @param mixed $content The response content, see setContent()
      * @param int   $status  The response status code
