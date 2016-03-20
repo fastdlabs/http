@@ -27,6 +27,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testErrorResponse()
     {
         $response = new Response('demo', 403);
-        print_r($response->getStatusText());
+        $this->assertEquals($response->getStatusCode(), 403);
     }
 }
