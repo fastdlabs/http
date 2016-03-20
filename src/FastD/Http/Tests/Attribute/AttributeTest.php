@@ -33,13 +33,6 @@ class AttributeTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($attribute->has('age'));
     }
 
-    public function testIterator()
-    {
-        $attribute = new Attribute(['name' => 'jan']);
-
-
-    }
-
     public function testCount()
     {
         $attribute = new Attribute(['name' => 'jan']);
@@ -52,5 +45,22 @@ class AttributeTest extends \PHPUnit_Framework_TestCase
     public function testEmpty()
     {
         $attribute = new Attribute(['name' => 'jan']);
+
+        $this->assertFalse($attribute->isEmpty());
+
+        $attribute = new Attribute();
+
+        $this->assertTrue($attribute->isEmpty());
+    }
+
+    public function testRemove()
+    {
+        $attribute = new Attribute(['name' => 'jan']);
+
+        $this->assertFalse($attribute->isEmpty());
+
+        $attribute->remove('name');
+
+        $this->assertTrue($attribute->isEmpty());
     }
 }

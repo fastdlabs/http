@@ -14,7 +14,7 @@
 namespace FastD\Http\Attribute;
 
 /**
- * Class AttributeAbstract
+ * Class Attribute
  *
  * @package Attribute
  */
@@ -34,6 +34,7 @@ class Attribute implements \Iterator, \Countable
     }
 
     /**
+     * {@inheritdoc}
      * @param $name
      * @return bool
      */
@@ -47,6 +48,8 @@ class Attribute implements \Iterator, \Countable
     }
 
     /**
+     *
+     * {@inheritdoc}
      * @param $name
      * @param bool $raw
      * @param $callback
