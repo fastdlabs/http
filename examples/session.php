@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: janhuang
  * Date: 16/3/21
- * Time: 下午11:14
+ * Time: 下午11:47
  * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -14,13 +14,12 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-use FastD\Http\Attribute\CookiesAttribute;
+use FastD\Http\Session\Session;
 
-$cookie = new CookiesAttribute($_COOKIE);
+$session = new Session();
 
-//$cookie->set('name', 'janhuang');
+//$session->set('name', 'janhuang');
 
 echo '<pre>';
-print_r($cookie->all());
-
-echo $cookie->get('name')->asString();
+print_r($session->all());
+ 

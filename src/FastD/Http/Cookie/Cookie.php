@@ -82,7 +82,11 @@ class Cookie implements \Serializable
         $this->secure   = $secure;
         $this->httpOnly = $httpOnly;
 
-        setcookie($this->getName(), $this->serialize(), empty($this->getExpire()) ? null : time() + $this->getExpire(), $this->getPath(), $this->getDomain(), $this->isSecure(), $this->isHttpOnly());
+        if ($force) {
+            setcookie($this->getName(), $this->serialize(), empty($this->getExpire()) ? null : time() + $this->getExpire(), $this->getPath(), $this->getDomain(), $this->isSecure(), $this->isHttpOnly());
+        } else {
+            $this->unserialize($value);
+        }
     }
 
     /**

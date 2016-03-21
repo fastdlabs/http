@@ -21,10 +21,14 @@ use FastD\Http\Cookie\Cookie;
  */
 class CookiesAttribute extends Attribute
 {
+    /**
+     * CookiesAttribute constructor.
+     * @param array $parameters
+     */
     public function __construct(array $parameters = [])
     {
         foreach ($parameters as $key => $value) {
-            $parameters[$key] = new Cookie($key, $value);
+            $parameters[$key] = new Cookie($key, $value, null, null, null, null, null, false);
         }
 
         parent::__construct($parameters);
@@ -56,9 +60,22 @@ class CookiesAttribute extends Attribute
      * @param bool   $httpOnly
      * @return CookiesAttribute
      */
-    public function set($name, $value = null, $expire = null, $path = '/', $domain = null, $secure = false, $httpOnly = false)
+    public function set($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
     {
         return parent::set($name, new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly));
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param $name
+     * @param bool $raw
+     * @param null $callback
+     * @return Cookie
+     */
+    public function get($name, $raw = false, $callback = null)
+    {
+        return parent::get($name, $raw, $callback);
     }
 
     /**
