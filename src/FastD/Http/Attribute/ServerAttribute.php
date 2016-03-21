@@ -28,12 +28,12 @@ class ServerAttribute extends Attribute
     /**
      * @var string
      */
-    protected $rootPath;
+    protected $baseUrl;
 
     /**
-     * @var string
+     * @var HeaderAttribute
      */
-    protected $baseUrl;
+    protected $header;
 
     /**
      * @var string
@@ -41,18 +41,22 @@ class ServerAttribute extends Attribute
     protected $requestUri;
 
     /**
-     * @return string
+     * ServerAttribute constructor.
+     * @param array $parameters
      */
-    public function getRootPath()
+    public function __construct(array $parameters)
     {
-        if (null === $this->rootPath) {
-            $this->rootPath = $this->getBaseUrl();
-            if ('' != pathinfo($this->rootPath, PATHINFO_EXTENSION)) {
-                $this->rootPath = pathinfo($this->rootPath, PATHINFO_DIRNAME);
+        parent::__construct($parameters);
+
+        $headers = array();
+
+        foreach ($this->all() as $key => $value) {
+            if (0 === strpos($key, 'HTTP_')) {
+                $headers[$key] = $value;
             }
         }
 
-        return $this->rootPath;
+        $this->header = new HeaderAttribute($headers);
     }
 
     /**
@@ -64,19 +68,11 @@ class ServerAttribute extends Attribute
     }
 
     /**
-     * @return array
+     * @return HeaderAttribute
      */
-    public function getHeaders()
+    public function getHeader()
     {
-        $headers = array();
-
-        foreach ($this->all() as $key => $value) {
-            if (0 === strpos($key, 'HTTP_')) {
-                $headers[substr($key, 5)] = $value;
-            }
-        }
-
-        return $headers;
+        return $this->header;
     }
 
     /**
@@ -92,7 +88,7 @@ class ServerAttribute extends Attribute
      */
     public function getPort()
     {
-        return 'https' === $this->getScheme() ? 443 : 80;
+        return $this->hasGet('SERVER_PORT', ('https' === $this->getScheme() ? 443 : 80));
     }
 
     /**
@@ -109,6 +105,14 @@ class ServerAttribute extends Attribute
     public function getHost()
     {
         return $this->hasGet('SERVER_NAME', $this->get('HTTP_HOST'));
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->get('REQUEST_METHOD');
     }
 
     /**
@@ -150,7 +154,6 @@ class ServerAttribute extends Attribute
     public function getBaseUrl()
     {
         if (null === $this->baseUrl) {
-            // Handle base http request and swoole.
             $this->baseUrl = $this->prepareBaseUrl();
         }
 
@@ -264,21 +267,13 @@ class ServerAttribute extends Attribute
      */
     protected function prepareFormat()
     {
-        $pathInfo = $this->has('PATH_INFO') ? $this->get('PATH_INFO') : $this->preparePathInfo();
+        $pathInfo = $this->hasGet('PATH_INFO', $this->preparePathInfo());
 
         $format = '' == ($format = pathinfo($pathInfo, PATHINFO_EXTENSION)) ? 'php' : $format;
 
         $this->set('REQUEST_FORMAT', $format);
 
         return $format;
-    }
-
-    /**
-     * @return array|int|string
-     */
-    public function getUserAgent()
-    {
-        return $this->hasGet('HTTP_USER_AGENT', null);
     }
 
     /**

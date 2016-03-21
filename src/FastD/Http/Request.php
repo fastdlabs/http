@@ -122,7 +122,7 @@ class Request
         $this->files    = new FilesAttribute($files);
         $this->cookies  = new CookiesAttribute($cookie);
         $this->server   = new ServerAttribute($server);
-        $this->header   = new HeaderAttribute($this->server->getHeaders());
+        $this->header   = $this->server->getHeader();
     }
 
     /**
@@ -186,14 +186,6 @@ class Request
     /**
      * @return string
      */
-    public function getRootPath()
-    {
-        return $this->server->getRootPath();
-    }
-
-    /**
-     * @return string
-     */
     public function getPathInfo()
     {
         return $this->server->getPathInfo();
@@ -212,7 +204,7 @@ class Request
      */
     public function getMethod()
     {
-        return $this->server->get('REQUEST_METHOD');
+        return $this->server->getMethod();
     }
 
     /**
@@ -228,7 +220,7 @@ class Request
      */
     public function isXmlHttpRequest()
     {
-        return $this->header->has('X_REQUESTED_WITH') ? 'xmlhttprequest' === strtolower($this->header->get('X_REQUESTED_WITH')) : false;
+        return $this->header->isXmlHttpRequest();
     }
 
     /**
@@ -346,7 +338,7 @@ class Request
      */
     public function getUserAgent()
     {
-        return $this->server->getUserAgent();
+        return $this->header->getUserAgent();
     }
 
     /**

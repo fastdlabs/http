@@ -23,5 +23,4 @@ var_dump($request->getFormat());
 var_dump($request->getClientIp());
 var_dump('base url: ' . $request->getBaseUrl());
 var_dump('request uri: ' . $request->getRequestUri());
-var_dump('root path: ' . $request->getRootPath());
 var_dump($request->query->hasGet('name', 'janhuang'));
