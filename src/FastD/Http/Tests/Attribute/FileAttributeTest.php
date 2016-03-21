@@ -15,6 +15,7 @@
 namespace FastD\Protocol\Http\Tests\Attribute;
 
 use FastD\Http\Attribute\FilesAttribute;
+use FastD\Http\File\UploadFile;
 
 class FileAttributeTest extends \PHPUnit_Framework_TestCase
 {
@@ -75,8 +76,36 @@ class FileAttributeTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($attribute->isEmpty());
     }
 
-    public function testGetFile()
+    public function testFilesFormat()
     {
+        $attribute = new FilesAttribute(['file' => [
+            'name' => [
+                'test.txt'
+            ],
+            'type' => [
+                'text/plain',
+            ],
+            'error' => [
+                0
+            ],
+            'tmp_name' => [
+                '/tmp/php/test'
+            ],
+            'size' => [
+                0
+            ]
+        ]]);
 
+        $this->assertInstanceOf(UploadFile::class, $attribute->getFile('file')[0]);
+
+        $attribute = new FilesAttribute(['file' => [
+            'name' => 'test.txt',
+            'type' => 'text/plain',
+            'error' => 0,
+            'tmp_name' => '/tmp/php/test',
+            'size' => 123
+        ]]);
+
+        $this->assertInstanceOf(UploadFile::class, $attribute->getFile('file'));
     }
 }
