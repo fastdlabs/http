@@ -34,6 +34,8 @@ class CookiesAttribute extends Attribute
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @param        $name
      * @param null   $value
      * @param int    $expire
