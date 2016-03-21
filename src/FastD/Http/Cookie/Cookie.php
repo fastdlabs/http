@@ -67,7 +67,7 @@ class Cookie implements \Serializable
      * @param bool   $httpOnly
      * @param bool   $force
      */
-    public function __construct($name, $value = null, $expire = null, $path = '/', $domain = null, $secure = false, $httpOnly = true, $force = true)
+    public function __construct($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null, $force = true)
     {
         // from PHP source code
         if (preg_match("/[=,; \t\r\n\013\014]/", $name)) {
@@ -78,15 +78,11 @@ class Cookie implements \Serializable
         $this->value    = $value;
         $this->domain   = $domain;
         $this->expire   = $expire;
-        $this->path     = empty($path) ? '/' : $path;
+        $this->path     = $path;
         $this->secure   = $secure;
         $this->httpOnly = $httpOnly;
 
-        if ($force) {
-            setcookie($this->getName(), $this->serialize(), time() + $this->getExpire(), $this->getPath(), $this->getDomain(), $this->isSecure(), $this->isHttpOnly());
-        } else {
-            $this->unserialize($value);
-        }
+        setcookie($this->getName(), $this->serialize(), empty($this->getExpire()) ? null : time() + $this->getExpire(), $this->getPath(), $this->getDomain(), $this->isSecure(), $this->isHttpOnly());
     }
 
     /**

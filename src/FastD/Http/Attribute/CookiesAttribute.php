@@ -21,6 +21,15 @@ use FastD\Http\Cookie\Cookie;
  */
 class CookiesAttribute extends Attribute
 {
+    public function __construct(array $parameters = [])
+    {
+        foreach ($parameters as $key => $value) {
+            $parameters[$key] = new Cookie($key, $value);
+        }
+
+        parent::__construct($parameters);
+    }
+
     /**
      * @param $name
      * @return bool

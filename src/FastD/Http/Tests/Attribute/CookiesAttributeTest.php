@@ -28,7 +28,13 @@ class CookiesAttributeTest extends \PHPUnit_Framework_TestCase
         $attribute->set('name', 'janhuang');
 
         $this->assertEquals('janhuang', $attribute->get('name'));
+    }
 
-        print_r($attribute->get('name'));
+    /**
+     * @runInSeparateProcess
+     */
+    public function testInitCookies()
+    {
+
     }
 }

@@ -24,5 +24,19 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testSet()
     {
         $session = new Session();
+
+        $session->set('name', 'janhuang');
+
+        $this->assertEquals('janhuang', $session->get('name'));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testGet()
+    {
+        $session = new Session();
+
+        print_r($session->all());
     }
 }

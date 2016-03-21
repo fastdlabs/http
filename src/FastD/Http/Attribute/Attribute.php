@@ -224,4 +224,9 @@ class Attribute implements \Iterator, \Countable
     {
         return count($this->parameters);
     }
+
+    public function __destruct()
+    {
+        $this->parameters = [];
+    }
 }

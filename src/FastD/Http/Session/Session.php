@@ -22,6 +22,11 @@ use FastD\Http\Attribute\Attribute;
  */
 class Session extends Attribute
 {
+    /**
+     * {@inheritdoc}
+     *
+     * @var SessionHandler
+     */
     protected $handler;
 
     /**
@@ -48,43 +53,41 @@ class Session extends Attribute
      * @param $expire
      * @return $this
      */
-    public function setSession($name, $value, $expire = 3600)
+    public function set($name, $value, $expire = 3600)
     {
         $_SESSION[$name] = $value;
+
         if ($this->handler instanceof SessionHandler) {
             $this->handler->setTtl($expire);
         }
+
         return parent::set($name, $value);
     }
 
     /**
      * @param $name
-     * @return array|int|string
-     */
-    public function getSession($name)
-    {
-        return parent::get($name);
-    }
-
-    /**
-     * @param $name
      * @return bool
      */
-    public function hasSession($name)
-    {
-        return parent::has($name);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function clearSession($name)
+    public function clear($name)
     {
         if (isset($_SESSION[$name])) {
             unset($_SESSION[$name]);
         }
 
         return isset($_SESSION[$name]) ? false : true;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return $this
+     */
+    public function clearAll()
+    {
+        foreach ($this->all() as $name => $value) {
+            $this->clear($name);
+        }
+
+        return $this;
     }
 }
