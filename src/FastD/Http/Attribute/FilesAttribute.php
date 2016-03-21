@@ -46,9 +46,9 @@ class FilesAttribute extends Attribute
                     $this->set(sprintf('%s[%s]', $name, $key), new UploadFile($file['name'][$key], $file['type'][$key], $file['tmp_name'][$key], $file['size'][$key], $file['error'][$key]));
                 }
                 continue;
+            } else if (!empty($file['name'])) {
+                $this->set($name, new UploadFile($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
             }
-
-            $this->set($name, new UploadFile($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
         }
     }
 
