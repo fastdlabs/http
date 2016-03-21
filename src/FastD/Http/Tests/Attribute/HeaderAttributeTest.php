@@ -50,7 +50,6 @@ class HeaderAttributeTest extends \PHPUnit_Framework_TestCase
         'REQUEST_URI' => '/me/fastd/library/http/examples/server.php',
         'SCRIPT_NAME' => '/me/fastd/library/http/examples/server.php',
         'PHP_SELF' => '/me/fastd/library/http/examples/server.php',
-
     ];
 
     public function testArgs()

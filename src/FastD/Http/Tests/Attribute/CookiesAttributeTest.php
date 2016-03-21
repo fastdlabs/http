@@ -14,8 +14,21 @@
 
 namespace FastD\Protocol\Http\Tests\Attribute;
 
+use FastD\Http\Attribute\CookiesAttribute;
+
 class CookiesAttributeTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testSetCookie()
-    {}
+    {
+        $attribute = new CookiesAttribute();
+
+        $attribute->set('name', 'janhuang');
+
+        $this->assertEquals('janhuang', $attribute->get('name'));
+
+        print_r($attribute->get('name'));
+    }
 }

@@ -67,7 +67,7 @@ class Cookie implements \Serializable
      * @param bool   $httpOnly
      * @param bool   $force
      */
-    public function __construct($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true, $force = true)
+    public function __construct($name, $value = null, $expire = null, $path = '/', $domain = null, $secure = false, $httpOnly = true, $force = true)
     {
         // from PHP source code
         if (preg_match("/[=,; \t\r\n\013\014]/", $name)) {
@@ -262,7 +262,7 @@ class Cookie implements \Serializable
      */
     public function __toString()
     {
-        return (string)$this->value;
+        return (string) $this->value;
     }
 
     /**
