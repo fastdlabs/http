@@ -14,6 +14,7 @@
 namespace FastD\Http\Session;
 
 use FastD\Http\Attribute\Attribute;
+use FastD\Http\Session\Storage\SessionStorageInterface;
 
 /**
  * Class Session
@@ -40,7 +41,7 @@ class Session extends Attribute
         }
 
         session_start();
-        print_r($_SESSION);
+
         parent::__construct($_SESSION);
     }
 
@@ -50,13 +51,9 @@ class Session extends Attribute
      * @param $expire
      * @return $this
      */
-    public function set($name, $value, $expire = 3600)
+    public function set($name, $value, $expire = null)
     {
         $_SESSION[$name] = $value;
-
-        if ($this->handler instanceof SessionHandler) {
-
-        }
 
         return parent::set($name, $value);
     }
@@ -71,7 +68,7 @@ class Session extends Attribute
             unset($_SESSION[$name]);
         }
 
-        return isset($_SESSION[$name]) ? false : true;
+        return isset($_SESSION[$name]);
     }
 
     /**

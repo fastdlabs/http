@@ -14,6 +14,8 @@
 
 namespace FastD\Http\Session;
 
+use FastD\Http\Session\Storage\SessionStorageInterface;
+
 /**
  * Class SessionHandler
  *
@@ -40,8 +42,6 @@ class SessionHandler extends \SessionHandler
     public function close()
     {
         $this->storage = null;
-
-        unset($this->storage);
 
         return true;
     }
@@ -92,11 +92,7 @@ class SessionHandler extends \SessionHandler
      */
     public function write($session_id, $session_data)
     {
-        if (null === $session_data || empty($session_data)) {
-            $this->storage->remove($session_id);
-        } else {
-            $this->storage->set($session_id, $session_data);
-        }
+        $this->storage->set($session_id, $session_data);
 
         return true;
     }

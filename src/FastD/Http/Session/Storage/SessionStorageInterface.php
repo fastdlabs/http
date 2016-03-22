@@ -12,16 +12,12 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Http\Session;
+namespace FastD\Http\Session\Storage;
 
-/**
- * Interface SessionStorageInterface
- *
- * @package FastD\Http\Session
- */
 interface SessionStorageInterface
 {
     const KEY_PREFIX = 'SESS:';
+    const TTL = 3600; // 1 hour
 
     /**
      * @param $name
