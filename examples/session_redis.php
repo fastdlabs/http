@@ -85,9 +85,7 @@ class RedisStorage implements \FastD\Http\Session\Storage\SessionStorageInterfac
 
 echo '<pre>';
 
-$redis = new RedisStorage();
-
-$session = new \FastD\Http\Session\Session($redis);
+$session = new \FastD\Http\Session\Session(new RedisStorage());
 
 //$session->set('name', 'janhuang');
 //$session->set('age', 18);
