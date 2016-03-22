@@ -2,25 +2,19 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/1/28
- * Time: 下午3:53
+ * Date: 16/3/21
+ * Time: 下午11:03
  * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
- * sf: http://segmentfault.com/u/janhuang
+ * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
+ * WebSite: http://www.janhuang.me
  */
-error_reporting(E_ALL);
-echo '<pre>';
+
 include __DIR__ . '/../vendor/autoload.php';
 
-$request = \FastD\Http\Request::createRequestHandle();
+use FastD\Http\Request;
 
-print_r($request->request->hasGet('name', 'default'));
-
-$response = $request->createRequest('http://fast-d.cn/')->get();
-
-print_r($response->getHeader());
-$response->sendHeaders();
-$response->send();
-
+$request = Request::createRequestHandle();
 

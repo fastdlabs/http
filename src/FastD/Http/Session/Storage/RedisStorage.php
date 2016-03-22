@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/9/2
- * Time: 下午4:34
+ * Date: 16/3/22
+ * Time: 下午10:16
  * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -14,120 +14,73 @@
 
 namespace FastD\Http\Session\Storage;
 
-/**
- * Class RedisStorage
- *
- * @package FastD\Http\Session\Storage
- */
 class RedisStorage implements SessionStorageInterface
 {
-    /**
-     * @var \Redis
-     */
-    protected $redis;
+    protected $storage;
 
-    /**
-     * @var int
-     */
-    protected $ttl = 7200;
-
-    /**
-     * @var string
-     */
-    protected $prefix = 'PHPSESSID:';
-
-    /**
-     * @param      $host
-     * @param      $port
-     * @param null $auth
-     * @param int  $timeout
-     */
-    public function __construct($host, $port, $auth = null, $timeout = 2)
+    public function __construct()
     {
-        $this->redis = new \Redis();
-        $this->redis->connect($host, $port, $timeout);
-        if (null !== $auth) {
-            $this->redis->auth($auth);
-        }
-    }
+        $redis = new \Redis();
 
-    /**
-     * @return int
-     */
-    public function getTtl()
-    {
-        return $this->ttl;
-    }
+        $redis->connect('11.11.11.44', 6379);
 
-    /**
-     * @param int $ttl
-     * @return $this
-     */
-    public function setTtl($ttl)
-    {
-        $this->ttl = $ttl;
-        return $this;
-    }
-
-    /**
-     * @param $prefix
-     * @return $this
-     */
-    public function setPrefix($prefix)
-    {
-        $this->prefix = $prefix;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrefix()
-    {
-        return $this->prefix;
+        $this->storage = $redis;
     }
 
     /**
      * @param $name
-     * @return bool|null|string
+     * @return bool
+     */
+    public function isExpire($name)
+    {
+        return $this->storage->ttl(self::KEY_PREFIX . $name);
+    }
+
+    /**
+     * @param $name
+     * @param $ttl
+     * @return mixed
+     */
+    public function ttl($name, $ttl)
+    {
+        return $this->storage->expire(self::KEY_PREFIX . $name, $ttl);
+    }
+
+    /**
+     * @param $name
+     * @return mixed
      */
     public function get($name)
     {
-        $name = $this->getPrefix() . $name;
-        if (false === $this->redis->exists($name)) {
-            return null;
-        }
-        return $this->redis->get($name);
+        return $this->storage->get(self::KEY_PREFIX . $name);
     }
 
     /**
      * @param $name
      * @param $value
+     * @param $ttl
      * @return bool
      */
-    public function set($name, $value)
+    public function set($name, $value, $ttl = null)
     {
-        $name = $this->getPrefix() . $name;
-        $this->redis->set($name, $value);
-        return $this->redis->expire($name, $this->getTtl());
+        return $this->storage->set(self::KEY_PREFIX . $name, $value, $ttl ?? 3600);
     }
 
     /**
      * @param $name
      * @return bool
      */
-    public function exists($name)
+    public function has($name)
     {
-        return $this->redis->exists($this->getPrefix() . $name);
+        return $this->storage->expire(self::KEY_PREFIX . $name, 1);
     }
 
     /**
      * @param $name
-     * @return int
+     * @return bool
      */
     public function remove($name)
     {
-        return $this->redis->del($this->getPrefix() . $name);
+        return $this->storage->del($name);
     }
 }

@@ -43,12 +43,12 @@ class FilesAttribute extends Attribute
                     if (empty($value)) {
                         continue;
                     }
-                    $this->set(sprintf('%s[%s]', $name, $key), new UploadFile($file['name'][$key], $file['type'][$key], $file['tmp_name'][$key], $file['size'][$key], $file['error'][$key]));
+                    $this->parameters[$name][$key] = new UploadFile($file['name'][$key], $file['type'][$key], $file['tmp_name'][$key], $file['size'][$key], $file['error'][$key]);
                 }
                 continue;
+            } else if (!empty($file['name'])) {
+                $this->set($name, new UploadFile($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
             }
-
-            $this->set($name, new UploadFile($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
         }
     }
 
@@ -58,7 +58,7 @@ class FilesAttribute extends Attribute
      */
     public function getUploader(array $config = [])
     {
-        return new Uploader($config, $this->all());
+        return new Uploader($config, $this->getFiles());
     }
 
     /**

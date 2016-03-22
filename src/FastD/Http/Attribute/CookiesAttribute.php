@@ -12,6 +12,7 @@
  */
 
 namespace FastD\Http\Attribute;
+use FastD\Http\Cookie\Cookie;
 
 /**
  * Class CookiesAttribute
@@ -20,6 +21,19 @@ namespace FastD\Http\Attribute;
  */
 class CookiesAttribute extends Attribute
 {
+    /**
+     * CookiesAttribute constructor.
+     * @param array $parameters
+     */
+    public function __construct(array $parameters = [])
+    {
+        foreach ($parameters as $key => $value) {
+            $parameters[$key] = new Cookie($key, $value, null, null, null, null, null, false);
+        }
+
+        parent::__construct($parameters);
+    }
+
     /**
      * @param $name
      * @return bool
@@ -30,50 +44,61 @@ class CookiesAttribute extends Attribute
             unset($_COOKIE[$name]);
             setcookie($name, null, -1, '/');
         }
+
         return parent::remove($name);
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @param        $name
      * @param null   $value
-     * @param int    $expire
+     * @param int|null    $expire
      * @param string $path
      * @param null   $domain
      * @param bool   $secure
      * @param bool   $httpOnly
      * @return CookiesAttribute
      */
-    public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = false)
+    public function set($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
     {
-        setcookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
-        return parent::set($name, $value);
+        return parent::set($name, new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly));
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @param $name
-     * @return mixed
+     * @param bool $raw
+     * @param null $callback
+     * @return Cookie
      */
-    public function getCookie($name)
+    public function get($name, $raw = false, $callback = null)
     {
-        return parent::get($name);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function hasCookie($name)
-    {
-        return parent::has($name);
+        return parent::get($name, $raw, $callback);
     }
 
     /**
      * @param $name
      * @return bool
      */
-    public function clearCookie($name)
+    public function clear($name)
     {
         return $this->remove($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return $this
+     */
+    public function clearAll()
+    {
+        foreach ($this->all() as $key => $value) {
+            $this->remove($key);
+        }
+
+        return $this;
     }
 
     /**

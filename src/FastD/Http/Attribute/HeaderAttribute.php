@@ -13,8 +13,114 @@
 
 namespace FastD\Http\Attribute;
 
+/**
+ * Class HeaderAttribute
+ *
+ * @package FastD\Http\Attribute
+ */
 class HeaderAttribute extends Attribute
 {
+    /**
+     * @var CookiesAttribute
+     */
+    protected $cookies;
+
+    /**
+     * @return null|string
+     */
+    public function getUserAgent()
+    {
+        return $this->hasGet('HTTP_USER_AGENT', null);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAccept()
+    {
+        return $this->hasGet('HTTP_ACCEPT', null);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAcceptEncoding()
+    {
+        return $this->hasGet('HTTP_ACCEPT_ENCODING', null);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getAcceptLanguage()
+    {
+        return $this->hasGet('HTTP_ACCEPT_LANGUAGE', null);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getReferer()
+    {
+        return $this->hasGet('HTTP_REFERER', null);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getHost()
+    {
+        return $this->hasGet('HTTP_HOST', null);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getConnection()
+    {
+        return $this->hasGet('HTTP_CONNECTION', null);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getCacheControl()
+    {
+        return $this->hasGet('HTTP_CACHE_CONTROL', null);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isXmlHttpRequest()
+    {
+        return $this->has('HTTP_X_REQUESTED_WITH') ? 'xmlhttprequest' === strtolower($this->get('HTTP_X_REQUESTED_WITH')) : false;
+    }
+
+    /**
+     *
+     */
+    public function getCookies()
+    {
+
+    }
+
+    public function getCookie($name)
+    {}
+
+    public function setCookies(array $cookies)
+    {
+
+    }
+
+    public function setCookie()
+    {}
+
+    /**
+     * Return http response header.
+     *
+     * @return string
+     */
     public function __toString()
     {
         $header = '';

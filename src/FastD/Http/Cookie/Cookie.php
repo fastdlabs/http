@@ -67,7 +67,7 @@ class Cookie implements \Serializable
      * @param bool   $httpOnly
      * @param bool   $force
      */
-    public function __construct($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true, $force = true)
+    public function __construct($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null, $force = true)
     {
         // from PHP source code
         if (preg_match("/[=,; \t\r\n\013\014]/", $name)) {
@@ -78,12 +78,12 @@ class Cookie implements \Serializable
         $this->value    = $value;
         $this->domain   = $domain;
         $this->expire   = $expire;
-        $this->path     = empty($path) ? '/' : $path;
+        $this->path     = $path;
         $this->secure   = $secure;
         $this->httpOnly = $httpOnly;
 
         if ($force) {
-            setcookie($this->getName(), $this->serialize(), time() + $this->getExpire(), $this->getPath(), $this->getDomain(), $this->isSecure(), $this->isHttpOnly());
+            setcookie($this->getName(), $this->serialize(), empty($this->getExpire()) ? null : time() + $this->getExpire(), $this->getPath(), $this->getDomain(), $this->isSecure(), $this->isHttpOnly());
         } else {
             $this->unserialize($value);
         }
@@ -262,7 +262,7 @@ class Cookie implements \Serializable
      */
     public function __toString()
     {
-        return (string)$this->value;
+        return (string) $this->value;
     }
 
     /**
@@ -298,12 +298,15 @@ class Cookie implements \Serializable
     public function unserialize($serialized)
     {
         if (null !== $serialized) {
-            $serialized = @unserialize($serialized);
-            if ($serialized && is_array($serialized)) {
-                foreach ($serialized as $name => $value) {
+            $data = @unserialize($serialized);
+            if ($data && is_array($data)) {
+                foreach ($data as $name => $value) {
                     $this->$name = $value;
                 }
+            } else {
+                $this->value = $serialized;
             }
         }
+        unset($serialized, $data);
     }
 }

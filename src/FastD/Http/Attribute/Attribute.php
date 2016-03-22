@@ -14,7 +14,7 @@
 namespace FastD\Http\Attribute;
 
 /**
- * Class AttributeAbstract
+ * Class Attribute
  *
  * @package Attribute
  */
@@ -34,6 +34,7 @@ class Attribute implements \Iterator, \Countable
     }
 
     /**
+     * {@inheritdoc}
      * @param $name
      * @return bool
      */
@@ -47,6 +48,8 @@ class Attribute implements \Iterator, \Countable
     }
 
     /**
+     *
+     * {@inheritdoc}
      * @param $name
      * @param bool $raw
      * @param $callback
@@ -106,10 +109,7 @@ class Attribute implements \Iterator, \Countable
         try {
             return $this->get($name, $raw, $callback);
         } catch (\Exception $e) {
-            if (is_callable($callback)) {
-                return $callback($default);
-            }
-            return $default;
+            return is_callable($callback) ? $callback($default) : $default;
         }
     }
 
@@ -223,5 +223,10 @@ class Attribute implements \Iterator, \Countable
     public function count()
     {
         return count($this->parameters);
+    }
+
+    public function __destruct()
+    {
+        $this->parameters = [];
     }
 }

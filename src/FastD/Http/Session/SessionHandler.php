@@ -16,7 +16,12 @@ namespace FastD\Http\Session;
 
 use FastD\Http\Session\Storage\SessionStorageInterface;
 
-class SessionHandler implements \SessionHandlerInterface
+/**
+ * Class SessionHandler
+ *
+ * @package FastD\Http\Session
+ */
+class SessionHandler extends \SessionHandler
 {
     /**
      * @var SessionStorageInterface
@@ -28,45 +33,7 @@ class SessionHandler implements \SessionHandlerInterface
      */
     public function __construct(SessionStorageInterface $sessionStorageInterface)
     {
-        if (null !== $sessionStorageInterface) {
-            $this->storage = $sessionStorageInterface;
-        }
-    }
-
-    /**
-     * @return int
-     */
-    public function getTtl()
-    {
-        return $this->storage->getTtl();
-    }
-
-    /**
-     * @param int $ttl
-     * @return $this
-     */
-    public function setTtl($ttl)
-    {
-        return $this->storage->setTtl($ttl);
-    }
-
-    /**
-     * @param SessionStorageInterface $sessionStorageInterface
-     * @return $this
-     */
-    public function setStorage(SessionStorageInterface $sessionStorageInterface)
-    {
         $this->storage = $sessionStorageInterface;
-
-        return $this;
-    }
-
-    /**
-     * @return SessionStorageInterface
-     */
-    public function getStorage()
-    {
-        return $this->storage;
     }
 
     /**
@@ -75,7 +42,8 @@ class SessionHandler implements \SessionHandlerInterface
     public function close()
     {
         $this->storage = null;
-        unset($this->storage);
+
+        return true;
     }
 
     /**
@@ -103,7 +71,6 @@ class SessionHandler implements \SessionHandlerInterface
      */
     public function open($save_path, $session_id)
     {
-        $_SESSION = $this->storage->get('*');
         return true;
     }
 
@@ -125,10 +92,8 @@ class SessionHandler implements \SessionHandlerInterface
      */
     public function write($session_id, $session_data)
     {
-        if (null === $session_data || empty($session_data)) {
-            return $this->storage->remove($session_id);
-        }
+        $this->storage->set($session_id, $session_data);
 
-        return $this->storage->set($session_id, $session_data);
+        return true;
     }
 }

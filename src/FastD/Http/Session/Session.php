@@ -14,6 +14,7 @@
 namespace FastD\Http\Session;
 
 use FastD\Http\Attribute\Attribute;
+use FastD\Http\Session\Storage\SessionStorageInterface;
 
 /**
  * Class Session
@@ -22,19 +23,21 @@ use FastD\Http\Attribute\Attribute;
  */
 class Session extends Attribute
 {
+    /**
+     * @var SessionHandler
+     */
     protected $handler;
 
     /**
      * Constructor.
      *
-     * @param SessionHandler
+     * @param SessionStorageInterface $sessionStorageInterface
      */
-    public function __construct(SessionHandler $sessionHandler = null)
+    public function __construct(SessionStorageInterface $sessionStorageInterface = null)
     {
-        $this->handler = $sessionHandler;
-
-        if ($sessionHandler instanceof SessionHandler) {
-            session_set_save_handler($sessionHandler, true);
+        if ($sessionStorageInterface instanceof SessionStorageInterface) {
+            $this->handler = new SessionHandler($sessionStorageInterface);
+            session_set_save_handler($this->handler, true);
         }
 
         session_start();
@@ -48,43 +51,35 @@ class Session extends Attribute
      * @param $expire
      * @return $this
      */
-    public function setSession($name, $value, $expire = 3600)
+    public function set($name, $value, $expire = null)
     {
         $_SESSION[$name] = $value;
-        if ($this->handler instanceof SessionHandler) {
-            $this->handler->setTtl($expire);
-        }
+
         return parent::set($name, $value);
     }
 
     /**
      * @param $name
-     * @return array|int|string
-     */
-    public function getSession($name)
-    {
-        return parent::get($name);
-    }
-
-    /**
-     * @param $name
      * @return bool
      */
-    public function hasSession($name)
-    {
-        return parent::has($name);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function clearSession($name)
+    public function clear($name)
     {
         if (isset($_SESSION[$name])) {
             unset($_SESSION[$name]);
         }
 
-        return isset($_SESSION[$name]) ? false : true;
+        return isset($_SESSION[$name]);
+    }
+
+    /**
+     * @return $this
+     */
+    public function clearAll()
+    {
+        foreach ($this->all() as $name => $value) {
+            $this->clear($name);
+        }
+
+        return $this;
     }
 }

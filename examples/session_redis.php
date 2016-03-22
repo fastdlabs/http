@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/9/2
- * Time: 下午4:03
+ * Date: 16/3/21
+ * Time: 下午11:52
  * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -14,14 +14,14 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-$storage = new \FastD\Http\Session\Storage\RedisStorage('11.11.11.33', 6379);
-
-$handler = new \FastD\Http\Session\SessionHandler($storage);
-
-$session = new \FastD\Http\Session\Session($handler);
-
-$session->setSession('name', 'janhuang', 5);
-//$session->clearSession('name');
-var_dump($session);
 
 
+echo '<pre>';
+
+$redis = new \FastD\Http\Session\Storage\RedisStorage();
+
+$session = new \FastD\Http\Session\Session($redis);
+
+//$session->set('name', 'janhuang');
+//$session->set('age', 18);
+print_r($session->all());

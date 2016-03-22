@@ -122,7 +122,7 @@ class Request
         $this->files    = new FilesAttribute($files);
         $this->cookies  = new CookiesAttribute($cookie);
         $this->server   = new ServerAttribute($server);
-        $this->header   = new HeaderAttribute($this->server->getHeaders());
+        $this->header   = $this->server->getHeader();
     }
 
     /**
@@ -186,14 +186,6 @@ class Request
     /**
      * @return string
      */
-    public function getRootPath()
-    {
-        return $this->server->getRootPath();
-    }
-
-    /**
-     * @return string
-     */
     public function getPathInfo()
     {
         return $this->server->getPathInfo();
@@ -212,7 +204,7 @@ class Request
      */
     public function getMethod()
     {
-        return $this->server->get('REQUEST_METHOD');
+        return $this->server->getMethod();
     }
 
     /**
@@ -228,7 +220,7 @@ class Request
      */
     public function isXmlHttpRequest()
     {
-        return $this->header->has('X_REQUESTED_WITH') ? 'xmlhttprequest' === strtolower($this->header->get('X_REQUESTED_WITH')) : false;
+        return $this->header->isXmlHttpRequest();
     }
 
     /**
@@ -259,7 +251,7 @@ class Request
      */
     public function getSession($name)
     {
-        return $this->getSessionHandle()->getSession($name);
+        return $this->getSessionHandle()->get($name);
     }
 
     /**
@@ -269,7 +261,7 @@ class Request
      */
     public function setSession($name, $value)
     {
-        return $this->getSessionHandle()->setSession($name, $value);
+        return $this->getSessionHandle()->set($name, $value);
     }
 
     /**
@@ -278,7 +270,7 @@ class Request
      */
     public function hasSession($name)
     {
-        return $this->getSessionHandle()->hasSession($name);
+        return $this->getSessionHandle()->has($name);
     }
 
     /**
@@ -287,7 +279,7 @@ class Request
      */
     public function clearSession($name)
     {
-        return $this->getSessionHandle()->clearSession($name);
+        return $this->getSessionHandle()->clear($name);
     }
 
     /**
@@ -296,7 +288,7 @@ class Request
      */
     public function getCookie($name)
     {
-        return $this->cookies->getCookie($name);
+        return $this->cookies->get($name);
     }
 
     /**
@@ -311,7 +303,7 @@ class Request
      */
     public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true)
     {
-        return $this->cookies->setCookie($name, $value, $expire, $path, $domain, $secure, $httpOnly, true);
+        return $this->cookies->set($name, $value, $expire, $path, $domain, $secure, $httpOnly);
     }
 
     /**
@@ -320,7 +312,7 @@ class Request
      */
     public function hasCookie($name)
     {
-        return $this->cookies->hasCookie($name);
+        return $this->cookies->has($name);
     }
 
     /**
@@ -329,7 +321,7 @@ class Request
      */
     public function clearCookie($name)
     {
-        return $this->cookies->clearCookie($name);
+        return $this->cookies->clear($name);
     }
 
     /**
@@ -342,11 +334,11 @@ class Request
     }
 
     /**
-     * @return array|int|string
+     * @return string
      */
     public function getUserAgent()
     {
-        return $this->server->getUserAgent();
+        return $this->header->getUserAgent();
     }
 
     /**

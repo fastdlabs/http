@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 15/7/14
- * Time: 上午10:27
+ * Date: 16/3/21
+ * Time: 下午2:08
  * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -12,8 +12,10 @@
  * WebSite: http://www.janhuang.me
  */
 
-include __DIR__ . '/../vendor/autoload.php';
+namespace FastD\Protocol\Http\Tests\Session;
 
-$response = new \FastD\Http\Response('demo', 403);
-$response->setCache(['private']);
-$response->send();
+class RedisSessionTest extends \PHPUnit_Framework_TestCase
+{
+    public function testDriver()
+    {}
+}
