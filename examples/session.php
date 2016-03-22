@@ -18,7 +18,9 @@ use FastD\Http\Session\Session;
 
 $session = new Session();
 
-//$session->set('name', 'janhuang');
+/*$session->set('name', [
+    'name' => 'janhuang'
+]);*/
 
 echo '<pre>';
 print_r($session->all());

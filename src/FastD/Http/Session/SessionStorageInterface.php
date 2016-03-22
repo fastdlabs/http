@@ -12,25 +12,27 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Http\Session\Storage;
+namespace FastD\Http\Session;
 
 /**
  * Interface SessionStorageInterface
  *
- * @package FastD\Http\Session\Storage
+ * @package FastD\Http\Session
  */
 interface SessionStorageInterface
 {
-    /**
-     * @param $ttl
-     * @return $this
-     */
-    public function setTtl($ttl);
+    const KEY_PREFIX = 'SESS:';
 
     /**
-     * @return int
+     * @return bool
      */
-    public function getTtl();
+    public function isExpire();
+
+    /**
+     * @param $ttl
+     * @return mixed
+     */
+    public function ttl($ttl);
 
     /**
      * @param $name
@@ -41,15 +43,16 @@ interface SessionStorageInterface
     /**
      * @param $name
      * @param $value
+     * @param $ttl
      * @return bool
      */
-    public function set($name, $value);
+    public function set($name, $value, $ttl = null);
 
     /**
      * @param $name
      * @return bool
      */
-    public function exists($name);
+    public function has($name);
 
     /**
      * @param $name

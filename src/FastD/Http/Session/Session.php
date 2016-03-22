@@ -23,8 +23,6 @@ use FastD\Http\Attribute\Attribute;
 class Session extends Attribute
 {
     /**
-     * {@inheritdoc}
-     *
      * @var SessionHandler
      */
     protected $handler;
@@ -32,14 +30,13 @@ class Session extends Attribute
     /**
      * Constructor.
      *
-     * @param SessionHandler
+     * @param SessionStorageInterface $sessionStorageInterface
      */
-    public function __construct(SessionHandler $sessionHandler = null)
+    public function __construct(SessionStorageInterface $sessionStorageInterface = null)
     {
-        $this->handler = $sessionHandler;
-
-        if ($sessionHandler instanceof SessionHandler) {
-            session_set_save_handler($sessionHandler, true);
+        if ($sessionStorageInterface instanceof SessionStorageInterface) {
+            $this->handler = new SessionHandler($sessionStorageInterface);
+            session_set_save_handler($this->handler, true);
         }
 
         session_start();
@@ -58,7 +55,7 @@ class Session extends Attribute
         $_SESSION[$name] = $value;
 
         if ($this->handler instanceof SessionHandler) {
-            $this->handler->setTtl($expire);
+//            $this->handler->setTtl($expire);
         }
 
         return parent::set($name, $value);

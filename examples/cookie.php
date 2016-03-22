@@ -19,8 +19,14 @@ use FastD\Http\Attribute\CookiesAttribute;
 $cookie = new CookiesAttribute($_COOKIE);
 
 //$cookie->set('name', 'janhuang');
+//setcookie('age', 18);
 
 echo '<pre>';
 print_r($cookie->all());
 
-echo $cookie->get('name')->asString();
+try {
+    echo $cookie->get('name')->asString();
+} catch (Exception $e) {
+    echo 'null';
+}
+
