@@ -24,15 +24,17 @@ interface SessionStorageInterface
     const KEY_PREFIX = 'SESS:';
 
     /**
-     * @return bool
+     * @param $name
+     * @return mixed
      */
-    public function isExpire();
+    public function isExpire($name);
 
     /**
+     * @param $name
      * @param $ttl
      * @return mixed
      */
-    public function ttl($ttl);
+    public function ttl($name, $ttl);
 
     /**
      * @param $name

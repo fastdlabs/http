@@ -251,7 +251,7 @@ class Request
      */
     public function getSession($name)
     {
-        return $this->getSessionHandle()->getSession($name);
+        return $this->getSessionHandle()->get($name);
     }
 
     /**
@@ -261,7 +261,7 @@ class Request
      */
     public function setSession($name, $value)
     {
-        return $this->getSessionHandle()->setSession($name, $value);
+        return $this->getSessionHandle()->set($name, $value);
     }
 
     /**
@@ -270,7 +270,7 @@ class Request
      */
     public function hasSession($name)
     {
-        return $this->getSessionHandle()->hasSession($name);
+        return $this->getSessionHandle()->has($name);
     }
 
     /**
@@ -279,7 +279,7 @@ class Request
      */
     public function clearSession($name)
     {
-        return $this->getSessionHandle()->clearSession($name);
+        return $this->getSessionHandle()->clear($name);
     }
 
     /**
@@ -288,7 +288,7 @@ class Request
      */
     public function getCookie($name)
     {
-        return $this->cookies->getCookie($name);
+        return $this->cookies->get($name);
     }
 
     /**
@@ -303,7 +303,7 @@ class Request
      */
     public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true)
     {
-        return $this->cookies->setCookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        return $this->cookies->set($name, $value, $expire, $path, $domain, $secure, $httpOnly);
     }
 
     /**
@@ -312,7 +312,7 @@ class Request
      */
     public function hasCookie($name)
     {
-        return $this->cookies->hasCookie($name);
+        return $this->cookies->has($name);
     }
 
     /**
@@ -321,7 +321,7 @@ class Request
      */
     public function clearCookie($name)
     {
-        return $this->cookies->clearCookie($name);
+        return $this->cookies->clear($name);
     }
 
     /**

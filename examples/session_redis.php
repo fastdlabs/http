@@ -16,21 +16,32 @@ include __DIR__ . '/../vendor/autoload.php';
 
 class RedisStorage implements \FastD\Http\Session\SessionStorageInterface
 {
+    protected $storage;
+
+    public function __construct()
+    {
+        $redis = new Redis();
+
+        $redis->connect('11.11.11.44', 6379);
+
+        $this->storage = $redis;
+    }
+
     /**
      * @return bool
      */
-    public function isExpire()
+    public function isExpire($name)
     {
-        // TODO: Implement isExpire() method.
+        return $this->storage->ttl(self::KEY_PREFIX . $name);
     }
 
     /**
      * @param $ttl
      * @return mixed
      */
-    public function ttl($ttl)
+    public function ttl($name, $ttl)
     {
-        // TODO: Implement ttl() method.
+        return $this->storage->expire(self::KEY_PREFIX . $name, $ttl);
     }
 
     /**
@@ -39,7 +50,7 @@ class RedisStorage implements \FastD\Http\Session\SessionStorageInterface
      */
     public function get($name)
     {
-        // TODO: Implement get() method.
+        $this->storage->get(self::KEY_PREFIX . $name);
     }
 
     /**
@@ -50,7 +61,7 @@ class RedisStorage implements \FastD\Http\Session\SessionStorageInterface
      */
     public function set($name, $value, $ttl = null)
     {
-        // TODO: Implement set() method.
+        $this->storage->set(self::KEY_PREFIX . $name, $value, $ttl ?? 3600);
     }
 
     /**
@@ -59,7 +70,7 @@ class RedisStorage implements \FastD\Http\Session\SessionStorageInterface
      */
     public function has($name)
     {
-        // TODO: Implement has() method.
+        return $this->storage->expire(self::KEY_PREFIX . $name, 1);
     }
 
     /**
@@ -68,10 +79,14 @@ class RedisStorage implements \FastD\Http\Session\SessionStorageInterface
      */
     public function remove($name)
     {
-        // TODO: Implement remove() method.
+        return $this->storage->del($name);
     }
 }
 
 $session = new \FastD\Http\Session\Session(new RedisStorage());
 
-$session->set('name', 'janhuang');
+//$session->set('name', 'janhuang');
+//$session->set('age', 18);
+//print_r($session->all());
+
+//echo $session->get('name');

@@ -40,7 +40,7 @@ class Session extends Attribute
         }
 
         session_start();
-
+        print_r($_SESSION);
         parent::__construct($_SESSION);
     }
 
@@ -55,7 +55,7 @@ class Session extends Attribute
         $_SESSION[$name] = $value;
 
         if ($this->handler instanceof SessionHandler) {
-//            $this->handler->setTtl($expire);
+
         }
 
         return parent::set($name, $value);
@@ -75,8 +75,6 @@ class Session extends Attribute
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return $this
      */
     public function clearAll()

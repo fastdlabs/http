@@ -19,7 +19,7 @@ namespace FastD\Http\Session;
  *
  * @package FastD\Http\Session
  */
-class SessionHandler implements \SessionHandlerInterface
+class SessionHandler extends \SessionHandler
 {
     /**
      * @var SessionStorageInterface
@@ -71,8 +71,6 @@ class SessionHandler implements \SessionHandlerInterface
      */
     public function open($save_path, $session_id)
     {
-        $_SESSION = $this->storage->get('*');
-
         return true;
     }
 
