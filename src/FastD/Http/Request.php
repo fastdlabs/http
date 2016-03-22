@@ -20,7 +20,7 @@ use FastD\Http\Attribute\QueryAttribute;
 use FastD\Http\Attribute\RequestAttribute;
 use FastD\Http\Attribute\ServerAttribute;
 use FastD\Http\Launcher\RequestLauncher;
-use SessionHandlerInterface;
+use FastD\Http\Session\Storage\SessionStorageInterface;
 
 /**
  * Class Request
@@ -233,13 +233,13 @@ class Request
     }
 
     /**
-     * @param \SessionHandlerInterface $handlerInterface
+     * @param SessionStorageInterface $sessionStorageInterface
      * @return Session
      */
-    public function getSessionHandle(\SessionHandlerInterface $handlerInterface = null)
+    public function getSessionHandle(SessionStorageInterface $sessionStorageInterface = null)
     {
         if (null === $this->session) {
-            $this->session = new Session($handlerInterface);
+            $this->session = new Session($sessionStorageInterface);
         }
 
         return $this->session;

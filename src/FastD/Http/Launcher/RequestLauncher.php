@@ -224,7 +224,7 @@ class RequestLauncher
         $this->method = $method;
 
         return $this->launchHttpRequest([
-            'X-REQUESTED-WITH: XmlHttpRequest'
+            'HTTP_X_REQUESTED_WITH: XmlHttpRequest'
         ]);
     }
 
