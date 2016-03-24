@@ -21,7 +21,7 @@ use FastD\Http\File\UploadFile;
  *
  * @package FastD\Http\File\Uploaded
  */
-class Uploaded implements UploadedInterface
+class Uploaded implements UploadInterface
 {
     /**
      * @var \FastD\Http\File\File[]
@@ -78,7 +78,7 @@ class Uploaded implements UploadedInterface
     /**
      * @return \FastD\Http\File\File[]
      */
-    public function getUploadFiles()
+    public function getUploadedFiles()
     {
         return $this->uploadedInfo;
     }

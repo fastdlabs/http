@@ -11,7 +11,7 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\File\Uploaded;
+namespace FastD\Http\File\Upload;
 
 /**
  * Class Uploader
@@ -26,7 +26,7 @@ class Uploader
     private $files;
 
     /**
-     * @var UploadedInterface
+     * @var UploadInterface
      */
     private $uploaded;
 
@@ -35,17 +35,21 @@ class Uploader
      */
     private $config = [
         'path' => null,
-        'exts' => [
-            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/icon'
+        'ext' => [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+            'image/icon',
         ],
         'size' => '2M'
     ];
 
     /**
-     * @param array $config
      * @param array $files
+     * @param array $config
      */
-    public function __construct(array $config, array $files)
+    public function __construct(array $files, array $config)
     {
         $convertSize = function ($maxSize) {
             $max = (int)substr($maxSize, 0, -1);
@@ -65,11 +69,11 @@ class Uploader
     }
 
     /**
-     * @param UploadedInterface $uploaded
-     * @return UploadedInterface
+     * @param UploadInterface $uploaded
+     * @return UploadInterface
      * @throws \Exception
      */
-    public function uploading(UploadedInterface $uploaded = null)
+    public function uploading(UploadInterface $uploaded = null)
     {
         if (null !== $uploaded) {
             $this->uploaded = $uploaded;

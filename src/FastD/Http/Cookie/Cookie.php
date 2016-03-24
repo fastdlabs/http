@@ -298,12 +298,12 @@ class Cookie implements \Serializable
     public function unserialize($serialized)
     {
         if (null !== $serialized) {
-            $data = @unserialize($serialized);
-            if ($data && is_array($data)) {
+            try {
+                $data = @unserialize($serialized);
                 foreach ($data as $name => $value) {
                     $this->$name = $value;
                 }
-            } else {
+            } catch(\Exception $e) {
                 $this->value = $serialized;
             }
         }
