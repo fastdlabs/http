@@ -11,7 +11,7 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\File\Upload;
+namespace FastD\Http\File;
 
 /**
  * Interface UploadedInterface
@@ -20,16 +20,20 @@ namespace FastD\Http\File\Upload;
  */
 interface UploadInterface
 {
-    /**
-     * @param array $config
-     * @param array $files
-     */
-    public function __construct(array $config, array $files);
+    const UPLOAD_SIZE = 4;
+    const UPLOAD_EXT = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/icon',
+    ];
 
     /**
+     * @param string $path
      * @return bool
      */
-    public function upload();
+    public function uploadTo($path);
 
     /**
      * @return bool

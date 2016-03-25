@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: janhuang
  * Date: 15/6/13
- * Time: 下午12:16
+ * Time: 下午12:05
  * Github: https://www.github.com/janhuang 
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -11,47 +11,22 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\File\Uploaded;
+namespace FastD\Http\File;
 
-use FastD\Http\File\File;
-use FastD\Http\File\UploadFile;
 
 /**
- * Class Uploaded
+ * Class Uploader
  *
  * @package FastD\Http\File\Uploaded
  */
-class Uploaded implements UploadInterface
+class Upload implements UploadInterface
 {
     /**
      * @var \FastD\Http\File\File[]
      */
     private $uploadedInfo;
 
-    /**
-     * @var array
-     */
-    protected $config;
-
-    /**
-     * @var UploadFile[]
-     */
-    protected $files;
-
-    /**
-     * @param array $config
-     * @param array $files
-     */
-    public function __construct(array $config, array $files)
-    {
-        $this->config = $config;
-        $this->files = $files;
-    }
-
-    /**
-     * @return $this
-     */
-    public function upload()
+    public function uploadTo($path)
     {
         foreach ($this->files as $file) {
             $moveFile = $this->config['path'] . DIRECTORY_SEPARATOR . $file->getHash() . '.' . $file->getOriginalExtension();

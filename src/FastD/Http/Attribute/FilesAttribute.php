@@ -13,8 +13,9 @@
 
 namespace FastD\Http\Attribute;
 
-use FastD\Http\File\Uploaded\Uploader;
+use FastD\Http\File\Upload;
 use FastD\Http\File\UploadFile;
+use FastD\Http\File\UploadInterface;
 
 /**
  * Class FilesAttribute
@@ -52,13 +53,13 @@ class FilesAttribute extends Attribute
         }
     }
 
-    /**
-     * @param array $config
-     * @return Uploader
-     */
-    public function getUploader(array $config = [])
+    public function getUploader(UploadInterface $uploadInterface = null)
     {
-        return new Uploader($config, $this->getFiles());
+        if (null === $uploadInterface) {
+            $uploadInterface = new Upload($this->all());
+        }
+
+        return $uploadInterface;
     }
 
     /**

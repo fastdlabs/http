@@ -106,7 +106,9 @@ class HeaderAttribute extends Attribute
     }
 
     public function getCookie($name)
-    {}
+    {
+
+    }
 
     public function setCookies(array $cookies)
     {
@@ -114,7 +116,9 @@ class HeaderAttribute extends Attribute
     }
 
     public function setCookie()
-    {}
+    {
+
+    }
 
     /**
      * Return http response header.
