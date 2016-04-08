@@ -21,6 +21,7 @@ namespace FastD\Http\File;
 interface UploadInterface
 {
     const UPLOAD_SIZE = 4;
+
     const UPLOAD_EXT = [
         'image/jpeg',
         'image/jpg',
