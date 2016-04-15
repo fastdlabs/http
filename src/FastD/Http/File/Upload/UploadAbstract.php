@@ -34,6 +34,27 @@ abstract class UploadAbstract implements UploadInterface
     protected $errors;
 
     /**
+     * @var array
+     */
+    protected $config = [
+        'ext'   => UploadInterface::UPLOAD_EXT,
+        'size'  => UploadInterface::UPLOAD_SIZE,
+    ];
+
+    /**
+     * UploadAbstract constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
+    {
+        foreach ($config as $name => $value) {
+            if (isset($this->config[$name])) {
+                $this->config[$name] = $value;
+            }
+        }
+    }
+
+    /**
      * @return \FastD\Http\File\File[]
      */
     public function getUploadedFiles()
@@ -66,11 +87,11 @@ abstract class UploadAbstract implements UploadInterface
     public function isValid()
     {
         foreach ($this->files as $file) {
-            if ($file->getSize() > (static::UPLOAD_SIZE * 1024 * 1024)) {
+            if ($file->getSize() > ($this->config['size'] * 1024 * 1024)) {
                 throw new \RuntimeException(sprintf('The file %s size is over the range.', $file->getName()));
             }
 
-            if (!in_array($file->getMimeType(), static::UPLOAD_EXT)) {
+            if (!in_array($file->getMimeType(), $this->config['ext'])) {
                 throw new \RuntimeException(sprintf('The file %s extension is invalid.', $file->getMimeType()));
             }
         }

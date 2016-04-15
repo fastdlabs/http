@@ -13,8 +13,6 @@
 
 namespace FastD\Http\File\Upload;
 
-use FastD\Http\File\File;
-
 /**
  * Class Uploader
  *

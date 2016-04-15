@@ -22,12 +22,20 @@ use FastD\Http\Request;
 $request = Request::createRequestHandle();
 ```
 
-### 上传参数处理
+### query string (GET) 参数处理
 
 当用户访问 `http://examples.com/?name=jan` 链接的时候，可以通过 `query` 对象访问对应的参数。
 
 ```
 $request->query->hasGet('name', null);
+```
+
+### request body (POST|PUT|DELETE) 参数处理
+
+当用户访问 `http://examples.com/` 链接的时候，可以通过 `request` 对象访问对应的参数。
+
+```
+$request->request->hasGet('name', null);
 ```
 
 ### session 处理
@@ -48,76 +56,37 @@ $session = new \FastD\Http\Session\Session(new RedisStorage());
 $session = $request->getSessionHandle(new RedisStorage());
 ```
 
+默认适用 PHP 原生的 session 机制
+
 ### cookie 处理
 
 cookie 处理和我们日常中的 cookie 处理 API 是一致的，使用上也并没有太大差异。
 
+### files 文件上传
+
+```
+$files = $request->getUploader()->uploadTo(__DIR__ . '/uploaded');
+```
+
+文件返回如下信息:
+
+```
+FastD\Http\File\File Object
+(
+    [name:protected] => 卡片.jpg
+    [mimeType:protected] => image/jpeg
+    [tmpName:protected] => /Applications/XAMPP/xamppfiles/temp/phpjbMLpI
+    [size:protected] => 81086
+    [error:protected] =>
+    [hash:protected] => 1d5e65d3500a6c2dd6e700fc296dbfb5
+    [relativePath:protected] => uploaded/1d5e65d3500a6c2dd6e700fc296dbfb5.jpg
+    [absolutePath:protected] => /Users/janhuang/Documents/htdocs/me/fastd/library/http/examples/uploaded/1d5e65d3500a6c2dd6e700fc296dbfb5.jpg
+    [extension:protected] => jpg
+    [type:protected] => file
+    [cTime:protected] => 1460730887
+)
+```
+
 ----
-
-## api
-
-### 获取 $_GET 参数
-
-```
-public $query: QueryAttribute
-```
-
-### 获取 POST|PUT|DELETE 等参数
-
-```
-public $request: RequestAttribute
-```
-
-### 获取 $_SERVER 参数
-
-```
-public $server: ServerAttribute
-```
-
-### 获取 header 参数
-
-```
-public $header: HeaderAttribute
-```
-
-### 获取 $_COOKIE 参数
-
-```
-public $cookies: CookiesAttribute
-```
-
-### 获取 $_SESSION 参数
-
-因为 session 的特殊性，所以 session 的处理和其他不一样，获取需要获取 `getSessionHandle`
-
-```
-public function getSessionHandle(\FastD\Http\Session\Storage\SessionStorageInterface $sessionStorageInterface): Session
-```
-
-### 获取 path info
-
-path info 更多用在配合路由处理方面。
-
-```
-public function getPathInfo(): string
-```
-
-### 获取请求ip
-
-```
-public function getClientIp(): string
-```
-
-### 获取 User-Agent
-
-```
-public function getUserAgent(): string
-```
-
-### 判断ajax 请求
-
-```
-public function isXmlHttpRequest(): boolean
-```
 
 ## License MIT
