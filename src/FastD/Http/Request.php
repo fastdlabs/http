@@ -12,6 +12,7 @@
 
 namespace FastD\Http;
 
+use FastD\Http\File\Upload\UploadInterface;
 use FastD\Http\Session\Session;
 use FastD\Http\Attribute\FilesAttribute;
 use FastD\Http\Attribute\CookiesAttribute;
@@ -325,12 +326,11 @@ class Request
     }
 
     /**
-     * @param array $config
-     * @return File\Uploaded\Uploader
+     * @return UploadInterface
      */
-    public function getUploader(array $config = [])
+    public function getUploader()
     {
-        return $this->files->getUploader($config);
+        return $this->files->getUploader();
     }
 
     /**

@@ -18,22 +18,137 @@ namespace FastD\Http\File;
  *
  * @package FastD\Http\File
  */
-class File extends \SplFileInfo
+class File
 {
     /**
      * @var string
      */
-    protected $originalName;
+    protected $name;
 
     /**
      * @var string
      */
-    protected $originalExtension;
+    protected $mimeType;
+
+    /**
+     * @var string
+     */
+    protected $tmpName;
+
+    /**
+     * @var int
+     */
+    protected $size;
+
+    /**
+     * @var int
+     */
+    protected $error;
 
     /**
      * @var string
      */
     protected $hash;
+
+    /**
+     * @var string
+     */
+    protected $relativePath;
+
+    /**
+     * @var static
+     */
+    protected $absolutePath;
+
+    /**
+     * @var string
+     */
+    protected $extension;
+
+    /**
+     * @var string
+     */
+    protected $type;
+
+    /**
+     * @var int
+     */
+    protected $cTime;
+
+    /**
+     * @param $name
+     * @param $mimeType
+     * @param $tmpName
+     * @param $size
+     * @param int $error
+     */
+    public function __construct($name, $mimeType, $tmpName, $size, $error)
+    {
+        $this->name = $name;
+        $this->mimeType = $mimeType;
+        $this->size = $size;
+        $this->tmpName = $tmpName;
+        $this->hash = md5($name . $mimeType . $size);
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTmpName()
+    {
+        return $this->tmpName;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHash()
+    {
+        return $this->hash;
+    }
+
+    /**
+     * @param mixed $hash
+     * @return $this
+     */
+    public function setHash($hash)
+    {
+        $this->hash = $hash;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
 
     /**
      * @return string
@@ -54,25 +169,20 @@ class File extends \SplFileInfo
     }
 
     /**
-     * @var string
-     */
-    protected $relativePath;
-
-    /**
      * @return mixed
      */
-    public function getHash()
+    public function getExtension()
     {
-        return $this->hash;
+        return $this->extension ?? pathinfo($this->getName(), PATHINFO_EXTENSION);
     }
 
     /**
-     * @param mixed $hash
+     * @param string $extension
      * @return $this
      */
-    public function setHash($hash)
+    public function setExtension($extension)
     {
-        $this->hash = $hash;
+        $this->extension = $extension;
 
         return $this;
     }
@@ -80,18 +190,18 @@ class File extends \SplFileInfo
     /**
      * @return string
      */
-    public function getOriginalExtension()
+    public function getAbsolutePath()
     {
-        return $this->originalExtension;
+        return $this->absolutePath;
     }
 
     /**
-     * @param string $originalExtension
+     * @param string $absolutePath
      * @return $this
      */
-    public function setOriginalExtension($originalExtension)
+    public function setAbsolutePath($absolutePath)
     {
-        $this->originalExtension = $originalExtension;
+        $this->absolutePath = $absolutePath;
 
         return $this;
     }
@@ -99,18 +209,37 @@ class File extends \SplFileInfo
     /**
      * @return string
      */
-    public function getOriginalName()
+    public function getType()
     {
-        return $this->originalName;
+        return $this->type;
     }
 
     /**
-     * @param string $originalName
+     * @param string $type
      * @return $this
      */
-    public function setOriginalName($originalName)
+    public function setType($type)
     {
-        $this->originalName = $originalName;
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCTime()
+    {
+        return $this->cTime;
+    }
+
+    /**
+     * @param int $cTime
+     * @return $this
+     */
+    public function setCTime($cTime)
+    {
+        $this->cTime = $cTime;
 
         return $this;
     }

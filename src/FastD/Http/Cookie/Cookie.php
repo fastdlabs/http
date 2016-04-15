@@ -299,9 +299,10 @@ class Cookie implements \Serializable
     {
         if (null !== $serialized) {
             try {
-                $data = @unserialize($serialized);
-                foreach ($data as $name => $value) {
-                    $this->$name = $value;
+                if (false !== ($data = @unserialize($serialized))) {
+                    foreach ($data as $name => $value) {
+                        $this->$name = $value;
+                    }
                 }
             } catch(\Exception $e) {
                 $this->value = $serialized;

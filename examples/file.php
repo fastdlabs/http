@@ -13,7 +13,27 @@
  */
 include __DIR__ . '/../vendor/autoload.php';
 
-use FastD\Http\File\Upload\Uploader;
+use FastD\Http\Request;
 
-$uploader = new Uploader($_FILES, []);
+$request = Request::createRequestHandle();
+
+if ($request->isMethod('post')) {
+    echo '<pre>';
+    print_r($request->getUploader()->uploadTo(__DIR__ . '/uploaded'));
+    echo '</pre>';
+    echo '<br />';
+}
+
+?>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<form action="" method="post" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <input type="submit">
+</form>
+</body>
+</html>
 

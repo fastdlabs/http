@@ -11,12 +11,14 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\File;
+namespace FastD\Http\File\Upload;
+
+use FastD\Http\File\File;
 
 /**
- * Interface UploadedInterface
+ * Interface UploadInterface
  *
- * @package FastD\Http\File\Uploaded
+ * @package FastD\Http\File\Upload
  */
 interface UploadInterface
 {
@@ -31,6 +33,12 @@ interface UploadInterface
     ];
 
     /**
+     * @param File[] $files
+     * @return $this
+     */
+    public function setFiles(array $files);
+
+    /**
      * @param string $path
      * @return bool
      */
@@ -40,6 +48,11 @@ interface UploadInterface
      * @return bool
      */
     public function isValid();
+
+    /**
+     * @return array
+     */
+    public function getErrors();
 
     /**
      * @return \FastD\Http\File\File[]

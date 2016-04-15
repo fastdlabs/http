@@ -14,7 +14,7 @@
 
 namespace FastD\Protocol\Http\Tests\Upload;
 
-use FastD\Http\File\Upload;
+use FastD\Http\File\Upload\Upload;
 
 class UploaderTest extends \PHPUnit_Framework_TestCase
 {

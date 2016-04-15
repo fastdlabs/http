@@ -13,9 +13,9 @@
 
 namespace FastD\Http\Attribute;
 
-use FastD\Http\File\Upload;
-use FastD\Http\File\UploadFile;
-use FastD\Http\File\UploadInterface;
+use FastD\Http\File\File;
+use FastD\Http\File\Upload\Uploader;
+use FastD\Http\File\Upload\ UploadInterface;
 
 /**
  * Class FilesAttribute
@@ -30,6 +30,7 @@ class FilesAttribute extends Attribute
     public function __construct(array $files = [])
     {
         parent::__construct([]);
+
         $this->initializeUploadFilesArray($files);
     }
 
@@ -44,26 +45,32 @@ class FilesAttribute extends Attribute
                     if (empty($value)) {
                         continue;
                     }
-                    $this->parameters[$name][$key] = new UploadFile($file['name'][$key], $file['type'][$key], $file['tmp_name'][$key], $file['size'][$key], $file['error'][$key]);
+                    $this->parameters[$name][$key] = new File($file['name'][$key], $file['type'][$key], $file['tmp_name'][$key], $file['size'][$key], $file['error'][$key]);
                 }
                 continue;
             } else if (!empty($file['name'])) {
-                $this->set($name, new UploadFile($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
+                $this->set($name, new File($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
             }
         }
     }
 
+    /**
+     * @param  UploadInterface|null $uploadInterface
+     * @return  UploadInterface|Uploader
+     */
     public function getUploader(UploadInterface $uploadInterface = null)
     {
         if (null === $uploadInterface) {
-            $uploadInterface = new Upload($this->all());
+            $uploadInterface = new Uploader();
         }
+
+        $uploadInterface->setFiles($this->all());
 
         return $uploadInterface;
     }
 
     /**
-     * @return UploadFile[]
+     * @return File[]
      */
     public function getFiles()
     {
@@ -72,7 +79,7 @@ class FilesAttribute extends Attribute
 
     /**
      * @param $name
-     * @return UploadFile
+     * @return File
      */
     public function getFile($name)
     {
