@@ -56,11 +56,15 @@ $session = new \FastD\Http\Session\Session(new RedisStorage());
 $session = $request->getSessionHandle(new RedisStorage());
 ```
 
-默认适用 PHP 原生的 session 机制
+默认使用 PHP 原生的 session 机制
 
 ### cookie 处理
 
 cookie 处理和我们日常中的 cookie 处理 API 是一致的，使用上也并没有太大差异。
+
+```
+$cookie->set('name', 'janhuang')
+```
 
 ### files 文件上传
 

@@ -14,7 +14,7 @@
 
 namespace FastD\Protocol\Http\Tests\Upload;
 
-use FastD\Http\File\Upload\Upload;
+use FastD\Http\File\Upload\Uploader;
 
 class UploaderTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,8 +37,6 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
 
     public function testUploadOne()
     {
-        $upload = new Upload($this->one);
-
-        print_r($upload);
+        $upload = new Uploader($this->one);
     }
 }

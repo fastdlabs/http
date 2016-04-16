@@ -379,7 +379,7 @@ class Request
      * @param int    $timeout
      * @return RequestLauncher
      */
-    public function createRequest($url, array $arguments = array(), $timeout = 3)
+    public function createClient($url, array $arguments = array(), $timeout = 3)
     {
         return new RequestLauncher($url, $arguments, $timeout);
     }

@@ -98,29 +98,6 @@ class HeaderAttribute extends Attribute
     }
 
     /**
-     *
-     */
-    public function getCookies()
-    {
-
-    }
-
-    public function getCookie($name)
-    {
-
-    }
-
-    public function setCookies(array $cookies)
-    {
-
-    }
-
-    public function setCookie()
-    {
-
-    }
-
-    /**
      * Return http response header.
      *
      * @return string
