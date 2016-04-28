@@ -20,7 +20,6 @@ use FastD\Http\Attribute\HeaderAttribute;
 use FastD\Http\Attribute\QueryAttribute;
 use FastD\Http\Attribute\RequestAttribute;
 use FastD\Http\Attribute\ServerAttribute;
-use FastD\Http\Launcher\RequestLauncher;
 use FastD\Http\Session\Storage\SessionStorageInterface;
 
 /**
@@ -374,13 +373,11 @@ class Request
     }
 
     /**
-     * @param        $url
-     * @param array  $arguments
-     * @param int    $timeout
-     * @return RequestLauncher
+     * @param $baseUri
+     * @return Client
      */
-    public function createClient($url, array $arguments = array(), $timeout = 3)
+    public function createClient($baseUri)
     {
-        return new RequestLauncher($url, $arguments, $timeout);
+        return new Client($baseUri);
     }
 }
