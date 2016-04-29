@@ -362,7 +362,7 @@ class Request
         if (null === self::$requestFactory) {
             self::$requestFactory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
 
-            if (in_array(self::$requestFactory->server->get('REQUEST_METHOD'), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
+            if (in_array(self::$requestFactory->server->hasGet('REQUEST_METHOD', 'GET'), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
             ) {
                 parse_str(self::$requestFactory->getContent(), $arguments);
                 self::$requestFactory->request = new RequestAttribute($arguments);

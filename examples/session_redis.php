@@ -90,3 +90,4 @@ $session = new \FastD\Http\Session\Session(new RedisStorage());
 //$session->set('name', 'janhuang');
 //$session->set('age', 18);
 print_r($session->all());
+

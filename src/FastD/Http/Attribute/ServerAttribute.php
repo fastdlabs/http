@@ -104,7 +104,7 @@ class ServerAttribute extends Attribute
      */
     public function getHost()
     {
-        return $this->hasGet('SERVER_NAME', $this->get('HTTP_HOST'));
+        return $this->hasGet('SERVER_NAME', $this->hasGet('HTTP_HOST', 'localhost'));
     }
 
     /**
@@ -112,7 +112,7 @@ class ServerAttribute extends Attribute
      */
     public function getMethod()
     {
-        return $this->get('REQUEST_METHOD');
+        return $this->hasGet('REQUEST_METHOD', 'GET');
     }
 
     /**
