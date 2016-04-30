@@ -18,27 +18,6 @@ use FastD\Http\Client;
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
-    public function testClient()
-    {
-        $client = new Client('http://localhost/me/fastd/library/http/examples/client');
-
-        $response = $client->get('/method.php');
-
-        $this->assertEquals('GET', $response->getContent());
-
-        $response = $client->post('/method.php');
-
-        $this->assertEquals('POST', $response->getContent());
-
-        $response = $client->put('/method.php');
-
-        $this->assertEquals('PUT', $response->getContent());
-
-        $response = $client->delete('/method.php');
-
-        $this->assertEquals('DELETE', $response->getContent());
-    }
-
     public function testClientParams()
     {
         $client = new Client('http://localhost/me/fastd/library/http/examples/client');
