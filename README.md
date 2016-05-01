@@ -1,18 +1,20 @@
 # FastD Http
 
-简单的 Http 协议组件, 用于解析 Http 请求信息.
-
 ![Building](https://api.travis-ci.org/JanHuang/http.svg?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/fastd/http/v/stable)](https://packagist.org/packages/fastd/http) [![Total Downloads](https://poser.pugx.org/fastd/http/downloads)](https://packagist.org/packages/fastd/http) [![Latest Unstable Version](https://poser.pugx.org/fastd/http/v/unstable)](https://packagist.org/packages/fastd/http) [![License](https://poser.pugx.org/fastd/http/license)](https://packagist.org/packages/fastd/http)
 
+简单的 Http 协议组件, 用于解析 Http 请求信息.
+
 ## 要求
 
-php >= 7.0
+* php >= 7.0
 
 ## 安装
 
 ```
-composer -vvv require "fastd/http:2.0.x-dev"
+{
+    "fastd/http": "2.0.x-dev"
+}
 ```
 
 ## 使用
