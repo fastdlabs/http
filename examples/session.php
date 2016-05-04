@@ -19,7 +19,7 @@ use FastD\Http\Session\Session;
 $session = new Session();
 
 /*$session->set('name', [
-    'name' => 'janhuang'
+    'name' => 'bboy janhuang'
 ]);*/
 
 echo '<pre>';
