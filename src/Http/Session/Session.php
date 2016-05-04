@@ -40,7 +40,9 @@ class Session extends Attribute
             session_set_save_handler($this->handler, true);
         }
 
-        session_start();
+        if (!isset($_SESSION)) {
+            session_start();
+        }
 
         parent::__construct($_SESSION);
     }
