@@ -325,11 +325,12 @@ class Request
     }
 
     /**
+     * @param UploadInterface $uploadInterface
      * @return UploadInterface
      */
-    public function getUploader()
+    public function getUploader(UploadInterface $uploadInterface = null)
     {
-        return $this->files->getUploader();
+        return $this->files->getUploader($uploadInterface);
     }
 
     /**
