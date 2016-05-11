@@ -13,7 +13,7 @@
 
 ```
 {
-    "fastd/http": "2.0.x-dev"
+    "fastd/http": "~2.0@beta"
 }
 ```
 
@@ -45,23 +45,33 @@ $request->request->hasGet('name', null);
 
 ### session 处理
 
-session 提供两种存储方式，默认的就是我们平时的 cookie 存储方案，另外一种的是可以将 session 存储到 `mysql`, `redis` 中，在获取(实例化) session 处理对象(getSessionHandle)的时候，进行注入存储对象即可。
+session 提供两种存储方式，默认的就是我们平时的 cookie 存储方案，另外一种的是可以将 session 存储到 `redis` 中，在获取(实例化) session 处理对象(getSessionHandle)的时候，进行注入存储对象即可。
 
 自定义存储对象需要实现 `FastD\Http\Session\Storage\SessionStorageInterface` 接口。
 
 例子: [session_redis.php](./examples/session_redis.php)
 
-```
-$session = new \FastD\Http\Session\Session(new RedisStorage());
-```
-
-或者
+以我虚拟机为例:
 
 ```
-$session = $request->getSessionHandle(new RedisStorage());
+host: 11.11.11.44
+port: 6379
 ```
 
-默认使用 PHP 原生的 session 机制
+代码:
+
+```
+use FastD\Http\Session\Storage\SessionRedis;
+use FastD\Storage\Redis\Redis;
+
+$session = new \FastD\Http\Session\Session(new SessionRedis(new Redis([
+    'host' => '11.11.11.44',
+])));
+```
+
+默认使用 PHP 原生的 session 机制。
+
+可以对 session 存储进行自定义扩展，需要实现: `FastD\Http\Session\Storage\SessionStorageInterface` 接口
 
 ### cookie 处理
 

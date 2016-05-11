@@ -646,6 +646,7 @@ class Response
     public function setSharedMaxAge($value)
     {
         $this->setPublic();
+
         $this->header->set('Cache-Control', implode(',', [$this->header->get('Cache-Control'), 's-maxage=' . $value]) );
     }
 
@@ -663,6 +664,11 @@ class Response
      */
     public function getTtl()
     {
+        if (null !== $maxAge = $this->getMaxAge()) {
+            return $maxAge - $this->getAge();
+        }
+
+        return null;
     }
 
     /**
@@ -678,6 +684,9 @@ class Response
      */
     public function setTtl($seconds)
     {
+        $this->setSharedMaxAge($this->getAge() + $seconds);
+
+        return $this;
     }
 
     /**
@@ -693,6 +702,9 @@ class Response
      */
     public function setClientTtl($seconds)
     {
+        $this->setMaxAge($this->getAge() + $seconds);
+
+        return $this;
     }
 
     /**

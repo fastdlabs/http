@@ -13,7 +13,6 @@
  */
 
 namespace FastD\Http;
-use FastD\Http\Attribute\HeaderAttribute;
 
 /**
  * Class Client
@@ -27,6 +26,9 @@ class Client
      */
     protected $baseUri = '';
 
+    /**
+     * @var string
+     */
     protected $userAgent;
 
     /**
@@ -38,6 +40,10 @@ class Client
         $this->baseUri = $baseUri;
     }
 
+    /**
+     * @param $userAgent
+     * @return $this
+     */
     public function setUserAgent($userAgent)
     {
         $this->userAgent = $userAgent;
