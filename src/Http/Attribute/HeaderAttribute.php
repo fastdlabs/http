@@ -97,6 +97,16 @@ class HeaderAttribute extends Attribute
         return $this->has('HTTP_X_REQUESTED_WITH') ? 'xmlhttprequest' === strtolower($this->get('HTTP_X_REQUESTED_WITH')) : false;
     }
 
+    public function isiOSClient()
+    {
+        
+    }
+
+    public function isAndroidClient()
+    {
+
+    }
+
     /**
      * Return http response header.
      *
