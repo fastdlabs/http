@@ -97,14 +97,30 @@ class HeaderAttribute extends Attribute
         return $this->has('HTTP_X_REQUESTED_WITH') ? 'xmlhttprequest' === strtolower($this->get('HTTP_X_REQUESTED_WITH')) : false;
     }
 
+    /**
+     * @return bool
+     */
     public function isiOSClient()
     {
-        
+        $agent = strtolower($this->getUserAgent());
+
+        foreach (['iphone', 'ipad', 'itouch', 'mac', 'imac'] as $name) {
+            if (false !== (strpos($agent, $name))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
+    /**
+     * @return bool
+     */
     public function isAndroidClient()
     {
+        $agent = strtolower($this->getUserAgent());
 
+        return false === strpos($agent, 'android') ? false : true;
     }
 
     /**
