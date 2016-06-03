@@ -372,13 +372,4 @@ class Request
 
         return self::$requestFactory;
     }
-
-    /**
-     * @param $baseUri
-     * @return Client
-     */
-    public function createClient($baseUri)
-    {
-        return new Client($baseUri);
-    }
 }

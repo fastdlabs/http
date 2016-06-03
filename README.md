@@ -5,6 +5,13 @@
 
 简单的 Http 协议组件, 用于解析 Http 请求信息.
 
+如果想要创建 HTTP 请求, 则可以使用:
+
+* [php-curl-class](https://github.com/php-curl-class/php-curl-class)
+* [Goutte](https://github.com/FriendsOfPHP/Goutte)
+
+以上库可以满足大部分 HTTP 请求相关工作。
+
 ## 要求
 
 * php >= 7.0
@@ -13,7 +20,7 @@
 
 ```
 {
-    "fastd/http": "~2.0@beta"
+    "fastd/http": "~2.0"
 }
 ```
 
@@ -25,22 +32,6 @@
 use FastD\Http\Request;
 
 $request = Request::createRequestHandle();
-```
-
-### query string (GET) 参数处理
-
-当用户访问 `http://examples.com/?name=jan` 链接的时候，可以通过 `query` 对象访问对应的参数。
-
-```
-$request->query->hasGet('name', null);
-```
-
-### request body (POST|PUT|DELETE) 参数处理
-
-当用户访问 `http://examples.com/` 链接的时候，可以通过 `request` 对象访问对应的参数。
-
-```
-$request->request->hasGet('name', null);
 ```
 
 ### session 处理
