@@ -16,7 +16,7 @@ namespace FastD\Http\Cookie;
 /**
  * Class Cookie
  *
- * @package FastD\Protocol\Http\Cookie
+ * @package FastD\Http\Cookie
  */
 class Cookie implements \Serializable
 {
@@ -222,6 +222,9 @@ class Cookie implements \Serializable
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function asString()
     {
         $str = urlencode($this->getName()) . '=';

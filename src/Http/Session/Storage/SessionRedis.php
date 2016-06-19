@@ -38,6 +38,7 @@ class SessionRedis implements SessionStorageInterface
     }
 
     /**
+     * @param string $name
      * @return bool
      */
     public function isExpire($name)
@@ -46,6 +47,7 @@ class SessionRedis implements SessionStorageInterface
     }
 
     /**
+     * @param $name
      * @param $ttl
      * @return mixed
      */

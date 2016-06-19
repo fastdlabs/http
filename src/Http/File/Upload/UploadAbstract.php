@@ -106,6 +106,8 @@ abstract class UploadAbstract implements UploadInterface
     public function setFiles(array $files)
     {
         $this->files = $files;
+
+        return $this;
     }
 
     /**

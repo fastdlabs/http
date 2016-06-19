@@ -32,7 +32,6 @@ class Uploader extends UploadAbstract
 
         foreach ($this->files as $name => $file) {
             $moveFile = $path . DIRECTORY_SEPARATOR . $file->getHash() . '.' . $file->getExtension();
-
             if (!file_exists($moveFile)) {
                 if (!move_uploaded_file($file->getTmpName(), $moveFile)) {
                     continue;

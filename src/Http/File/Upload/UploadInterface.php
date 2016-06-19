@@ -22,7 +22,7 @@ use FastD\Http\File\File;
  */
 interface UploadInterface
 {
-    const UPLOAD_SIZE = 4;
+    const UPLOAD_SIZE = 4; // M
 
     const UPLOAD_EXT = [
         'image/jpeg',

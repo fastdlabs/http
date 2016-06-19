@@ -14,20 +14,10 @@
 
 namespace FastD\Protocol\Http\Tests;
 
-use FastD\Http\Client;
-
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
     public function testClientParams()
     {
-        $client = new Client('http://localhost/me/fastd/library/http/examples/client');
-
-        $response = $client->get('/params.php', ['name' => 'janhuang']);
-
-        $response = $client->post('/params.php', ['name' => 'janhuang']);
-
-        $response = $client->put('/params.php', ['name' => 'janhuang']);
-
-        print_r($response->getContent());
+        
     }
 }

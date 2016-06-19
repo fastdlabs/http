@@ -14,6 +14,7 @@
 
 namespace FastD\Protocol\Http\Tests\Upload;
 
+use FastD\Http\Attribute\FilesAttribute;
 use FastD\Http\File\Upload\Uploader;
 
 class UploaderTest extends \PHPUnit_Framework_TestCase
@@ -24,12 +25,14 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $file = __DIR__ . '/tmp/test.jpg';
+
         $this->one = [
             'file' => [
                 'name' => 'test.jpg',
                 'type' => 'image/jpeg',
-                'size' => 0,
-                'tmp_name' => __DIR__ . '/tmp/test.jpg',
+                'size' => filesize($file),
+                'tmp_name' => $file,
                 'error' => 0
             ]
         ];
@@ -37,6 +40,14 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
 
     public function testUploadOne()
     {
-        $upload = new Uploader($this->one);
+        $filesBag = new FilesAttribute($this->one);
+
+        $upload = new Uploader();
+
+        $upload->setFiles($filesBag->all());
+
+        $files = $upload->uploadTo(__DIR__ . '/upload')->getUploadedFiles();
+
+        print_r($files);
     }
 }
