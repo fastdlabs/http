@@ -345,7 +345,7 @@ class Request
     /**
      * @return resource|string
      */
-    public function getContent()
+    protected function getContent()
     {
         if (null === $this->content) {
             $this->content = file_get_contents('php://input');

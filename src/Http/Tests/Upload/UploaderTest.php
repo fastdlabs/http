@@ -60,9 +60,4 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($files['test']->getAbsolutePath(), $files['file']->getAbsolutePath());
     }
-
-    public function testUploadError()
-    {
-        
-    }
 }
