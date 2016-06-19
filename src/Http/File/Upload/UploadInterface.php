@@ -45,6 +45,12 @@ interface UploadInterface
     public function uploadTo($path);
 
     /**
+     * @param string $path
+     * @return mixed
+     */
+    public function doUpload($path);
+
+    /**
      * @return bool
      */
     public function isValid();

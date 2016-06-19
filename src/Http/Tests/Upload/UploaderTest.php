@@ -12,10 +12,9 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Protocol\Http\Tests\Upload;
+namespace FastD\Http\Tests\Upload;
 
 use FastD\Http\Attribute\FilesAttribute;
-use FastD\Http\File\Upload\Uploader;
 
 class UploaderTest extends \PHPUnit_Framework_TestCase
 {
@@ -34,6 +33,13 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
                 'size' => filesize($file),
                 'tmp_name' => $file,
                 'error' => 0
+            ],
+            'test' => [
+                'name' => 'test.jpg',
+                'type' => 'image/jpeg',
+                'size' => filesize($file),
+                'tmp_name' => $file,
+                'error' => 0
             ]
         ];
     }
@@ -46,8 +52,17 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
 
         $upload->setFiles($filesBag->all());
 
-        $files = $upload->uploadTo(__DIR__ . '/upload')->getUploadedFiles();
+        $upload->uploadTo(__DIR__ . '/upload');
 
-        print_r($files);
+        $files = $upload->getUploadedFiles();
+
+        $this->assertEquals(2, count($files));
+
+        $this->assertEquals($files['test']->getAbsolutePath(), $files['file']->getAbsolutePath());
+    }
+
+    public function testUploadError()
+    {
+        
     }
 }

@@ -55,6 +55,19 @@ abstract class UploadAbstract implements UploadInterface
     }
 
     /**
+     * @param string $path
+     * @return mixed
+     */
+    public function uploadTo($path)
+    {
+        $this->isValid();
+
+        $path = $this->targetDirectory($path);
+
+        return $this->doUpload($path);
+    }
+
+    /**
      * @return \FastD\Http\File\File[]
      */
     public function getUploadedFiles()
@@ -108,6 +121,14 @@ abstract class UploadAbstract implements UploadInterface
         $this->files = $files;
 
         return $this;
+    }
+
+    /**
+     * @return \FastD\Http\File\File[]
+     */
+    public function getFiles()
+    {
+        return $this->files;
     }
 
     /**

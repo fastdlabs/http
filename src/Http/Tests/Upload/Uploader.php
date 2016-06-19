@@ -1,23 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: janhuang
- * Date: 15/6/13
- * Time: 下午12:05
- * Github: https://www.github.com/janhuang 
- * Coding: https://www.coding.net/janhuang
- * SegmentFault: http://segmentfault.com/u/janhuang
- * Blog: http://segmentfault.com/blog/janhuang
- * Gmail: bboyjanhuang@gmail.com
- */
-
-namespace FastD\Http\File\Upload;
-
-/**
- * Class Uploader
  *
- * @package FastD\Http\File\Uploaded
+ * @author    jan huang <bboyjanhuang@gmail.com>
+ * @copyright 2016
+ *
+ * @link      https://www.github.com/janhuang
+ * @link      http://www.fast-d.cn/
  */
+
+namespace FastD\Http\Tests\Upload;
+
+use FastD\Http\File\Upload\UploadAbstract;
+
 class Uploader extends UploadAbstract
 {
     /**
@@ -29,7 +23,7 @@ class Uploader extends UploadAbstract
         foreach ($this->getFiles() as $name => $file) {
             $moveFile = $path . DIRECTORY_SEPARATOR . $file->getHash() . '.' . $file->getExtension();
             if (!file_exists($moveFile)) {
-                if (!move_uploaded_file($file->getTmpName(), $moveFile)) {
+                if (copy($file->getTmpName(), $moveFile)) {
                     continue;
                 }
             }

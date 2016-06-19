@@ -143,6 +143,14 @@ class File
     }
 
     /**
+     * @return bool
+     */
+    public function isError()
+    {
+        return 0 === $this->error;
+    }
+
+    /**
      * @return int
      */
     public function getError()

@@ -106,4 +106,20 @@ class ServerAttributeTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('unknown', $attribute->getClientIp());
     }
+
+    public function testPathInfoParse()
+    {
+        $attribute = new ServerAttribute([
+            'SCRIPT_FILENAME' => '/Users/janhuang/Documents/htdocs/me/fastd/library/http/examples/server.php',
+            'REQUEST_URI' => '/me/fastd/library/http/examples/server.php/a/b.json',
+            'SCRIPT_NAME' => '/me/fastd/library/http/examples/server.php',
+            'PATH_TRANSLATED' => '/Users/janhuang/Documents/htdocs/a/b.json',
+            'PHP_SELF' => '/me/fastd/library/http/examples/server.php/a/b.json',
+            'REQUEST_METHOD' => 'GET'
+        ]);
+
+        $this->assertEquals('/a/b', $attribute->getPathInfo());
+
+        $this->assertEquals('json', $attribute->getFormat());
+    }
 }
