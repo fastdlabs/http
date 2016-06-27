@@ -47,6 +47,15 @@ abstract class UploadAbstract implements UploadInterface
      */
     public function __construct(array $config = [])
     {
+        $this->setConfig($config);
+    }
+
+    /**
+     * @param array $config
+     * @return void
+     */
+    public function setConfig(array $config)
+    {
         foreach ($config as $name => $value) {
             if (isset($this->config[$name])) {
                 $this->config[$name] = $value;

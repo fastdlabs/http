@@ -62,8 +62,10 @@ class FilesAttribute extends Attribute
     public function getUploader(UploadInterface $uploadInterface = null, array $config = [])
     {
         if (null === $uploadInterface) {
-            $uploadInterface = new Uploader($config);
+            $uploadInterface = new Uploader();
         }
+
+        $uploadInterface->setConfig($config);
 
         $uploadInterface->setFiles($this->all());
 
