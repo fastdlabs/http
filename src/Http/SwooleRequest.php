@@ -80,12 +80,12 @@ class SwooleRequest extends Request
             'HTTP_FD'           => $request->fd,
 
             // Header
-            'HTTP_HOST'             => $request->header['host'],
-            'HTTP_USER_AGENT'       => $request->header['user-agent'],
-            'HTTP_ACCEPT'           => $request->header['accept'],
-            'HTTP_ACCEPT_LANGUAGE'  => $request->header['accept-language'],
-            'HTTP_ACCEPT_ENCODING'  => $request->header['accept-encoding'],
-            'HTTP_CONNECTION'       => $request->header['connection'],
+            'HTTP_HOST'             => $request->header['host'] ?? '::1',
+            'HTTP_USER_AGENT'       => $request->header['user-agent'] ?? '',
+            'HTTP_ACCEPT'           => $request->header['accept'] ?? '*/*',
+            'HTTP_ACCEPT_LANGUAGE'  => $request->header['accept-language'] ?? '',
+            'HTTP_ACCEPT_ENCODING'  => $request->header['accept-encoding'] ?? '',
+            'HTTP_CONNECTION'       => $request->header['connection'] ?? '',
             'HTTP_CACHE_CONTROL'    => isset($request->header['cache-control']) ? $request->header['cache-control'] : '',
         ];
     }
