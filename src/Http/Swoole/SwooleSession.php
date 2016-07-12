@@ -12,6 +12,7 @@ namespace FastD\Http\Swoole;
 
 use FastD\Http\Session\Session;
 use FastD\Storage\File\File;
+use SebastianBergmann\CodeCoverage\Report\PHP;
 
 /**
  * Class SwooleSession
@@ -20,7 +21,9 @@ use FastD\Storage\File\File;
  */
 class SwooleSession extends Session
 {
-    const PREFIX = 'fs_';
+    const SESSION_ID = 'FDS_ID';
+
+    const SESSION_PREFIX = 'sess_';
 
     /**
      * @var string
@@ -30,22 +33,36 @@ class SwooleSession extends Session
     /**
      * @var string
      */
-    protected $path;
+    protected $sessionFile;
 
     /**
-     * @var mixed
+     * @var string
      */
-    protected $value;
+    protected $path;
 
     /**
      * SwooleSession constructor.
      *
-     * @param null $path
+     * @param \swoole_http_request $request
+     * @param string $path
      *
      */
-    public function __construct($path = null)
+    public function __construct(\swoole_http_request $request, $path = '/tmp')
     {
         $this->path = $path;
+
+        $this->request = $request;
+
+        if (!isset($request->cookie[static::SESSION_ID])) {
+            $sessionId = md5(password_hash(microtime(true), PASSWORD_DEFAULT));
+            $request->cookie[static::SESSION_ID] = $sessionId;
+        } else {
+            $sessionId = $request->cookie[static::SESSION_ID];
+        }
+        
+        $this->sessionId = $sessionId;
+
+        $this->sessionFile = $this->path . DIRECTORY_SEPARATOR . static::SESSION_PREFIX . $this->sessionId;
     }
 
     /**
@@ -57,25 +74,6 @@ class SwooleSession extends Session
     }
 
     /**
-     * @param $id
-     * @return string
-     */
-    protected function setSessionId($id)
-    {
-        $this->sessionId = $this->path . DIRECTORY_SEPARATOR . static::PREFIX . $id;
-
-        return $this->sessionId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    /**
      * @param $name
      * @param $value
      * @param null $expire
@@ -83,11 +81,9 @@ class SwooleSession extends Session
      */
     public function set($name, $value, $expire = null)
     {
-        $sessionId = $this->setSessionId($name);
+        $this->parameters[$name] = $value;
 
-        $this->value = $value;
-
-        return File::open($sessionId)->set(serialize($value));
+        return File::open($this->sessionFile)->set(serialize($this->parameters));
     }
 
     /**
@@ -98,11 +94,11 @@ class SwooleSession extends Session
      */
     public function get($name, $raw = false, $callback = null)
     {
-        $sessionId = $this->setSessionId($name);
+        $value = File::open($this->sessionFile)->get();
 
-        $this->value = serialize(File::open($sessionId)->get());
+        $this->parameters = unserialize($value);
 
-        return $this->value;
+        return $this->parameters[$name] ?? null;
     }
 
     /**
@@ -111,10 +107,8 @@ class SwooleSession extends Session
      */
     public function clear($name)
     {
-        $sessionId = $this->setSessionId($name);
-
-        if (file_exists($sessionId)) {
-            unlink($sessionId);
+        if (file_exists($this->sessionFile)) {
+            unlink($this->sessionFile);
         }
     }
 

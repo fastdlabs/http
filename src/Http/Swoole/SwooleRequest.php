@@ -15,8 +15,6 @@
 namespace FastD\Http\Swoole;
 
 use FastD\Http\Request;
-use FastD\Http\Session\Session;
-use FastD\Http\Session\Storage\SessionStorageInterface;
 
 /**
  * Swoole extension http server request handle.
@@ -27,16 +25,15 @@ use FastD\Http\Session\Storage\SessionStorageInterface;
  */
 class SwooleRequest extends Request
 {
-    protected $sessionConfig = [];
-
     /**
-     * 因为 Swoole 的特殊性, 因此 session 需要重写处理方式。
-     *
-     * @param SessionStorageInterface $sessionStorageInterface
+     * @param SwooleSession $session
+     * @return $this
      */
-    public function setSessionHandle(SessionStorageInterface $sessionStorageInterface)
+    public function setSessionHandle(SwooleSession $session)
     {
-        $this->session = new Session($sessionStorageInterface);
+        $this->session = $session;
+
+        return $this;
     }
 
     /**
@@ -47,7 +44,7 @@ class SwooleRequest extends Request
     public static function createSwooleRequestHandle(\swoole_http_request $request, array $config = [])
     {
         $config = array_merge([
-            'document_root'     => '',
+            'document_root'     => realpath('.'),
             'script_name'       => '',
         ], $config);
 
@@ -63,7 +60,7 @@ class SwooleRequest extends Request
 
         unset($config);
 
-        return new Request($get, $post, $files, $cookies, $server);
+        return new static($get, $post, $files, $cookies, $server);
     }
 
     /**

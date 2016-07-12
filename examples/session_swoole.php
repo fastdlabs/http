@@ -10,11 +10,19 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-use FastD\Http\Swoole\SwooleSession;
+use FastD\Swoole\Http;
 
-$session = new SwooleSession('./tmp');
+class SessionDemo extends Http\HttpServer
+{
+    /**
+     * @param \FastD\Http\Request $request
+     * @return \FastD\Http\Response
+     */
+    public function doRequest(\FastD\Http\Swoole\SwooleRequest $request)
+    {
+        return $this->html('hello');
+    }
+}
 
-$session->set('name', 'janhuang');
-
-print_r($session);
+SessionDemo::run([]);
 

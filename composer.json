@@ -16,7 +16,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~5.0",
-        "fastd/storage": "~2.0.0"
+        "fastd/storage": "~2.0.0",
+        "fastd/swoole": "dev-master"
     },
     "autoload": {
         "psr-4": {
