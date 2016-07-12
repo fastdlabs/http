@@ -10,9 +10,11 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-use FastD\Http\Session\SwooleSession;
+use FastD\Http\Swoole\SwooleSession;
 
-$session = new SwooleSession();
+$session = new SwooleSession('./tmp');
 
 $session->set('name', 'janhuang');
+
+print_r($session);
 
