@@ -70,7 +70,9 @@ class Session extends Attribute
             unset($_SESSION[$name]);
         }
 
-        return isset($_SESSION[$name]);
+        $this->remove($name);
+
+        return $this->has($name);
     }
 
     /**

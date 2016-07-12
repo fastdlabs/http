@@ -12,7 +12,11 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Http;
+namespace FastD\Http\Swoole;
+
+use FastD\Http\Request;
+use FastD\Http\Session\Session;
+use FastD\Http\Session\Storage\SessionStorageInterface;
 
 /**
  * Swoole extension http server request handle.
@@ -23,6 +27,18 @@ namespace FastD\Http;
  */
 class SwooleRequest extends Request
 {
+    protected $sessionConfig = [];
+
+    /**
+     * 因为 Swoole 的特殊性, 因此 session 需要重写处理方式。
+     *
+     * @param SessionStorageInterface $sessionStorageInterface
+     */
+    public function setSessionHandle(SessionStorageInterface $sessionStorageInterface)
+    {
+        $this->session = new Session($sessionStorageInterface);
+    }
+
     /**
      * @param \swoole_http_request $request
      * @param array $config

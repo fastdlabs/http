@@ -18,3 +18,5 @@ use FastD\Http\Request;
 
 $request = Request::createRequestHandle();
 
+echo '<pre>';
+print_r($request);

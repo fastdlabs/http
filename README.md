@@ -10,7 +10,7 @@
 * [php-curl-class](https://github.com/php-curl-class/php-curl-class)
 * [Goutte](https://github.com/FriendsOfPHP/Goutte)
 
-以上库可以满足大部分 HTTP 请求相关工作。
+以上库可以满足大部分 HTTP 请求处理相关工作, 支持 Swoole 处理, 具体请看项目[Swoole](https://github.com/JanHuang/swoole)。
 
 ## 要求
 
