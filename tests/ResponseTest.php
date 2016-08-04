@@ -12,7 +12,7 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Protocol\Http\Tests;
+namespace Tests;
 
 use FastD\Http\Response;
 

@@ -8,7 +8,7 @@
  * @link      http://www.fast-d.cn/
  */
 
-namespace FastD\Http\Tests\Upload;
+namespace Tests\Upload;
 
 use FastD\Http\File\Upload\UploadAbstract;
 

@@ -9,7 +9,7 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace FastD\Protocol\Http\Tests\Attribute;
+namespace Tests\Attribute;
 
 use FastD\Http\Attribute\ServerAttribute;
 

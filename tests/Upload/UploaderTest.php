@@ -12,7 +12,7 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Http\Tests\Upload;
+namespace Tests\Upload;
 
 use FastD\Http\Attribute\FilesAttribute;
 

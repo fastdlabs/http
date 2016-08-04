@@ -126,8 +126,12 @@ class ServerAttribute extends Attribute
 
         $pathInfo = $this->hasGet('PATH_INFO', $this->preparePathInfo());
 
-        if ('' != pathinfo($pathInfo, PATHINFO_EXTENSION)) {
-            $pathInfo = substr($pathInfo, 0, strpos($pathInfo, '.'));
+        if (!empty($pathInfo)) {
+            if ('' != pathinfo($pathInfo, PATHINFO_EXTENSION)) {
+                $pathInfo = substr($pathInfo, 0, strpos($pathInfo, '.'));
+            }
+        } else {
+            $pathInfo = '/';
         }
 
         $this->pathInfo = $pathInfo;

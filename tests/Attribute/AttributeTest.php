@@ -12,7 +12,7 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Protocol\Http\Tests\Attribute;
+namespace Tests\Attribute;
 
 use FastD\Http\Attribute\Attribute;
 

@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: janhuang
- * Date: 16/2/16
- * Time: 下午12:19
+ * Date: 16/3/21
+ * Time: 下午12:33
  * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
@@ -12,11 +12,13 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Protocol\Http\Tests;
+namespace Tests\Attribute;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+use FastD\Http\Attribute\CookiesAttribute;
+
+class CookiesAttributeTest extends \PHPUnit_Framework_TestCase
 {
-    public function testClientParams()
+    public function testInitCookies()
     {
         
     }
