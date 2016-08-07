@@ -9,8 +9,6 @@
  * Blog: http://segmentfault.com/blog/janhuang
  */
 
-namespace FastD\Protocol\Http\Tests\Attribute;
-
 use FastD\Http\Attribute\ServerAttribute;
 
 class ServerAttributeTest extends \PHPUnit_Framework_TestCase

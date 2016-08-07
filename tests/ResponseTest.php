@@ -12,11 +12,9 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Protocol\Http\Tests;
-
 use FastD\Http\Response;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends PHPUnit_Framework_TestCase
 {
     public function testResponseContent()
     {

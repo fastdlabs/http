@@ -12,8 +12,6 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Protocol\Http\Tests\Attribute;
-
 use FastD\Http\Attribute\CookiesAttribute;
 
 class CookiesAttributeTest extends \PHPUnit_Framework_TestCase

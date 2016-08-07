@@ -12,8 +12,6 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Http\Tests\Upload;
-
 use FastD\Http\Attribute\FilesAttribute;
 
 class UploaderTest extends \PHPUnit_Framework_TestCase
@@ -24,6 +22,8 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        include_once __DIR__ . '/Uploader.php';
+
         $file = __DIR__ . '/tmp/test.jpg';
 
         $this->one = [

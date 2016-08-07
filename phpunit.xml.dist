@@ -11,8 +11,8 @@
         <ini name="error_reporting" value="-16385"/>
     </php>
     <testsuites>
-        <testsuite name="FastD Http Testing">
-            <directory>./src/Http/Tests/</directory>
+        <testsuite name="Http Testing">
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

@@ -12,8 +12,6 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace FastD\Protocol\Http\Tests\Attribute;
-
 use FastD\Http\Attribute\ServerAttribute;
 
 class HeaderAttributeTest extends \PHPUnit_Framework_TestCase
