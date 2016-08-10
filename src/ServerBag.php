@@ -14,9 +14,9 @@
 namespace FastD\Http;
 
 /**
- * Class ServerAttribute
+ * Class ServerBag
  *
- * @package FastD\Http\Attribute
+ * @package FastD\Http
  */
 class ServerBag extends Bag
 {
@@ -31,7 +31,7 @@ class ServerBag extends Bag
     protected $baseUrl;
 
     /**
-     * @var HeaderAttribute
+     * @var HeaderBag
      */
     protected $header;
 
@@ -56,7 +56,7 @@ class ServerBag extends Bag
             }
         }
 
-        $this->header = new HeaderAttribute($headers);
+        $this->header = new HeaderBag($headers);
     }
 
     /**

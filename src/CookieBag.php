@@ -13,12 +13,10 @@
 
 namespace FastD\Http;
 
-use FastD\Http\Cookie\Cookie;
-
 /**
- * Class CookiesAttribute
+ * Class CookiesBag
  *
- * @package FastD\Http\Attribute
+ * @package FastD\Http
  */
 class CookiesBag extends Bag
 {

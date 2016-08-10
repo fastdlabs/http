@@ -14,12 +14,14 @@
 namespace FastD\Http;
 
 use Countable;
+use Exception;
+use InvalidArgumentException;
 use Iterator;
 
 /**
- * Class Attribute
+ * Class Bag
  *
- * @package Attribute
+ * @package FastD\Http
  */
 class Bag implements Iterator, Countable
 {
@@ -61,7 +63,7 @@ class Bag implements Iterator, Countable
     public function get($name, $raw = false, $callback = null)
     {
         if (!$this->has($name)) {
-            throw new \InvalidArgumentException(sprintf('Attribute %s is undefined.', $name));
+            throw new InvalidArgumentException(sprintf('Attribute %s is undefined.', $name));
         }
 
         $parameter = $this->parameters[$name];
@@ -111,7 +113,7 @@ class Bag implements Iterator, Countable
     {
         try {
             return $this->get($name, $raw, $callback);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return is_callable($callback) ? $callback($default) : $default;
         }
     }

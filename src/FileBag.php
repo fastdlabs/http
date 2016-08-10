@@ -14,12 +14,9 @@
 namespace FastD\Http\Attribute;
 
 use FastD\Http\Bag;
-use FastD\Http\File\File;
-use FastD\Http\File\Upload\Uploader;
-use FastD\Http\File\Upload\ UploadInterface;
 
 /**
- * Class FilesAttribute
+ * Class FilesBag
  *
  * @package FastD\Http\Attribute
  */

@@ -14,14 +14,14 @@
 namespace FastD\Http;
 
 /**
- * Class HeaderAttribute
+ * Class HeaderBag
  *
- * @package FastD\Http\Attribute
+ * @package FastD\Http
  */
 class HeaderBag extends Bag
 {
     /**
-     * @var CookiesAttribute
+     * @var CookiesBag
      */
     protected $cookies;
 
