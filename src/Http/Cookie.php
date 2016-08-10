@@ -4,21 +4,23 @@
  * User: janhuang
  * Date: 15/6/12
  * Time: 下午3:55
- * Github: https://www.github.com/janhuang 
+ * Github: https://www.github.com/janhuang
  * Coding: https://www.coding.net/janhuang
  * SegmentFault: http://segmentfault.com/u/janhuang
  * Blog: http://segmentfault.com/blog/janhuang
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\Cookie;
+namespace FastD\Http;
+
+use Serializable;
 
 /**
  * Class Cookie
  *
  * @package FastD\Http\Cookie
  */
-class Cookie implements \Serializable
+class Cookie implements Serializable
 {
     /**
      * @var string
@@ -59,13 +61,13 @@ class Cookie implements \Serializable
 
     /**
      * @param        $name
-     * @param null   $value
-     * @param int    $expire
+     * @param null $value
+     * @param int $expire
      * @param string $path
-     * @param null   $domain
-     * @param bool   $secure
-     * @param bool   $httpOnly
-     * @param bool   $force
+     * @param null $domain
+     * @param bool $secure
+     * @param bool $httpOnly
+     * @param bool $force
      */
     public function __construct($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null, $force = true)
     {
@@ -74,12 +76,12 @@ class Cookie implements \Serializable
             throw new \InvalidArgumentException(sprintf('The cookie name "%s" contains invalid characters.', $name));
         }
 
-        $this->name     = $name;
-        $this->value    = $value;
-        $this->domain   = $domain;
-        $this->expire   = $expire;
-        $this->path     = $path;
-        $this->secure   = $secure;
+        $this->name = $name;
+        $this->value = $value;
+        $this->domain = $domain;
+        $this->expire = $expire;
+        $this->path = $path;
+        $this->secure = $secure;
         $this->httpOnly = $httpOnly;
 
         if ($force) {
@@ -230,21 +232,21 @@ class Cookie implements \Serializable
         $str = urlencode($this->getName()) . '=';
 
         if ('' === (string) $this->getValue()) {
-            $str .= 'deleted; expires='.gmdate("D, d-M-Y H:i:s T", time() - 31536001);
+            $str .= 'deleted; expires=' . gmdate("D, d-M-Y H:i:s T", time() - 31536001);
         } else {
             $str .= urlencode($this->getValue());
 
             if ($this->getExpire() !== 0) {
-                $str .= '; expires='.gmdate("D, d-M-Y H:i:s T", $this->getExpire());
+                $str .= '; expires=' . gmdate("D, d-M-Y H:i:s T", $this->getExpire());
             }
         }
 
         if ($this->path) {
-            $str .= '; path='.$this->path;
+            $str .= '; path=' . $this->path;
         }
 
         if ($this->getDomain()) {
-            $str .= '; domain='.$this->getDomain();
+            $str .= '; domain=' . $this->getDomain();
         }
 
         if (true === $this->isSecure()) {
@@ -265,7 +267,7 @@ class Cookie implements \Serializable
      */
     public function __toString()
     {
-        return (string) $this->value;
+        return (string)$this->value;
     }
 
     /**
@@ -278,13 +280,13 @@ class Cookie implements \Serializable
     public function serialize()
     {
         return serialize([
-            'name'      => $this->name,
-            'value'     => $this->value,
-            'expire'    => $this->expire,
-            'path'      => $this->path,
-            'domain'    => $this->domain,
-            'secure'    => $this->secure,
-            'httpOnly'  => $this->httpOnly,
+            'name' => $this->name,
+            'value' => $this->value,
+            'expire' => $this->expire,
+            'path' => $this->path,
+            'domain' => $this->domain,
+            'secure' => $this->secure,
+            'httpOnly' => $this->httpOnly,
         ]);
     }
 
@@ -307,7 +309,7 @@ class Cookie implements \Serializable
                         $this->$name = $value;
                     }
                 }
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->value = $serialized;
             }
         }
