@@ -69,7 +69,7 @@ class Bag implements Iterator, Countable
         $parameter = $this->parameters[$name];
 
         if (!$raw) {
-            $parameter = $this->raw($parameter);
+            $parameter = $this->filter($parameter);
         }
 
         if (is_callable($callback)) {
@@ -83,10 +83,10 @@ class Bag implements Iterator, Countable
      * @param $value
      * @return string
      */
-    public function raw($value)
+    public function filter($value)
     {
         if (is_string($value)) {
-            preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $value);
+            $value = preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $value);
             $value = strip_tags(trim($value));
         }
 

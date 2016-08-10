@@ -31,4 +31,13 @@ class BagTest extends PHPUnit_Framework_TestCase
 
         $bag->get('test');
     }
+
+    public function testBagRawData()
+    {
+        $bag = new Bag([
+            'name' => '<script>alert("test");</script>'
+        ]);
+
+        $this->assertEquals($bag->get('name'), '');
+    }
 }
