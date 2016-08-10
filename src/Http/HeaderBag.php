@@ -11,14 +11,14 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\Attribute;
+namespace FastD\Http;
 
 /**
  * Class HeaderAttribute
  *
  * @package FastD\Http\Attribute
  */
-class HeaderAttribute extends Attribute
+class HeaderBag extends Bag
 {
     /**
      * @var CookiesAttribute

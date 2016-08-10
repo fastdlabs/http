@@ -11,14 +11,17 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\Attribute;
+namespace FastD\Http;
+
+use Countable;
+use Iterator;
 
 /**
  * Class Attribute
  *
  * @package Attribute
  */
-class Attribute implements \Iterator, \Countable
+class Bag implements Iterator, Countable
 {
     /**
      * @var array

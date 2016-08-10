@@ -11,7 +11,8 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\Attribute;
+namespace FastD\Http;
+
 use FastD\Http\Cookie\Cookie;
 
 /**
@@ -19,7 +20,7 @@ use FastD\Http\Cookie\Cookie;
  *
  * @package FastD\Http\Attribute
  */
-class CookiesAttribute extends Attribute
+class CookiesBag extends Bag
 {
     /**
      * CookiesAttribute constructor.

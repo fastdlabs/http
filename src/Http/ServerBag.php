@@ -11,14 +11,14 @@
  * Gmail: bboyjanhuang@gmail.com
  */
 
-namespace FastD\Http\Attribute;
+namespace FastD\Http;
 
 /**
  * Class ServerAttribute
  *
  * @package FastD\Http\Attribute
  */
-class ServerAttribute extends Attribute
+class ServerBag extends Bag
 {
     /**
      * @var string
