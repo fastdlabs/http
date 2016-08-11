@@ -1,5 +1,6 @@
 <?php
-use FastD\Http\Bag;
+
+use FastD\Http\Bag\Bag;
 
 /**
  *
