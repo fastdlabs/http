@@ -1,6 +1,6 @@
 {
     "name": "fastd/http",
-    "description": "FastD simple http component.",
+    "description": "FastD Http.",
     "license": "MIT",
     "type": "library",
     "keywords": ["Http", "FastD"],
@@ -12,7 +12,8 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=5.6"
+        "php": ">=5.6",
+        "psr/http-message": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.0"
