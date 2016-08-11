@@ -10,10 +10,6 @@
 
 namespace FastD\Http\Bag;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
-
 /**
  * Class ServerBag
  *
@@ -29,12 +25,12 @@ class ServerBag extends Bag
     /**
      * @var string
      */
-    protected $requestUri;
+    protected $baseUri;
 
     /**
-     * @var UriInterface
+     * @var string
      */
-    protected $uri;
+    protected $requestUri;
 
     /**
      * @var HeaderBag
@@ -60,13 +56,16 @@ class ServerBag extends Bag
         parent::__construct($parameters);
     }
 
+    /**
+     * @return HeaderBag
+     */
     public function getHeaderBag()
     {
         return $this->headerBag;
     }
 
     /**
-     * @return array|int|string
+     * @return string
      */
     public function getScheme()
     {
@@ -143,7 +142,7 @@ class ServerBag extends Bag
      *
      * @return array|int|string
      */
-    protected function prepareBaseUrl()
+    protected function prepareBaseUri()
     {
         $filename = $this->has('SCRIPT_FILENAME') ? basename($this->get('SCRIPT_FILENAME')) : '';
 
@@ -222,6 +221,17 @@ class ServerBag extends Bag
     /**
      * @return string
      */
+    public function getBaseUrl()
+    {
+        if (null === $this->baseUri) {
+            $this->baseUri = $this->prepareBaseUri();
+        }
+        return $this->baseUri;
+    }
+
+    /**
+     * @return string
+     */
     public function getClientIp()
     {
         foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'] as $value) {
@@ -240,6 +250,6 @@ class ServerBag extends Bag
      */
     public function getMethod()
     {
-        return $this->header->get('REQUEST_METHOD');
+        return $this->get('REQUEST_METHOD');
     }
 }

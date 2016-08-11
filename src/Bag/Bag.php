@@ -14,18 +14,42 @@ use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 
+/**
+ * Class Bag
+ *
+ * @package FastD\Http\Bag
+ */
 class Bag
 {
+    const FILTER = '/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui';
+
     /**
      * @var array
      */
     protected $bag = [];
 
+    /**
+     * Bag constructor.
+     *
+     * @param array $bag
+     */
     public function __construct(array $bag = [])
     {
         $this->bag = $bag;
     }
 
+    /**
+     * @return array
+     */
+    public function all()
+    {
+        return $this->bag;
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
     public function remove($name)
     {
         if ($this->has($name)) {
@@ -35,6 +59,12 @@ class Bag
         return $this->has($name) ? false : true;
     }
 
+    /**
+     * @param $name
+     * @param bool $raw
+     * @param null $callback
+     * @return mixed|string
+     */
     public function get($name, $raw = false, $callback = null)
     {
         if (!$this->has($name)) {
@@ -54,21 +84,23 @@ class Bag
         return $parameter;
     }
 
-    protected function filter($value)
-    {
-        if (is_string($value)) {
-            $value = preg_replace('/(\<script.*?\>.*?<\/script.*?\>|\<i*frame.*?\>.*?\<\/i*frame.*?\>)/ui', '', $value);
-            $value = strip_tags(trim($value));
-        }
 
-        return $value;
-    }
-
+    /**
+     * @param $name
+     * @return bool
+     */
     public function has($name)
     {
         return isset($this->bag[$name]);
     }
 
+    /**
+     * @param $name
+     * @param $default
+     * @param bool $raw
+     * @param null $callback
+     * @return mixed|string
+     */
     public function hasGet($name, $default, $raw = false, $callback = null)
     {
         try {
@@ -78,6 +110,11 @@ class Bag
         }
     }
 
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     */
     public function set($name, $value)
     {
         $this->bag[$name] = $value;
@@ -85,14 +122,34 @@ class Bag
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isEmpty()
     {
         return [] === $this->bag;
     }
 
+    /**
+     * @return array
+     */
     public function keys()
     {
         return array_keys($this->bag);
+    }
+
+    /**
+     * @param $value
+     * @return mixed|string
+     */
+    protected function filter($value)
+    {
+        if (is_string($value)) {
+            $value = preg_replace(static::FILTER, '', $value);
+            $value = strip_tags(trim($value));
+        }
+
+        return $value;
     }
 
     public function __destruct()
