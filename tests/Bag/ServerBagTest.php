@@ -12,14 +12,6 @@ use FastD\Http\Bag\ServerBag;
 class ServerBagTest extends PHPUnit_Framework_TestCase
 {
     protected $_server = [
-        'HTTP_HOST' => 'localhost',
-        'HTTP_CONNECTION' => 'keep-alive',
-        'HTTP_CACHE_CONTROL' => 'max-age=0',
-        'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36',
-        'HTTP_REFERER' => 'http://localhost/me/fastd/library/http/examples/',
-        'HTTP_ACCEPT_ENCODING' => 'gzip, deflate, sdch',
-        'HTTP_ACCEPT_LANGUAGE' => 'zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4',
         'SERVER_NAME' => 'localhost',
         'SERVER_ADDR' => '::1',
         'SERVER_PORT' => '80',
