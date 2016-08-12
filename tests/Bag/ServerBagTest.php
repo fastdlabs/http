@@ -51,6 +51,6 @@ class ServerBagTest extends PHPUnit_Framework_TestCase
 
     public function testPathInfo()
     {
-
+        echo 1;
     }
 }
