@@ -15,12 +15,12 @@ namespace FastD\Http\Bag;
  *
  * @package FastD\Http\Attribute
  */
-class FilesBag extends Bag
+class FileBag extends Bag
 {
     /**
      * @param array $files
      */
-    public function __construct(array $files = [])
+    public function __construct(array $files)
     {
         parent::__construct([]);
 
