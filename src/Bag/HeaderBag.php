@@ -18,11 +18,6 @@ namespace FastD\Http\Bag;
 class HeaderBag extends Bag
 {
     /**
-     * @var CookiesBag
-     */
-    protected $cookies;
-
-    /**
      * @return null|string
      */
     public function getUserAgent()
@@ -118,6 +113,20 @@ class HeaderBag extends Bag
         $agent = strtolower($this->getUserAgent());
 
         return false === strpos($agent, 'android') ? false : true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClientIp()
+    {
+        foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'] as $value) {
+            if ($this->has($value)) {
+                return $this->get($value);
+            }
+        }
+
+        return 'unknown';
     }
 
     /**

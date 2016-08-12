@@ -142,7 +142,7 @@ class ServerBag extends Bag
      *
      * @return array|int|string
      */
-    protected function prepareBaseUri()
+    protected function prepareBaseUrl()
     {
         $filename = $this->has('SCRIPT_FILENAME') ? basename($this->get('SCRIPT_FILENAME')) : '';
 
@@ -224,23 +224,9 @@ class ServerBag extends Bag
     public function getBaseUrl()
     {
         if (null === $this->baseUri) {
-            $this->baseUri = $this->prepareBaseUri();
+            $this->baseUri = $this->prepareBaseUrl();
         }
         return $this->baseUri;
-    }
-
-    /**
-     * @return string
-     */
-    public function getClientIp()
-    {
-        foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'] as $value) {
-            if ($this->has($value)) {
-                return $this->get($value);
-            }
-        }
-
-        return 'unknown';
     }
 
     /**
