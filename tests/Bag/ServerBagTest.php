@@ -71,4 +71,36 @@ class ServerBagTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('/me/fastd/library/http/examples/server.php', $serverBag->getBaseUrl());
     }
+
+    public function testMethod()
+    {
+        $serverBag = new ServerBag($this->_server);
+
+        $this->assertEquals('GET', $serverBag->getMethod());
+
+        $this->assertTrue($serverBag->isMethod('get'));
+        $this->assertTrue($serverBag->isMethod('GET'));
+
+        $this->_server['REQUEST_METHOD'] = 'POST';
+
+        $serverBag = new ServerBag($this->_server);
+
+        $this->assertEquals('POST', $serverBag->getMethod());
+
+        $this->assertTrue($serverBag->isMethod('post'));
+        $this->assertTrue($serverBag->isMethod('POST'));
+    }
+
+    public function testUrlInfo()
+    {
+        $serverBag = new ServerBag($this->_server);
+
+        $this->assertEquals('localhost', $serverBag->getHost());
+
+        $this->assertFalse($serverBag->isSecure());
+
+        $this->assertEquals($serverBag->getScheme(), 'http');
+
+        $this->assertEquals($serverBag->getPort(), 80);
+    }
 }

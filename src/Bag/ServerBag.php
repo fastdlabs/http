@@ -238,4 +238,13 @@ class ServerBag extends Bag
     {
         return $this->get('REQUEST_METHOD');
     }
+
+    /**
+     * @param $method
+     * @return bool
+     */
+    public function isMethod($method)
+    {
+        return $this->getMethod() === strtoupper($method);
+    }
 }
