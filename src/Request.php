@@ -47,10 +47,10 @@ class Request extends Message implements RequestInterface
      *
      * @param $method
      * @param $uri
-     * @param string $body
      * @param array $headers
+     * @param string $body
      */
-    public function __construct($method, $uri, $body = 'php://memory', array $headers = [])
+    public function __construct($method = null, $uri = null, array $headers = [], $body = 'php://memory')
     {
         $this->withMethod($method);
         $this->withUri(new Uri($uri));

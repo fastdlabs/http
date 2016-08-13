@@ -29,4 +29,5 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         new Request('ABC', 'http://www.baidu.com');
     }
+
 }

@@ -10,73 +10,46 @@
 
 namespace FastD\Http;
 
+use FastD\Http\Bag\UploadedFile;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\UploadedFileInterface;
 
-class ServerRequest extends Message implements ServerRequestInterface
+/**
+ * Class ServerRequest
+ *
+ * @package FastD\Http
+ */
+class ServerRequest extends Request implements ServerRequestInterface
 {
     /**
-     * $_GET
-     *
-     * @var QueryAttribute
+     * @var array
      */
-    public $query;
+    private $attributes;
 
     /**
-     * $_POST
-     *
-     * @var RequestAttribute
+     * @var array
      */
-    public $request;
+    private $cookieParams;
 
     /**
-     * $_FILES
-     *
-     * @var FilesAttribute
+     * @var array
      */
-    public $files;
+    private $parsedBody;
 
     /**
-     * $_COOKIE
-     *
-     * @var CookiesAttribute
+     * @var array
      */
-    public $cookies;
+    private $queryParams;
 
     /**
-     * $_SERVER
-     *
-     * @var ServerAttribute
+     * @var array
      */
-    public $server;
+    private $serverParams;
 
     /**
-     * Http request headers or response headers.
-     *
-     * new HeaderAttribute($sever->getHeaders());
-     *
-     * @var HeaderAttribute
+     * @var array
      */
-    public $header;
-
-    /**
-     * Session management.
-     *
-     * $_SESSION
-     *
-     * @var Session
-     */
-    protected $session;
-
-    /**
-     * @var string
-     */
-    private $content;
-
-    /**
-     * @var Request
-     */
-    private static $requestFactory;
+    private $uploadedFiles;
 
     /**
      * The http request is has once request object.
@@ -89,384 +62,24 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function __construct(array $get = [], array $post = [], array $files = [], array $cookie = [], array $server = [])
     {
-        $this->query    = new Bag($get);
-        $this->request  = new Bag($post);
-        $this->files    = new FileBag($files);
-        $this->cookies  = new CookiesBag($cookie);
-        $this->server   = new ServerBag($server);
-        $this->header   = $this->server->getHeaderBag();
+        parent::__construct();
+
+        $this->uploadedFiles = $this->initializePsr7File($files);
     }
 
     /**
-     * @return string
-     */
-    public function getSchemeAndHost()
-    {
-        return $this->getScheme() . '://' . $this->getHost();
-    }
-
-    /**
-     * @return string
-     */
-    public function getScheme()
-    {
-        return $this->server->getScheme();
-    }
-
-    /**
-     * @return string
-     */
-    public function getHost()
-    {
-        return $this->server->getHost();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSecure()
-    {
-        return $this->server->isSecure();
-    }
-
-    /**
-     * Get user client request ip.
-     *
-     * @return string
-     */
-    public function getClientIp()
-    {
-        return $this->server->getClientIp();
-    }
-
-    /**
-     * @return string
-     */
-    public function getRequestUri()
-    {
-        return $this->server->getRequestUri();
-    }
-
-    /**
-     * @return bool|string
-     */
-    public function getBaseUrl()
-    {
-        return $this->server->getBaseUrl();
-    }
-
-    /**
-     * @return string
-     */
-    public function getPathInfo()
-    {
-        return $this->server->getPathInfo();
-    }
-
-    /**
-     * @return float
-     */
-    public function getRequestTime()
-    {
-        return $this->server->getRequestTime();
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->server->getMethod();
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormat()
-    {
-        return $this->server->getFormat();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isXmlHttpRequest()
-    {
-        return $this->header->isXmlHttpRequest();
-    }
-
-    /**
-     * @param $method
-     * @return bool
-     */
-    public function isMethod($method)
-    {
-        return $this->getMethod() === strtoupper($method);
-    }
-
-    /**
-     * @param SessionStorageInterface $sessionStorageInterface
-     * @return Session
-     */
-    public function getSessionHandle(SessionStorageInterface $sessionStorageInterface = null)
-    {
-        if (null === $this->session) {
-            $this->session = new Session($sessionStorageInterface);
-        }
-
-        return $this->session;
-    }
-
-    /**
-     * @param $name
-     * @return array|int|string
-     */
-    public function getSession($name)
-    {
-        return $this->getSessionHandle()->get($name);
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return $this
-     */
-    public function setSession($name, $value)
-    {
-        return $this->getSessionHandle()->set($name, $value);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function hasSession($name)
-    {
-        return $this->getSessionHandle()->has($name);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function clearSession($name)
-    {
-        return $this->getSessionHandle()->clear($name);
-    }
-
-    /**
-     * @param $name
-     * @return Cookie\Cookie
-     */
-    public function getCookie($name)
-    {
-        return $this->cookies->get($name);
-    }
-
-    /**
-     * @param        $name
-     * @param null   $value
-     * @param int    $expire
-     * @param string $path
-     * @param null   $domain
-     * @param bool   $secure
-     * @param bool   $httpOnly
-     * @return CookiesAttribute
-     */
-    public function setCookie($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true)
-    {
-        return $this->cookies->set($name, $value, $expire, $path, $domain, $secure, $httpOnly);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function hasCookie($name)
-    {
-        return $this->cookies->has($name);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function clearCookie($name)
-    {
-        return $this->cookies->clear($name);
-    }
-
-    /**
-     * @param UploadInterface $uploadInterface
-     * @param array $config
-     * @return UploadInterface
-     */
-    public function getUploader(UploadInterface $uploadInterface = null, array $config = [])
-    {
-        return $this->files->getUploader($uploadInterface, $config);
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserAgent()
-    {
-        return $this->header->getUserAgent();
-    }
-
-    /**
-     * @return resource|string
-     */
-    protected function getContent()
-    {
-        if (null === $this->content) {
-            $this->content = file_get_contents('php://input');
-        }
-
-        return $this->content;
-    }
-
-    /**
-     * Create one http request handle.
-     *
-     * @return Request|static
-     */
-    public static function createRequestHandle()
-    {
-        if (null === self::$requestFactory) {
-            self::$requestFactory = new static($_GET, $_POST, $_FILES, $_COOKIE, $_SERVER);
-
-            if (in_array(self::$requestFactory->server->hasGet('REQUEST_METHOD', 'GET'), array('PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'))
-            ) {
-                parse_str(self::$requestFactory->getContent(), $arguments);
-                self::$requestFactory->request = new RequestAttribute($arguments);
-            }
-        }
-
-        return self::$requestFactory;
-    }
-
-    /**
-     * Retrieves the message's request target.
-     *
-     * Retrieves the message's request-target either as it will appear (for
-     * clients), as it appeared at request (for servers), or as it was
-     * specified for the instance (see withRequestTarget()).
-     *
-     * In most cases, this will be the origin-form of the composed URI,
-     * unless a value was provided to the concrete implementation (see
-     * withRequestTarget() below).
-     *
-     * If no URI is available, and no request-target has been specifically
-     * provided, this method MUST return the string "/".
-     *
-     * @return string
-     */
-    public function getRequestTarget()
-    {
-        // TODO: Implement getRequestTarget() method.
-    }
-
-    /**
-     * Return an instance with the specific request-target.
-     *
-     * If the request needs a non-origin-form request-target — e.g., for
-     * specifying an absolute-form, authority-form, or asterisk-form —
-     * this method may be used to create an instance with the specified
-     * request-target, verbatim.
-     *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return an instance that has the
-     * changed request target.
-     *
-     * @link http://tools.ietf.org/html/rfc7230#section-5.3 (for the various
-     *     request-target forms allowed in request messages)
-     * @param mixed $requestTarget
+     * @param array $get
+     * @param array $post
+     * @param array $files
+     * @param array $cookie
+     * @param array $server
      * @return static
      */
-    public function withRequestTarget($requestTarget)
+    public static function createRequestHandle(array $get = [], array $post = [], array $files = [], array $cookie = [], array $server = [])
     {
-        // TODO: Implement withRequestTarget() method.
+
     }
 
-    /**
-     * Retrieves the HTTP method of the request.
-     *
-     * @return string Returns the request method.
-     */
-    public function getMethod()
-    {
-        // TODO: Implement getMethod() method.
-    }
-
-    /**
-     * Return an instance with the provided HTTP method.
-     *
-     * While HTTP method names are typically all uppercase characters, HTTP
-     * method names are case-sensitive and thus implementations SHOULD NOT
-     * modify the given string.
-     *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return an instance that has the
-     * changed request method.
-     *
-     * @param string $method Case-sensitive method.
-     * @return static
-     * @throws \InvalidArgumentException for invalid HTTP methods.
-     */
-    public function withMethod($method)
-    {
-        // TODO: Implement withMethod() method.
-    }
-
-    /**
-     * Retrieves the URI instance.
-     *
-     * This method MUST return a UriInterface instance.
-     *
-     * @link http://tools.ietf.org/html/rfc3986#section-4.3
-     * @return UriInterface Returns a UriInterface instance
-     *     representing the URI of the request.
-     */
-    public function getUri()
-    {
-        // TODO: Implement getUri() method.
-    }
-
-    /**
-     * Returns an instance with the provided URI.
-     *
-     * This method MUST update the Host header of the returned request by
-     * default if the URI contains a host component. If the URI does not
-     * contain a host component, any pre-existing Host header MUST be carried
-     * over to the returned request.
-     *
-     * You can opt-in to preserving the original state of the Host header by
-     * setting `$preserveHost` to `true`. When `$preserveHost` is set to
-     * `true`, this method interacts with the Host header in the following ways:
-     *
-     * - If the Host header is missing or empty, and the new URI contains
-     *   a host component, this method MUST update the Host header in the returned
-     *   request.
-     * - If the Host header is missing or empty, and the new URI does not contain a
-     *   host component, this method MUST NOT update the Host header in the returned
-     *   request.
-     * - If a Host header is present and non-empty, this method MUST NOT update
-     *   the Host header in the returned request.
-     *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return an instance that has the
-     * new UriInterface instance.
-     *
-     * @link http://tools.ietf.org/html/rfc3986#section-4.3
-     * @param UriInterface $uri  New request URI to use.
-     * @param bool $preserveHost Preserve the original state of the Host header.
-     * @return static
-     */
-    public function withUri(UriInterface $uri, $preserveHost = false)
-    {
-        // TODO: Implement withUri() method.
-    }
 
     /**
      * Retrieve server parameters.
@@ -479,7 +92,7 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function getServerParams()
     {
-        // TODO: Implement getServerParams() method.
+        return $this->serverParams;
     }
 
     /**
@@ -494,7 +107,7 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function getCookieParams()
     {
-        // TODO: Implement getCookieParams() method.
+        return $this->cookieParams;
     }
 
     /**
@@ -516,7 +129,9 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies)
     {
-        // TODO: Implement withCookieParams() method.
+        $this->cookieParams = $cookies;
+
+        return $this;
     }
 
     /**
@@ -533,7 +148,7 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function getQueryParams()
     {
-        // TODO: Implement getQueryParams() method.
+        return $this->queryParams;
     }
 
     /**
@@ -560,7 +175,9 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function withQueryParams(array $query)
     {
-        // TODO: Implement withQueryParams() method.
+        $this->queryParams = $query;
+
+        return $this;
     }
 
     /**
@@ -577,7 +194,7 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function getUploadedFiles()
     {
-        // TODO: Implement getUploadedFiles() method.
+        return $this->uploadedFiles;
     }
 
     /**
@@ -593,7 +210,9 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        // TODO: Implement withUploadedFiles() method.
+        $this->initializePsr7File($uploadedFiles);
+
+        return $this;
     }
 
     /**
@@ -613,7 +232,7 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function getParsedBody()
     {
-        // TODO: Implement getParsedBody() method.
+        return $this->parsedBody;
     }
 
     /**
@@ -646,7 +265,9 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function withParsedBody($data)
     {
-        // TODO: Implement withParsedBody() method.
+        $this->parsedBody = $data;
+
+        return $this;
     }
 
     /**
@@ -662,7 +283,7 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function getAttributes()
     {
-        // TODO: Implement getAttributes() method.
+        return $this->attributes;
     }
 
     /**
@@ -682,7 +303,11 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function getAttribute($name, $default = null)
     {
-        // TODO: Implement getAttribute() method.
+        if (!array_key_exists($name, $this->attributes)) {
+            return $default;
+        }
+
+        return $this->attributes[$name];
     }
 
     /**
@@ -702,7 +327,9 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function withAttribute($name, $value)
     {
-        // TODO: Implement withAttribute() method.
+        $this->attributes[$name] = $value;
+
+        return $this;
     }
 
     /**
@@ -721,6 +348,48 @@ class ServerRequest extends Message implements ServerRequestInterface
      */
     public function withoutAttribute($name)
     {
-        // TODO: Implement withoutAttribute() method.
+        if (!isset($this->attributes[$name])) {
+            return $this;
+        }
+
+        unset($this->attributes[$name]);
+
+        return $this;
+    }
+
+    /**
+     * @param array $files
+     * @return UploadedFileInterface[]
+     */
+    private function initializePsr7File(array $files)
+    {
+        $fileBag = $files;
+
+        $recursionFileBag = function ($files, &$fileBag) use (&$recursionFileBag) {
+            foreach ($files as $name => $value) {
+                if (!isset($value['name']) && is_array($value)) {
+                    $fileBag = &$fileBag[$name];
+                    $recursionFileBag($value, $fileBag);
+                }
+                if (isset($value['name'])) {
+                    if (is_array($value['name'])) {
+                        $tmpFiles = [];
+                        foreach ($value['name'] as $index => $val) {
+                            $tmpFiles[] = new UploadedFile($val, $value['type'][$index], $value['tmp_name'][$index], $value['error'][$index], $value['size'][$index]);
+                        }
+                        $fileBag[$name] = $tmpFiles;
+                        unset($tmpFiles);
+                    } else {
+                        $fileBag[$name] = new UploadedFile($value['name'], $value['type'], $value['tmp_name'], $value['error'], $value['size']);
+                    }
+                }
+            }
+        };
+
+        $recursionFileBag($files, $fileBag);
+
+        unset($recursionFileBag);
+
+        return $fileBag;
     }
 }

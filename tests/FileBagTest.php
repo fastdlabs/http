@@ -1,6 +1,8 @@
 <?php
 use FastD\Http\Bag\FileBag;
 
+use FastD\Http\UploadedFile;
+
 /**
  *
  * @author    jan huang <bboyjanhuang@gmail.com>
@@ -26,7 +28,7 @@ class FileBagTest extends PHPUnit_Framework_TestCase
         $files = $fileBag->getFiles();
 
         $this->assertEquals([
-            'file' => new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/b', 0, 123),
+            'file' => new UploadedFile('test.html', 'text/html', '/tmp/b', 0, 123),
         ], $files);
 
         $fileBag = new FileBag([
@@ -47,8 +49,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals([
-            'file' => new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
-            'name' => new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/b', 0, 123),
+            'file' => new UploadedFile('test.html', 'text/html', '/tmp/a', 0, 123),
+            'name' => new UploadedFile('test.html', 'text/html', '/tmp/b', 0, 123),
         ], $fileBag->getFiles());
 
         $fileBag = new FileBag([
@@ -78,8 +80,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals([
             'files' => [
-                new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
-                new \FastD\Http\Bag\File('test2.html', 'text/html', '/tmp/b', 0, 123),
+                new UploadedFile('test.html', 'text/html', '/tmp/a', 0, 123),
+                new UploadedFile('test2.html', 'text/html', '/tmp/b', 0, 123),
             ],
         ], $fileBag->getFiles());
 
@@ -115,8 +117,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
             'files' => [
                 'test' => [
                     'test2' => [
-                        new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
-                        new \FastD\Http\Bag\File('test2.html', 'text/html', '/tmp/b', 0, 123),
+                        new UploadedFile('test.html', 'text/html', '/tmp/a', 0, 123),
+                        new UploadedFile('test2.html', 'text/html', '/tmp/b', 0, 123),
                     ]
                 ]
             ]
@@ -151,8 +153,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($fileBag->getFiles(), [
             'files' => [
                 'test' => [
-                    new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
-                    new \FastD\Http\Bag\File('test2.html', 'text/html', '/tmp/b', 0, 123),
+                    new UploadedFile('test.html', 'text/html', '/tmp/a', 0, 123),
+                    new UploadedFile('test2.html', 'text/html', '/tmp/b', 0, 123),
                 ]
             ]
         ]);

@@ -8,7 +8,7 @@
  * @link      http://www.fast-d.cn/
  */
 
-namespace FastD\Http\Bag;
+namespace FastD\Http;
 
 use Serializable;
 

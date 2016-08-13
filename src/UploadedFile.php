@@ -8,7 +8,7 @@
  * @link      http://www.fast-d.cn/
  */
 
-namespace FastD\Http\Bag;
+namespace FastD\Http;
 
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -18,7 +18,7 @@ use Psr\Http\Message\UploadedFileInterface;
  *
  * @package FastD\Http\Bag
  */
-class File implements UploadedFileInterface
+class UploadedFile implements UploadedFileInterface
 {
     /**
      * @var string
