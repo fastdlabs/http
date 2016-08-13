@@ -17,7 +17,7 @@ class FileBagTest extends PHPUnit_Framework_TestCase
             'file' => [
                 'name' => 'test.html',
                 'type' => 'text/html',
-                'tmp_name' => '/tmp/' . uniqid(),
+                'tmp_name' => '/tmp/b',
                 'error' => UPLOAD_ERR_OK,
                 'size' => 123
             ]
@@ -26,29 +26,29 @@ class FileBagTest extends PHPUnit_Framework_TestCase
         $files = $fileBag->getFiles();
 
         $this->assertEquals([
-            'file' => new \FastD\Http\Bag\File(),
+            'file' => new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/b', 0, 123),
         ], $files);
 
         $fileBag = new FileBag([
             'file' => [
                 'name' => 'test.html',
                 'type' => 'text/html',
-                'tmp_name' => '/tmp/' . uniqid(),
+                'tmp_name' => '/tmp/a',
                 'error' => UPLOAD_ERR_OK,
                 'size' => 123
             ],
             'name' => [
                 'name' => 'test.html',
                 'type' => 'text/html',
-                'tmp_name' => '/tmp/' . uniqid(),
+                'tmp_name' => '/tmp/b',
                 'error' => UPLOAD_ERR_OK,
                 'size' => 123
             ]
         ]);
 
         $this->assertEquals([
-            'file' => new \FastD\Http\Bag\File(),
-            'name' => new \FastD\Http\Bag\File(),
+            'file' => new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
+            'name' => new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/b', 0, 123),
         ], $fileBag->getFiles());
 
         $fileBag = new FileBag([
@@ -62,8 +62,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
                     'text/html',
                 ],
                 'tmp_name' => [
-                    '/tmp/' . uniqid(),
-                    '/tmp/' . uniqid()
+                    '/tmp/a',
+                    '/tmp/b'
                 ],
                 'error' => [
                     UPLOAD_ERR_OK,
@@ -78,8 +78,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals([
             'files' => [
-                new \FastD\Http\Bag\File(),
-                new \FastD\Http\Bag\File()
+                new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
+                new \FastD\Http\Bag\File('test2.html', 'text/html', '/tmp/b', 0, 123),
             ],
         ], $fileBag->getFiles());
 
@@ -96,8 +96,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
                             'text/html',
                         ],
                         'tmp_name' => [
-                            '/tmp/' . uniqid(),
-                            '/tmp/' . uniqid()
+                            '/tmp/a',
+                            '/tmp/b'
                         ],
                         'error' => [
                             UPLOAD_ERR_OK,
@@ -115,8 +115,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
             'files' => [
                 'test' => [
                     'test2' => [
-                        new \FastD\Http\Bag\File(),
-                        new \FastD\Http\Bag\File(),
+                        new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
+                        new \FastD\Http\Bag\File('test2.html', 'text/html', '/tmp/b', 0, 123),
                     ]
                 ]
             ]
@@ -134,8 +134,8 @@ class FileBagTest extends PHPUnit_Framework_TestCase
                         'text/html',
                     ],
                     'tmp_name' => [
-                        '/tmp/' . uniqid(),
-                        '/tmp/' . uniqid()
+                        '/tmp/a',
+                        '/tmp/b'
                     ],
                     'error' => [
                         UPLOAD_ERR_OK,
@@ -151,10 +151,15 @@ class FileBagTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($fileBag->getFiles(), [
             'files' => [
                 'test' => [
-                    new \FastD\Http\Bag\File(),
-                    new \FastD\Http\Bag\File(),
+                    new \FastD\Http\Bag\File('test.html', 'text/html', '/tmp/a', 0, 123),
+                    new \FastD\Http\Bag\File('test2.html', 'text/html', '/tmp/b', 0, 123),
                 ]
             ]
         ]);
+    }
+
+    public function testUpload()
+    {
+
     }
 }

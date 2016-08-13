@@ -15,7 +15,7 @@ use Serializable;
 /**
  * Class Cookie
  *
- * @package FastD\Http
+ * @package FastD\Http\Bag
  */
 class Cookie implements Serializable
 {

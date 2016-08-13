@@ -14,6 +14,7 @@ use FastD\Http\Bag\CookiesBag;
 use FastD\Http\Bag\FilesBag;
 use FastD\Http\Bag\HeaderBag;
 use FastD\Http\Bag\ServerBag;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -24,7 +25,7 @@ use FastD\Http\Bag\Bag;
  *
  * @package FastD\Http
  */
-class Request implements ServerRequestInterface
+class Request extends Message implements RequestInterface
 {
     /**
      * $_GET

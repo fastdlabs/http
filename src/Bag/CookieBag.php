@@ -13,7 +13,7 @@ namespace FastD\Http\Bag;
 /**
  * Class CookiesBag
  *
- * @package FastD\Http
+ * @package FastD\Http\Bag
  */
 class CookiesBag extends Bag
 {
@@ -45,20 +45,20 @@ class CookiesBag extends Bag
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @param        $name
-     * @param null   $value
-     * @param int|null    $expire
-     * @param string $path
-     * @param null   $domain
-     * @param bool   $secure
-     * @param bool   $httpOnly
-     * @return CookiesAttribute
+     * @param $name
+     * @param null $value
+     * @param null $expire
+     * @param null $path
+     * @param null $domain
+     * @param null $secure
+     * @param null $httpOnly
+     * @return $this
      */
     public function set($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
     {
-        return parent::set($name, new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly));
+        parent::set($name, new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly));
+
+        return $this;
     }
 
     /**

@@ -13,11 +13,54 @@ namespace FastD\Http\Bag;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
+/**
+ * Class File
+ *
+ * @package FastD\Http\Bag
+ */
 class File implements UploadedFileInterface
 {
-    public function __construct()
-    {
+    /**
+     * @var string
+     */
+    protected $name;
 
+    /**
+     * @var string
+     */
+    protected $type;
+
+    /**
+     * @var string
+     */
+    protected $tmpName;
+
+    /**
+     * @var int
+     */
+    protected $error;
+
+    /**
+     * @var int
+     */
+    protected $size;
+
+    /**
+     * File constructor.
+     *
+     * @param $name
+     * @param $type
+     * @param $tmpName
+     * @param $error
+     * @param $size
+     */
+    public function __construct($name, $type, $tmpName, $error, $size)
+    {
+        $this->name = $name;
+        $this->type = $type;
+        $this->tmpName = $tmpName;
+        $this->error = $error;
+        $this->size = $size;
     }
 
     /**
@@ -38,7 +81,7 @@ class File implements UploadedFileInterface
      */
     public function getStream()
     {
-        // TODO: Implement getStream() method.
+
     }
 
     /**
@@ -69,13 +112,41 @@ class File implements UploadedFileInterface
      * @see http://php.net/is_uploaded_file
      * @see http://php.net/move_uploaded_file
      * @param string $targetPath Path to which to move the uploaded file.
+     * @return string
      * @throws \InvalidArgumentException if the $targetPath specified is invalid.
      * @throws \RuntimeException on any error during the move operation, or on
      *                           the second or subsequent call to the method.
      */
     public function moveTo($targetPath)
     {
-        // TODO: Implement moveTo() method.
+        $targetFile = $targetPath
+            . DIRECTORY_SEPARATOR
+            . hash_file('md5', $this->tmpName)
+            . '.'
+            . pathinfo($this->name, PATHINFO_EXTENSION);
+
+
+        if ('cli' === PHP_SAPI) {
+            if (!rename($this->tmpName, $targetFile)) {
+                throw new \RuntimeException('Failed to move uploaded file.');
+            }
+
+            return $targetFile;
+        }
+
+        if (!is_uploaded_file($this->tmpName)) {
+            throw new \InvalidArgumentException(sprintf('Upload file is invalid.'));
+        }
+
+        if (!is_dir($targetPath)) {
+            mkdir($targetPath, 0755, true);
+        }
+
+        if (!move_uploaded_file($this->tmpName, $targetFile)) {
+            throw new \RuntimeException('Failed to move uploaded file.');
+        }
+
+        return $targetFile;
     }
 
     /**
@@ -89,7 +160,7 @@ class File implements UploadedFileInterface
      */
     public function getSize()
     {
-        // TODO: Implement getSize() method.
+        return $this->size;
     }
 
     /**
@@ -108,7 +179,7 @@ class File implements UploadedFileInterface
      */
     public function getError()
     {
-        // TODO: Implement getError() method.
+        return $this->error;
     }
 
     /**
@@ -126,7 +197,7 @@ class File implements UploadedFileInterface
      */
     public function getClientFilename()
     {
-        // TODO: Implement getClientFilename() method.
+        return $this->name;
     }
 
     /**
@@ -144,6 +215,6 @@ class File implements UploadedFileInterface
      */
     public function getClientMediaType()
     {
-        // TODO: Implement getClientMediaType() method.
+        return $this->type;
     }
 }

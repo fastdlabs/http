@@ -14,9 +14,9 @@ use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
- * Class FilesBag
+ * Class FileBag
  *
- * @package FastD\Http\Attribute
+ * @package FastD\Http\Bag
  */
 class FileBag extends Bag
 {
@@ -46,12 +46,12 @@ class FileBag extends Bag
                     if (is_array($value['name'])) {
                         $tmpFiles = [];
                         foreach ($value['name'] as $index => $val) {
-                            $tmpFiles[] = new File();
+                            $tmpFiles[] = new File($val, $value['type'][$index], $value['tmp_name'][$index], $value['error'][$index], $value['size'][$index]);
                         }
                         $fileBag[$name] = $tmpFiles;
                         unset($tmpFiles);
                     } else {
-                        $fileBag[$name] = new File();
+                        $fileBag[$name] = new File($value['name'], $value['type'], $value['tmp_name'], $value['error'], $value['size']);
                     }
                 }
             }
