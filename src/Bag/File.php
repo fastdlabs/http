@@ -15,6 +15,11 @@ use Psr\Http\Message\UploadedFileInterface;
 
 class File implements UploadedFileInterface
 {
+    public function __construct()
+    {
+
+    }
+
     /**
      * Retrieve a stream representing the uploaded file.
      *

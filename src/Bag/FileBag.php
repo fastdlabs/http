@@ -10,6 +10,9 @@
 
 namespace FastD\Http\Bag;
 
+use InvalidArgumentException;
+use Psr\Http\Message\UploadedFileInterface;
+
 /**
  * Class FilesBag
  *
@@ -22,51 +25,47 @@ class FileBag extends Bag
      */
     public function __construct(array $files)
     {
-        parent::__construct([]);
-
-        $this->initializeUploadFilesArray($files);
+        parent::__construct($this->initializePsr7File($files));
     }
 
     /**
      * @param array $files
+     * @return UploadedFileInterface[]
      */
-    private function initializeUploadFilesArray(array $files = [])
+    private function initializePsr7File(array $files)
     {
-        foreach ($files as $name => $file) {
-            if (is_array($file['name'])) {
-                foreach ($file['name'] as $key => $value) {
-                    if (empty($value)) {
-                        continue;
-                    }
-                    $this->parameters[$name][$key] = new File($file['name'][$key], $file['type'][$key], $file['tmp_name'][$key], $file['size'][$key], $file['error'][$key]);
+        $fileBag = $files;
+
+        $recursionFileBag = function ($files, &$fileBag) use (&$recursionFileBag) {
+            foreach ($files as $name => $value) {
+                if (!isset($value['name']) && is_array($value)) {
+                    $fileBag = &$fileBag[$name];
+                    $recursionFileBag($value, $fileBag);
                 }
-                continue;
-            } else if (!empty($file['name'])) {
-                $this->set($name, new File($file['name'], $file['type'], $file['tmp_name'], $file['size'], $file['error']));
+                if (isset($value['name'])) {
+                    if (is_array($value['name'])) {
+                        $tmpFiles = [];
+                        foreach ($value['name'] as $index => $val) {
+                            $tmpFiles[] = new File();
+                        }
+                        $fileBag[$name] = $tmpFiles;
+                        unset($tmpFiles);
+                    } else {
+                        $fileBag[$name] = new File();
+                    }
+                }
             }
-        }
+        };
+
+        $recursionFileBag($files, $fileBag);
+
+        unset($recursionFileBag);
+
+        return $fileBag;
     }
 
     /**
-     * @param  UploadInterface|null $uploadInterface
-     * @param array $config
-     * @return  UploadInterface|Uploader
-     */
-    public function getUploader(UploadInterface $uploadInterface = null, array $config = [])
-    {
-        if (null === $uploadInterface) {
-            $uploadInterface = new Uploader();
-        }
-
-        $uploadInterface->setConfig($config);
-
-        $uploadInterface->setFiles($this->all());
-
-        return $uploadInterface;
-    }
-
-    /**
-     * @return File[]
+     * @return UploadedFileInterface[]
      */
     public function getFiles()
     {
@@ -75,10 +74,14 @@ class FileBag extends Bag
 
     /**
      * @param $name
-     * @return File
+     * @return UploadedFileInterface
      */
     public function getFile($name)
     {
-        return $this->get($name);
+        if (!$this->has($name)) {
+            throw new InvalidArgumentException(sprintf('Upload file "%s" is undefined.', $name));
+        }
+
+        return $this->bag[$name];
     }
 }
