@@ -1,4 +1,5 @@
 <?php
+use FastD\Http\Request;
 
 /**
  *
@@ -10,8 +11,22 @@
  */
 class RequestTest extends PHPUnit_Framework_TestCase
 {
-    public function testRequestInstance()
+    public function testRequest()
     {
+        $request = new Request('GET', 'http://www.baidu.com');
 
+        $this->assertEquals('GET', $request->getMethod());
+
+        $request->withMethod('POST');
+
+        $this->assertEquals('POST', $request->getMethod());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidMethod()
+    {
+        new Request('ABC', 'http://www.baidu.com');
     }
 }
