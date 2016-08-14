@@ -38,11 +38,6 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @var Bag
      */
-    public $body;
-
-    /**
-     * @var Bag
-     */
     public $query;
 
     /**
@@ -83,12 +78,16 @@ class ServerRequest extends Request implements ServerRequestInterface
     )
     {
         $this->query = new Bag($get);
-        $this->body = new Bag($post);
         $this->server = new ServerBag($server);
         $this->cookie = new CookieBag($cookie);
         $this->file = new FileBag($files);
 
-        parent::__construct($this->server->getMethod());
+        parent::__construct(
+            $this->server->getMethod(),
+            $this->server->getPathInfo(),
+            $this->server->getHeaderBag()->all(),
+            'php://input'
+        );
     }
 
     /**

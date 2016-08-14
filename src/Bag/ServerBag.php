@@ -45,11 +45,11 @@ class ServerBag extends Bag
     {
         $headers = [];
 
-        foreach ($bag as $key => $value) {
+        array_walk($bag, function ($value, $key) use (&$headers) {
             if (0 === strpos($key, 'HTTP_')) {
-                $headers[$key] = $value;
+                $headers[$key] = explode(',', $value);
             }
-        }
+        });
 
         $this->headerBag = new HeaderBag($headers); unset($headers);
 

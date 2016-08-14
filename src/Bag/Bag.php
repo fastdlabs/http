@@ -60,6 +60,22 @@ class Bag
 
     /**
      * @param $name
+     * @param $value
+     * @return $this|Bag
+     */
+    public function add($name, $value)
+    {
+        if (!$this->has($name)) {
+            return $this->set($name, $value);
+        }
+
+        $this->bag[$name][] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param $name
      * @param bool $raw
      * @param null $callback
      * @return mixed|string
@@ -105,7 +121,7 @@ class Bag
         try {
             return $this->get($name, $raw, $callback);
         } catch (Exception $e) {
-            return is_callable($callback) ? $callback($default) : $default;
+            return $default;
         }
     }
 
@@ -130,14 +146,6 @@ class Bag
     }
 
     /**
-     * @return array
-     */
-    public function keys()
-    {
-        return array_keys($this->bag);
-    }
-
-    /**
      * @param $value
      * @return mixed|string
      */
@@ -151,6 +159,11 @@ class Bag
         return $value;
     }
 
+    /**
+     * Destruct all.
+     *
+     * @return void
+     */
     public function __destruct()
     {
         $this->bag = [];

@@ -26,7 +26,7 @@ class BagTest extends PHPUnit_Framework_TestCase
 
         $bag->remove('name');
         $this->assertFalse($bag->hasGet('name', false));
-        $this->assertTrue($bag->hasGet('name', false, false, function () {
+        $this->assertFalse($bag->hasGet('name', false, false, function () {
             return true;
         }));
 
