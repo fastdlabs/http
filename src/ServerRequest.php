@@ -40,10 +40,6 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public $query;
 
-    public $body;
-
-    public $request;
-
     /**
      * @var ServerBag
      */
@@ -93,7 +89,9 @@ class ServerRequest extends Request implements ServerRequestInterface
             }
         });
 
-        parent::__construct('GET', $this->server->getPathInfo(), $headers); unset($headers);
+        parent::__construct($this->server->getMethod(), $this->server->getPathInfo(), $headers, 'php://input');
+
+        unset($headers);
     }
 
     /**
@@ -131,9 +129,12 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function send(RequestInterface $request = null)
     {
-
+//        return file_get_contents($request->getRequestTarget());
     }
 
+    /**
+     * @return $this
+     */
     public function getRequest()
     {
         return $this;

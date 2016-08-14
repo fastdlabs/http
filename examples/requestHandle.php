@@ -18,5 +18,4 @@ use FastD\Http\ServerRequest;
 
 $request = ServerRequest::createFromGlobals();
 
-echo '<pre>';
-print_r($request);
+$request->send();
