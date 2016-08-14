@@ -15,7 +15,12 @@
 include __DIR__ . '/../vendor/autoload.php';
 
 use FastD\Http\ServerRequest;
+use FastD\Http\Uri;
 
 $request = ServerRequest::createFromGlobals();
 
-$request->send();
+$request->withUri(new Uri('http://localhost'));
+
+$request->withRequestTarget('/');
+
+$response = $request->send();

@@ -202,14 +202,15 @@ class Response extends Message implements ResponseInterface
     /**
      * Response constructor.
      *
-     * @param string $body
+     * @param string $content
      * @param int $statusCode
      * @param array $headers
      */
-    public function __construct($body = 'php://memory', $statusCode = Response::HTTP_OK, array $headers = ['Content-Type' => 'text/html; charset=utf-8;'])
+    public function __construct($content, $statusCode = Response::HTTP_OK, array $headers = ['Content-Type' => 'text/html; charset=utf-8;'])
     {
-        $this->withBody(new Stream($body, 'wb+'));
+        $this->withBody(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
+        $this->getBody()->write($content);
         parent::__construct($headers);
     }
 

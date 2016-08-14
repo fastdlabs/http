@@ -15,7 +15,6 @@ use FastD\Http\Bag\CookieBag;
 use FastD\Http\Bag\FileBag;
 use FastD\Http\Bag\ServerBag;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -125,11 +124,29 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     /**
      * @param RequestInterface|null $request
-     * @return ResponseInterface
+     * @return Response
      */
     public function send(RequestInterface $request = null)
     {
-//        return file_get_contents($request->getRequestTarget());
+        if (null === $request) {
+            $request = $this;
+        }
+
+        $opts = [
+            'http' => [
+                'method' => $request->getMethod(),
+                'header' => (string) $this->header,
+            ]
+        ];
+
+        $content = file_get_contents(sprintf(
+            '%s://%s%s',
+            $this->getUri()->getScheme(),
+            $this->getUri()->getHost(),
+            $this->getUri()->getPath()
+        ), false, stream_context_create($opts));
+
+        return new Response($content, Response::HTTP_OK , false === $content ? [] :  $http_response_header);
     }
 
     /**

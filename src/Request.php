@@ -23,8 +23,19 @@ use Psr\Http\Message\UriInterface;
  */
 class Request extends Message implements RequestInterface
 {
+    /**
+     * @var string
+     */
     protected $method;
+
+    /**
+     * @var string
+     */
     protected $requestTarget;
+
+    /**
+     * @var Uri
+     */
     protected $uri;
 
     /**
@@ -79,7 +90,7 @@ class Request extends Message implements RequestInterface
      */
     public function getRequestTarget()
     {
-        return $this->requestTarget;
+        return $this->uri->getPath();
     }
 
     /**
@@ -101,7 +112,7 @@ class Request extends Message implements RequestInterface
      */
     public function withRequestTarget($requestTarget)
     {
-        $this->requestTarget = $requestTarget;
+        $this->uri->withPath($requestTarget);
 
         return $this;
     }
