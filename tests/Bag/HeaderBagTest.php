@@ -37,6 +37,13 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
             'HTTP_HOST' => 'localhost',
         ]);
 
-        $this->assertEquals($headerBag->get('host'), ['localhost']);
+        $this->assertEquals($headerBag->get('http_host'), ['localhost']);
+    }
+
+    public function testToStringFoHeaderBag()
+    {
+        $headerBag = new HeaderBag($this->_headers);
+
+        echo $headerBag;
     }
 }

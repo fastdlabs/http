@@ -79,6 +79,24 @@ class ServerBag extends Bag
     }
 
     /**
+     * @return string
+     */
+    public function getProtocol()
+    {
+        return $this->hasGet('SERVER_PROTOCOL', 'HTTP/1.1');
+    }
+
+    /**
+     * @return string
+     */
+    public function getProtocolVersion()
+    {
+        $protocol = $this->getProtocol();
+
+        return substr($protocol, 5);
+    }
+
+    /**
      * @return array|int|string
      */
     public function getHost()

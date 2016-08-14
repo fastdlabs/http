@@ -87,7 +87,15 @@ class ServerRequest extends Message implements ServerRequestInterface
         $this->server = new ServerBag($server);
         $this->cookie = new CookieBag($cookie);
         $this->file = new FileBag($files);
-        $this->header = new HeaderBag($server);
+
+        $headers = [];
+        array_walk($server, function ($value, $key) use (&$headers) {
+            if (0 === strpos($value, 'HTTP_')) {
+                $headers[$key] = $value;
+            }
+        });
+
+        parent::__construct($headers); unset($headers);
     }
 
     /**

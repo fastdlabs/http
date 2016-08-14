@@ -26,7 +26,7 @@ class CookieBag extends Bag
     public function __construct(array $bag = [])
     {
         foreach ($bag as $key => $value) {
-            $bag[$key] = new Cookie($key, $value, null, null, null, null, null);
+            $bag[$key] = new Cookie($key, $value);
         }
 
         parent::__construct($bag);
@@ -34,28 +34,15 @@ class CookieBag extends Bag
 
     /**
      * @param $name
-     * @return bool
-     */
-    public function remove($name)
-    {
-        if (isset($_COOKIE[$name])) {
-            unset($_COOKIE[$name]);
-        }
-
-        return parent::remove($name);
-    }
-
-    /**
-     * @param $name
-     * @param null $value
-     * @param null $expire
-     * @param null $path
-     * @param null $domain
-     * @param null $secure
-     * @param null $httpOnly
+     * @param $value
+     * @param $expire
+     * @param string $path
+     * @param string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
      * @return $this
      */
-    public function set($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
+    public function set($name, $value = null, $expire = null, $path = '/', $domain = null, $secure = null, $httpOnly = null)
     {
         parent::set($name, new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly));
 
@@ -63,30 +50,6 @@ class CookieBag extends Bag
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @param $name
-     * @param bool $raw
-     * @param null $callback
-     * @return Cookie
-     */
-    public function get($name, $raw = false, $callback = null)
-    {
-        return parent::get($name, $raw, $callback);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function clear($name)
-    {
-        return $this->remove($name);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
      * @return $this
      */
     public function clearAll()
@@ -106,7 +69,7 @@ class CookieBag extends Bag
         $cookies = '';
 
         foreach ($this->all() as $cookie) {
-            $cookies .= $cookie;
+            $cookies .= $cookie->asString();
         }
 
         return $cookies;

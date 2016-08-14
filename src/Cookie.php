@@ -10,14 +10,12 @@
 
 namespace FastD\Http;
 
-use Serializable;
-
 /**
  * Class Cookie
  *
- * @package FastD\Http\Bag
+ * @package FastD\Http
  */
-class Cookie implements Serializable
+class Cookie
 {
     /**
      * @var string
@@ -79,12 +77,6 @@ class Cookie implements Serializable
         $this->path = $path;
         $this->secure = $secure;
         $this->httpOnly = $httpOnly;
-
-        if ($force) {
-            setcookie($this->getName(), $this->serialize(), empty($this->getExpire()) ? null : time() + $this->getExpire(), $this->getPath(), $this->getDomain(), $this->isSecure(), $this->isHttpOnly());
-        } else {
-            $this->unserialize($value);
-        }
     }
 
     /**
@@ -263,52 +255,6 @@ class Cookie implements Serializable
      */
     public function __toString()
     {
-        return (string)$this->value;
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
-     *
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
-     */
-    public function serialize()
-    {
-        return serialize([
-            'name' => $this->name,
-            'value' => $this->value,
-            'expire' => $this->expire,
-            'path' => $this->path,
-            'domain' => $this->domain,
-            'secure' => $this->secure,
-            'httpOnly' => $this->httpOnly,
-        ]);
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object
-     *
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     *                           The string representation of the object.
-     *                           </p>
-     * @return void
-     */
-    public function unserialize($serialized)
-    {
-        if (null !== $serialized) {
-            try {
-                if (false !== ($data = @unserialize($serialized))) {
-                    foreach ($data as $name => $value) {
-                        $this->$name = $value;
-                    }
-                }
-            } catch (\Exception $e) {
-                $this->value = $serialized;
-            }
-        }
-        unset($serialized, $data);
+        return (string) $this->value;
     }
 }

@@ -38,6 +38,11 @@ class Message implements MessageInterface
      */
     protected $body;
 
+    /**
+     * Message constructor.
+     *
+     * @param array $headers
+     */
     public function __construct(array $headers = [])
     {
         $this->header = new HeaderBag($headers);
@@ -102,7 +107,7 @@ class Message implements MessageInterface
      */
     public function getHeaders()
     {
-        return $this->headers;
+        return $this->header->all();
     }
 
     /**
@@ -115,7 +120,7 @@ class Message implements MessageInterface
      */
     public function hasHeader($name)
     {
-        return array_key_exists(strtoupper($name), $this->headers);
+        return $this->header->has($name);
     }
 
     /**
@@ -134,12 +139,7 @@ class Message implements MessageInterface
      */
     public function getHeader($name)
     {
-        $name = strtoupper($name);
-        if (!$this->hasHeader($name)) {
-            return [];
-        }
-
-        return $this->headers[$name];
+        return $this->header->get($name);
     }
 
     /**
@@ -193,9 +193,7 @@ class Message implements MessageInterface
             $value = [$value];
         }
 
-        $name = strtoupper($name);
-
-        $this->headers[$name] = $value;
+        $this->header->set($name, $value);
 
         return $this;
     }
@@ -222,17 +220,11 @@ class Message implements MessageInterface
             $value = [$value];
         }
 
-        $name = strtoupper($name);
-
         if (!$this->hasHeader($name)) {
             return $this->withHeader($name, $value);
         }
 
-        $name = strtoupper($name);
-
-        while (list(, $val) = each($value)) {
-            $this->headers[$name][] = $val;
-        }
+        $this->header->add($name, $value);
 
         return $this;
     }
@@ -257,7 +249,7 @@ class Message implements MessageInterface
             return $this;
         }
 
-        unset($this->headers[$name]);
+        $this->header->remove($name);
 
         return $this;
     }

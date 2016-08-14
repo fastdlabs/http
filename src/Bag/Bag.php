@@ -69,7 +69,13 @@ class Bag
             return $this->set($name, $value);
         }
 
-        $this->bag[$name][] = $value;
+        if (is_string($value)) {
+            $value = [$value];
+        }
+
+        foreach ($value as $item) {
+            $this->bag[$name][] = $item;
+        }
 
         return $this;
     }
