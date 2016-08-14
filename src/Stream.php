@@ -33,6 +33,7 @@ class Stream implements StreamInterface
     /**
      * Stream constructor.
      *
+     * @see http://php.net/manual/zh/wrappers.php.php
      * @param $stream
      * @param string $mode
      */
@@ -59,12 +60,7 @@ class Stream implements StreamInterface
      */
     public function __toString()
     {
-        if (!$this->isReadable()) {
-            return '';
-        }
-
         try {
-            $this->rewind();
             return $this->getContents();
         } catch (RuntimeException $e) {
             return '';
@@ -78,12 +74,10 @@ class Stream implements StreamInterface
      */
     public function close()
     {
-        if (!$this->resource) {
-            return;
+        if (null !== $this->resource) {
+            $resource = $this->detach();
+            fclose($resource);;
         }
-
-        $resource = $this->detach();
-        fclose($resource);
     }
 
     /**
@@ -107,7 +101,7 @@ class Stream implements StreamInterface
      */
     public function getSize()
     {
-        if (null === $this->resource) {
+        if (!$this->resource) {
             return null;
         }
 
@@ -244,6 +238,7 @@ class Stream implements StreamInterface
         if (false === $result) {
             throw new RuntimeException('Error writing to stream');
         }
+
         return $result;
     }
 
@@ -284,13 +279,7 @@ class Stream implements StreamInterface
             throw new RuntimeException('Stream is not readable');
         }
 
-        $result = fread($this->resource, $length);
-
-        if (false === $result) {
-            throw new RuntimeException('Error reading stream');
-        }
-
-        return $result;
+        return fread($this->resource, (int) $length);
     }
 
     /**
@@ -306,7 +295,9 @@ class Stream implements StreamInterface
             return '';
         }
 
+        $this->rewind();
         $result = stream_get_contents($this->resource);
+
         if (false === $result) {
             throw new RuntimeException('Error reading from stream');
         }
@@ -327,15 +318,16 @@ class Stream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        if (null === $key) {
-            return stream_get_meta_data($this->resource);
+        if (!$this->resource) {
+            throw new RuntimeException('No resource available; cannot write');
         }
 
         $metadata = stream_get_meta_data($this->resource);
-        if (!array_key_exists($key, $metadata)) {
-            return null;
+
+        if (null === $key) {
+            return $metadata;
         }
 
-        return $metadata[$key];
+        return !array_key_exists($key, $metadata) ? null : $metadata[$key];
     }
 }

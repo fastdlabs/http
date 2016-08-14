@@ -25,7 +25,7 @@ class FileBagTest extends PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $files = $fileBag->getFiles();
+        $files = $fileBag->all();
 
         $this->assertEquals([
             'file' => new UploadedFile('test.html', 'text/html', '/tmp/b', 0, 123),
@@ -51,7 +51,7 @@ class FileBagTest extends PHPUnit_Framework_TestCase
         $this->assertEquals([
             'file' => new UploadedFile('test.html', 'text/html', '/tmp/a', 0, 123),
             'name' => new UploadedFile('test.html', 'text/html', '/tmp/b', 0, 123),
-        ], $fileBag->getFiles());
+        ], $fileBag->all());
 
         $fileBag = new FileBag([
             'files' => [
@@ -83,7 +83,7 @@ class FileBagTest extends PHPUnit_Framework_TestCase
                 new UploadedFile('test.html', 'text/html', '/tmp/a', 0, 123),
                 new UploadedFile('test2.html', 'text/html', '/tmp/b', 0, 123),
             ],
-        ], $fileBag->getFiles());
+        ], $fileBag->all());
 
         $fileBag = new FileBag([
             'files' => [
@@ -113,7 +113,7 @@ class FileBagTest extends PHPUnit_Framework_TestCase
             ],
         ]);
 
-        $this->assertEquals($fileBag->getFiles(), [
+        $this->assertEquals($fileBag->all(), [
             'files' => [
                 'test' => [
                     'test2' => [
@@ -150,7 +150,7 @@ class FileBagTest extends PHPUnit_Framework_TestCase
             ],
         ]);
 
-        $this->assertEquals($fileBag->getFiles(), [
+        $this->assertEquals($fileBag->all(), [
             'files' => [
                 'test' => [
                     new UploadedFile('test.html', 'text/html', '/tmp/a', 0, 123),

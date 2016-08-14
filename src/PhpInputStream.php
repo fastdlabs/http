@@ -28,12 +28,13 @@ class PhpInputStream extends Stream
     private $reachedEof = false;
 
     /**
-     * @param  string|resource $stream
-     * @param  string $mode
+     * PhpInputStream constructor.
+     *
+     * @param string $stream
+     * @param string $mode
      */
     public function __construct($stream = 'php://input', $mode = 'r')
     {
-        $mode = 'r';
         parent::__construct($stream, $mode);
     }
 
@@ -51,7 +52,7 @@ class PhpInputStream extends Stream
     }
 
     /**
-     * @return bool
+     * @return bool false
      */
     public function isWritable()
     {
@@ -86,7 +87,7 @@ class PhpInputStream extends Stream
             return $this->cache;
         }
 
-        $contents     = stream_get_contents($this->resource, $maxLength);
+        $contents = stream_get_contents($this->resource, $maxLength);
         $this->cache .= $contents;
 
         if ($maxLength === -1 || $this->eof()) {

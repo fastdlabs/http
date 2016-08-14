@@ -11,7 +11,6 @@
 namespace FastD\Http\Bag;
 
 use FastD\Http\UploadedFile;
-use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
@@ -26,14 +25,14 @@ class FileBag extends Bag
      */
     public function __construct(array $files)
     {
-        parent::__construct($this->initializePsr7File($files));
+        parent::__construct($this->initUploadedFiles($files));
     }
 
     /**
      * @param array $files
      * @return UploadedFileInterface[]
      */
-    public function initializePsr7File(array $files)
+    public function initUploadedFiles(array $files)
     {
         $fileBag = $files;
 
@@ -63,26 +62,5 @@ class FileBag extends Bag
         unset($recursionFileBag);
 
         return $fileBag;
-    }
-
-    /**
-     * @return UploadedFileInterface[]
-     */
-    public function getFiles()
-    {
-        return $this->all();
-    }
-
-    /**
-     * @param $name
-     * @return UploadedFileInterface
-     */
-    public function getFile($name)
-    {
-        if (!$this->has($name)) {
-            throw new InvalidArgumentException(sprintf('Upload file "%s" is undefined.', $name));
-        }
-
-        return $this->bag[$name];
     }
 }

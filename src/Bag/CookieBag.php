@@ -21,15 +21,15 @@ class CookieBag extends Bag
 {
     /**
      * CookiesAttribute constructor.
-     * @param array $parameters
+     * @param array $bag
      */
-    public function __construct(array $parameters = [])
+    public function __construct(array $bag = [])
     {
-        foreach ($parameters as $key => $value) {
-            $parameters[$key] = new Cookie($key, $value, null, null, null, null, null, false);
+        foreach ($bag as $key => $value) {
+            $bag[$key] = new Cookie($key, $value, null, null, null, null, null);
         }
 
-        parent::__construct($parameters);
+        parent::__construct($bag);
     }
 
     /**
@@ -40,7 +40,6 @@ class CookieBag extends Bag
     {
         if (isset($_COOKIE[$name])) {
             unset($_COOKIE[$name]);
-            setcookie($name, null, -1, '/');
         }
 
         return parent::remove($name);

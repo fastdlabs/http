@@ -64,9 +64,8 @@ class Cookie implements Serializable
      * @param null $domain
      * @param bool $secure
      * @param bool $httpOnly
-     * @param bool $force
      */
-    public function __construct($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null, $force = true)
+    public function __construct($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
     {
         // from PHP source code
         if (preg_match("/[=,; \t\r\n\013\014]/", $name)) {

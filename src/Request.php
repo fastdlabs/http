@@ -15,6 +15,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
+ * Http Request Client
+ *
  * Class Request
  *
  * @package FastD\Http
@@ -56,9 +58,7 @@ class Request extends Message implements RequestInterface
         $this->withUri(new Uri($uri));
         $this->withBody(new Stream($body));
 
-        while (list($name, $value) = each($headers)) {
-            $this->withHeader($name, $value);
-        }
+        parent::__construct($headers);
     }
 
     /**

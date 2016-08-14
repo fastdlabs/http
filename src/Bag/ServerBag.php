@@ -25,7 +25,7 @@ class ServerBag extends Bag
     /**
      * @var string
      */
-    protected $baseUri;
+    protected $baseUrl;
 
     /**
      * @var string
@@ -43,16 +43,6 @@ class ServerBag extends Bag
      */
     public function __construct(array $bag)
     {
-        $headers = [];
-
-        array_walk($bag, function ($value, $key) use (&$headers) {
-            if (0 === strpos($key, 'HTTP_')) {
-                $headers[$key] = explode(',', $value);
-            }
-        });
-
-        $this->headerBag = new HeaderBag($headers); unset($headers);
-
         parent::__construct($bag);
     }
 
@@ -105,14 +95,11 @@ class ServerBag extends Bag
             return $this->pathInfo;
         }
 
-        $pathInfo = $this->hasGet('PATH_INFO', $this->preparePathInfo());
+        $this->pathInfo = $this->hasGet('PATH_INFO', $this->preparePathInfo());
 
-        if ('' != pathinfo($pathInfo, PATHINFO_EXTENSION)) {
-            $pathInfo = substr($pathInfo, 0, strpos($pathInfo, '.'));
+        if ('' != pathinfo($this->pathInfo, PATHINFO_EXTENSION)) {
+            $this->pathInfo = substr($this->pathInfo, 0, strpos($this->pathInfo, '.'));
         }
-
-        $this->pathInfo = $pathInfo;
-        unset($pathInfo);
 
         return $this->pathInfo;
     }
@@ -223,10 +210,10 @@ class ServerBag extends Bag
      */
     public function getBaseUrl()
     {
-        if (null === $this->baseUri) {
-            $this->baseUri = $this->prepareBaseUrl();
+        if (null === $this->baseUrl) {
+            $this->baseUrl = $this->prepareBaseUrl();
         }
-        return $this->baseUri;
+        return $this->baseUrl;
     }
 
     /**

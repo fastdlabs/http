@@ -10,10 +10,13 @@
 
 namespace FastD\Http;
 
+use FastD\Http\Bag\HeaderBag;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
 /**
+ * Psr7 Http Message
+ *
  * Class Message
  *
  * @package FastD\Http
@@ -26,14 +29,19 @@ class Message implements MessageInterface
     protected $protocolVersion = '1.1';
 
     /**
-     * @var array
+     * @var HeaderBag
      */
-    protected $headers = [];
+    protected $header;
 
     /**
      * @var StreamInterface
      */
     protected $body;
+
+    public function __construct(array $headers = [])
+    {
+        $this->header = new HeaderBag($headers);
+    }
 
     /**
      * Retrieves the HTTP protocol version as a string.

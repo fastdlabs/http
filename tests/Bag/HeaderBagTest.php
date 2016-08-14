@@ -26,8 +26,17 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
     {
         $headerBag = new HeaderBag($this->_headers);
 
-        $this->assertEquals($headerBag->getHost(), 'localhost');
+        $this->assertEquals($headerBag->getHost(), ['localhost']);
 
-        $this->assertEquals($headerBag->getAccept(), 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8');
+        $this->assertEquals($headerBag->getAccept(), explode(',', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'));
+    }
+
+    public function testPsr7Header()
+    {
+        $headerBag = new HeaderBag([
+            'HTTP_HOST' => 'localhost',
+        ]);
+
+        $this->assertEquals($headerBag->get('host'), ['localhost']);
     }
 }

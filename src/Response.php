@@ -200,23 +200,17 @@ class Response extends Message implements ResponseInterface
     );
 
     /**
-     * Constructor.
+     * Response constructor.
      *
-     * {@inheritdoc}
-     *
-     * @param mixed $content The response content, see setContent()
-     * @param int   $status  The response status code
-     * @param array $headers An array of response headers
-     *
-     * @throws \InvalidArgumentException When the HTTP status code is not valid
-     *
-     * @api
+     * @param string $body
+     * @param int $statusCode
+     * @param array $headers
      */
-    public function __construct($content = '', $status = 200, array $headers = ['Content-Type' => 'text/html; charset=utf-8;'])
+    public function __construct($body = 'php://memory', $statusCode = Response::HTTP_OK, array $headers = ['Content-Type' => 'text/html; charset=utf-8;'])
     {
-        $this->header = new HeaderBag($headers);
-        $this->setContent($content);
-        $this->setStatusCode($status);
+        $this->withBody(new Stream($body, 'wb+'));
+        $this->withStatus($statusCode);
+        parent::__construct($headers);
     }
 
     /**
@@ -238,20 +232,6 @@ class Response extends Message implements ResponseInterface
             header(sprintf('%s: %s', $name, $value), false, $this->statusCode);
         }
 
-        header('X-Powered-By:FastD');
-
-        return $this;
-    }
-
-    /**
-     * Sends content for the current web response.
-     *
-     * @return Response
-     */
-    public function sendContent()
-    {
-        echo $this->content;
-
         return $this;
     }
 
@@ -265,49 +245,13 @@ class Response extends Message implements ResponseInterface
     public function send()
     {
         $this->sendHeaders();
-        $this->sendContent();
+        echo $this->getBody()->read(-1);
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
 
         return $this;
-    }
-
-    /**
-     * Sets the response content.
-     *
-     * Valid types are strings, numbers, null, and objects that implement a __toString() method.
-     *
-     * @param mixed $content Content that can be cast to string
-     *
-     * @return Response
-     *
-     * @throws \UnexpectedValueException
-     *
-     * @api
-     */
-    public function setContent($content)
-    {
-        if (!is_string($content)) {
-            throw new \UnexpectedValueException(sprintf('The Response content must be a string or object implementing __toString(), "%s" given.', gettype($content)));
-        }
-
-        $this->content = $content;
-
-        return $this;
-    }
-
-    /**
-     * Gets the current response content.
-     *
-     * @return string Content
-     *
-     * @api
-     */
-    public function getContent()
-    {
-        return $this->content;
     }
 
     /**
@@ -327,97 +271,6 @@ class Response extends Message implements ResponseInterface
     public function getContentType()
     {
         return $this->header->get('Content-Type');
-    }
-
-    /**
-     * Sets the HTTP protocol version (1.0 or 1.1).
-     *
-     * @param string $version The HTTP protocol version
-     *
-     * @return Response
-     *
-     * @api
-     */
-    public function setProtocolVersion($version)
-    {
-        $this->version = $version;
-
-        return $this;
-    }
-
-    /**
-     * Gets the HTTP protocol version.
-     *
-     * @return string The HTTP protocol version
-     *
-     * @api
-     */
-    public function getProtocolVersion()
-    {
-        return $this->version;
-    }
-
-    /**
-     * Sets the response status code.
-     *
-     * @param int   $code HTTP status code
-     * @param mixed $text HTTP status text
-     *
-     * If the status text is null it will be automatically populated for the known
-     * status codes and left empty otherwise.
-     *
-     * @return Response
-     *
-     * @throws \InvalidArgumentException When the HTTP status code is not valid
-     *
-     * @api
-     */
-    public function setStatusCode($code, $text = null)
-    {
-        $this->statusCode = $code;
-
-        if ($this->isInvalid()) {
-            $this->statusCode = $code = Response::HTTP_INTERNAL_SERVER_ERROR;
-        }
-
-        if (null === $text) {
-            $text = isset(self::$statusTexts[$code]) ? self::$statusTexts[$code] : '';
-        }
-
-        $this->statusText = $text;
-
-        return $this;
-    }
-
-    /**
-     * Retrieves the status code for the current web response.
-     *
-     * @return int Status code
-     *
-     * @api
-     */
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
-
-    /**
-     * @param $text
-     * @return $this
-     */
-    public function setStatusText($text)
-    {
-        $this->statusText = $text;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatusText()
-    {
-        return $this->statusText;
     }
 
     /**
@@ -785,8 +638,8 @@ class Response extends Message implements ResponseInterface
      */
     public function setNotModified()
     {
-        $this->setStatusCode(304);
-        $this->setContent(null);
+        $this->withStatus(static::HTTP_NOT_MODIFIED);
+        $this->getBody()->write('');
 
         // remove headers that MUST NOT be included with 304 Not Modified responses
         foreach (array('Allow', 'Content-Encoding', 'Content-Language', 'Content-Length', 'Content-MD5', 'Content-Type', 'Last-Modified') as $header) {
@@ -946,9 +799,14 @@ class Response extends Message implements ResponseInterface
     public function __toString()
     {
         return
-            sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText) . "\r\n" .
+            sprintf(
+                'HTTP/%s %s %s',
+                $this->getProtocolVersion(),
+                $this->getStatusCode(),
+                $this->getReasonPhrase()
+            ) . "\r\n" .
             $this->header . "\r\n" .
-            $this->getContent();
+            $this->getBody()->read(-1);
     }
 
     /**
@@ -975,6 +833,16 @@ class Response extends Message implements ResponseInterface
     {
         $this->statusCode = $code;
 
+        if ($this->isInvalid()) {
+            $this->statusCode = $code = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
+
+        if (null === $reasonPhrase) {
+            $reasonPhrase = isset(self::$statusTexts[$code]) ? self::$statusTexts[$code] : '';
+        }
+
+        $this->statusText = $reasonPhrase;
+
         return $this;
     }
 
@@ -993,6 +861,19 @@ class Response extends Message implements ResponseInterface
      */
     public function getReasonPhrase()
     {
-        // TODO: Implement getReasonPhrase() method.
+        return $this->statusText;
+    }
+
+    /**
+     * Gets the response status code.
+     *
+     * The status code is a 3-digit integer result code of the server's attempt
+     * to understand and satisfy the request.
+     *
+     * @return int Status code.
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
     }
 }
