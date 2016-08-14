@@ -11,15 +11,25 @@ use FastD\Http\Request;
  */
 class RequestTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    public function setUp()
+    {
+        $this->request = new Request();
+    }
+
     public function testRequest()
     {
-        $request = new Request('GET', 'http://www.baidu.com');
+        $this->request->withMethod('GET');
 
-        $this->assertEquals('GET', $request->getMethod());
+        $this->assertEquals('GET', $this->request->getMethod());
 
-        $request->withMethod('POST');
+        $this->request->withMethod('POST');
 
-        $this->assertEquals('POST', $request->getMethod());
+        $this->assertEquals('POST', $this->request->getMethod());
     }
 
     /**
@@ -29,5 +39,4 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         new Request('ABC', 'http://www.baidu.com');
     }
-
 }
