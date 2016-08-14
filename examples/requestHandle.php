@@ -14,9 +14,9 @@
 
 include __DIR__ . '/../vendor/autoload.php';
 
-use FastD\Http\Request;
+use FastD\Http\ServerRequest;
 
-$request = Request::createRequestHandle();
+$request = ServerRequest::createFromGlobals();
 
 echo '<pre>';
 print_r($request);

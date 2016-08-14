@@ -11,7 +11,7 @@
 namespace FastD\Http;
 
 use FastD\Http\Bag\Bag;
-use FastD\Http\Bag\CookiesBag;
+use FastD\Http\Bag\CookieBag;
 use FastD\Http\Bag\FileBag;
 use FastD\Http\Bag\ServerBag;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,7 +29,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     public $attributes;
 
     /**
-     * @var CookiesBag
+     * @var CookieBag
      */
     public $cookie;
 
@@ -80,11 +80,11 @@ class ServerRequest extends Request implements ServerRequestInterface
         array $server = null
     )
     {
-        $this->query = new Bag(null === $get ?: $_GET);
-        $this->body = new Bag(null === $get ?: $_POST);
-        $this->server = new ServerBag(null === $server ?: $_SERVER);
-        $this->cookie = new CookiesBag(null === $get ?: $_COOKIE);
-        $this->file = new FileBag(null === $get ?: $_FILES);
+        $this->query = new Bag($get);
+        $this->body = new Bag($post);
+        $this->server = new ServerBag($server);
+        $this->cookie = new CookieBag($cookie);
+        $this->file = new FileBag($files);
 
         parent::__construct($this->server->getMethod());
     }
@@ -106,7 +106,13 @@ class ServerRequest extends Request implements ServerRequestInterface
     )
     {
         if (null === static::$requestFactory) {
-            static::$requestFactory = new static($get, $post, $files, $cookie, $server);
+            static::$requestFactory = new static(
+                null === $get ? $_GET : [],
+                null === $post ? $_POST : [],
+                null === $files ? $_FILES : [],
+                null === $cookie ? $_COOKIE : [],
+                null === $server ? $_SERVER : []
+            );
         }
 
         return static::$requestFactory;

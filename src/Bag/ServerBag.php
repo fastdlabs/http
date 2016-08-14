@@ -39,13 +39,13 @@ class ServerBag extends Bag
 
     /**
      * ServerAttribute constructor.
-     * @param array $parameters
+     * @param array $bag
      */
-    public function __construct(array $parameters)
+    public function __construct(array $bag)
     {
         $headers = [];
 
-        foreach ($parameters as $key => $value) {
+        foreach ($bag as $key => $value) {
             if (0 === strpos($key, 'HTTP_')) {
                 $headers[$key] = $value;
             }
@@ -53,7 +53,7 @@ class ServerBag extends Bag
 
         $this->headerBag = new HeaderBag($headers); unset($headers);
 
-        parent::__construct($parameters);
+        parent::__construct($bag);
     }
 
     /**

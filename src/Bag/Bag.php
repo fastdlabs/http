@@ -25,14 +25,14 @@ class Bag
     /**
      * @var array
      */
-    protected $bag = [];
+    protected $bag;
 
     /**
      * Bag constructor.
      *
      * @param array $bag
      */
-    public function __construct(array $bag = [])
+    public function __construct(array $bag = null)
     {
         $this->bag = $bag;
     }
