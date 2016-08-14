@@ -236,7 +236,7 @@ class ServerBag extends Bag
      */
     public function getMethod()
     {
-        return $this->get('REQUEST_METHOD');
+        return $this->hasGet('REQUEST_METHOD', 'GET');
     }
 
     /**

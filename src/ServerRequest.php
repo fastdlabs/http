@@ -14,6 +14,8 @@ use FastD\Http\Bag\Bag;
 use FastD\Http\Bag\CookieBag;
 use FastD\Http\Bag\FileBag;
 use FastD\Http\Bag\ServerBag;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -73,11 +75,11 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param $server
      */
     public function __construct(
-        array $get = null,
-        array $post = null,
-        array $files = null,
-        array $cookie = null,
-        array $server = null
+        array $get = [],
+        array $post = [],
+        array $files = [],
+        array $cookie = [],
+        array $server = []
     )
     {
         $this->query = new Bag($get);
@@ -118,6 +120,14 @@ class ServerRequest extends Request implements ServerRequestInterface
         return static::$requestFactory;
     }
 
+    /**
+     * @param RequestInterface|null $request
+     * @return ResponseInterface
+     */
+    public function send(RequestInterface $request = null)
+    {
+
+    }
 
     /**
      * Retrieve server parameters.
