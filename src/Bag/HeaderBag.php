@@ -34,55 +34,6 @@ class HeaderBag extends Bag
     }
 
     /**
-     * @param $name
-     * @param bool $raw
-     * @param null $callback
-     * @return mixed|string
-     */
-    public function get($name, $raw = false, $callback = null)
-    {
-        return parent::get(strtoupper($name), $raw, $callback);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function has($name)
-    {
-        return parent::has(strtoupper($name));
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return Bag
-     */
-    public function set($name, $value)
-    {
-        return parent::set(strtoupper($name), $value);
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return Bag
-     */
-    public function add($name, $value)
-    {
-        return parent::add(strtoupper($name), $value);
-    }
-
-    /**
-     * @param $name
-     * @return bool
-     */
-    public function remove($name)
-    {
-        return parent::remove(strtoupper($name));
-    }
-
-    /**
      * @return null|string
      */
     public function getUserAgent()

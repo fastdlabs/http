@@ -28,6 +28,13 @@ class UriTest extends PHPUnit_Framework_TestCase
     {
         $url = 'https://user:pass@local.example.com:3001/foo?bar=baz#quz';
         $uri = new Uri($url);
+        $this->assertEquals($url, (string)$uri);
+    }
+
+    public function testUriToPathInfo()
+    {
+        $url = '/foo?bar=baz#quz';
+        $uri = new Uri($url);
         $this->assertEquals($url, (string) $uri);
     }
 }
