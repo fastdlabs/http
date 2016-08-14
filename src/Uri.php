@@ -13,6 +13,11 @@ namespace FastD\Http;
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
+/**
+ * Class Uri
+ *
+ * @package FastD\Http
+ */
 class Uri implements UriInterface
 {
     /**
@@ -20,7 +25,7 @@ class Uri implements UriInterface
      *
      * @const string
      */
-    const CHAR_SUB_DELIMS = '!\$&\'\(\)\*\+,;=';
+    const CHAR_SUB_DELIMITERS = '!\$&\'\(\)\*\+,;=';
 
     /**
      * Unreserved characters used in paths, query strings, and fragments.
@@ -108,7 +113,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return null|string
      */
     public function __toString()
     {
@@ -128,7 +133,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getScheme()
     {
@@ -136,7 +141,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getAuthority()
     {
@@ -157,7 +162,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getUserInfo()
     {
@@ -165,7 +170,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getHost()
     {
@@ -173,7 +178,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return int|null
      */
     public function getPort()
     {
@@ -183,7 +188,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getPath()
     {
@@ -191,7 +196,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getQuery()
     {
@@ -199,7 +204,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getFragment()
     {
@@ -207,7 +212,8 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $scheme
+     * @return Uri
      */
     public function withScheme($scheme)
     {
@@ -225,7 +231,9 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $user
+     * @param null $password
+     * @return Uri
      */
     public function withUserInfo($user, $password = null)
     {
@@ -246,7 +254,8 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $host
+     * @return Uri
      */
     public function withHost($host)
     {
@@ -262,7 +271,8 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param int|null $port
+     * @return Uri
      */
     public function withPort($port)
     {
@@ -294,7 +304,8 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $path
+     * @return Uri
      */
     public function withPath($path)
     {
@@ -330,7 +341,8 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $query
+     * @return Uri
      */
     public function withQuery($query)
     {
@@ -360,7 +372,8 @@ class Uri implements UriInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $fragment
+     * @return Uri
      */
     public function withFragment($fragment)
     {
@@ -583,7 +596,7 @@ class Uri implements UriInterface
     private function filterQueryOrFragment($value)
     {
         return preg_replace_callback(
-            '/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMS . '%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
+            '/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMITERS . '%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
             [$this, 'urlEncodeChar'],
             $value
         );

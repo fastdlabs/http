@@ -13,7 +13,7 @@ namespace FastD\Http\Bag;
 /**
  * Class HeaderBag
  *
- * @package FastD\Http
+ * @package FastD\Http\Bag
  */
 class HeaderBag extends Bag
 {

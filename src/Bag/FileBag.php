@@ -33,7 +33,7 @@ class FileBag extends Bag
      * @param array $files
      * @return UploadedFileInterface[]
      */
-    private function initializePsr7File(array $files)
+    public function initializePsr7File(array $files)
     {
         $fileBag = $files;
 

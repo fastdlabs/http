@@ -12,7 +12,6 @@ namespace FastD\Http\Bag;
 
 use Exception;
 use InvalidArgumentException;
-use Psr\Http\Message\StreamInterface;
 
 /**
  * Class Bag

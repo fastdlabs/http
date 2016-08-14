@@ -10,9 +10,11 @@
 
 namespace FastD\Http;
 
-use FastD\Http\Bag\UploadedFile;
+use FastD\Http\Bag\Bag;
+use FastD\Http\Bag\CookiesBag;
+use FastD\Http\Bag\FileBag;
+use FastD\Http\Bag\ServerBag;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class ServerRequest
@@ -24,32 +26,42 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @var array
      */
-    private $attributes;
+    public $attributes;
 
     /**
-     * @var array
+     * @var CookiesBag
      */
-    private $cookieParams;
+    public $cookie;
 
     /**
-     * @var array
+     * @var Bag
      */
-    private $parsedBody;
+    public $body;
 
     /**
-     * @var array
+     * @var Bag
      */
-    private $queryParams;
+    public $query;
 
     /**
-     * @var array
+     * @var ServerBag
      */
-    private $serverParams;
+    public $server;
 
     /**
-     * @var array
+     * @var FileBag
      */
-    private $uploadedFiles;
+    public $file;
+
+    /**
+     * @var mixed
+     */
+    protected $parsedBody;
+
+    /**
+     * @var static
+     */
+    protected static $requestFactory;
 
     /**
      * The http request is has once request object.
@@ -60,11 +72,21 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param $cookie
      * @param $server
      */
-    public function __construct(array $get = [], array $post = [], array $files = [], array $cookie = [], array $server = [])
+    public function __construct(
+        array $get = null,
+        array $post = null,
+        array $files = null,
+        array $cookie = null,
+        array $server = null
+    )
     {
-        parent::__construct();
+        $this->query = new Bag(null === $get ?: $_GET);
+        $this->body = new Bag(null === $get ?: $_POST);
+        $this->server = new ServerBag(null === $server ?: $_SERVER);
+        $this->cookie = new CookiesBag(null === $get ?: $_COOKIE);
+        $this->file = new FileBag(null === $get ?: $_FILES);
 
-        $this->uploadedFiles = $this->initializePsr7File($files);
+        parent::__construct($this->server->getMethod());
     }
 
     /**
@@ -75,9 +97,19 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param array $server
      * @return static
      */
-    public static function createRequestHandle(array $get = [], array $post = [], array $files = [], array $cookie = [], array $server = [])
+    public static function createFromGlobals(
+        array $get = null,
+        array $post = null,
+        array $files = null,
+        array $cookie = null,
+        array $server = null
+    )
     {
+        if (null === static::$requestFactory) {
+            static::$requestFactory = new static($get, $post, $files, $cookie, $server);
+        }
 
+        return static::$requestFactory;
     }
 
 
@@ -92,7 +124,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getServerParams()
     {
-        return $this->serverParams;
+        return $this->server->all();
     }
 
     /**
@@ -107,7 +139,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getCookieParams()
     {
-        return $this->cookieParams;
+        return $this->cookie->all();
     }
 
     /**
@@ -129,7 +161,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies)
     {
-        $this->cookieParams = $cookies;
+        while (list($name, $value) = each($cookies)) {
+            $this->cookie->set($name, $value);
+        }
 
         return $this;
     }
@@ -148,7 +182,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getQueryParams()
     {
-        return $this->queryParams;
+        return $this->query->all();
     }
 
     /**
@@ -175,7 +209,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withQueryParams(array $query)
     {
-        $this->queryParams = $query;
+        while (list($name, $value) = each($cookies)) {
+            $this->query->set($name, $value);
+        }
 
         return $this;
     }
@@ -194,7 +230,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getUploadedFiles()
     {
-        return $this->uploadedFiles;
+        return $this->file->all();
     }
 
     /**
@@ -210,7 +246,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        $this->initializePsr7File($uploadedFiles);
+        $this->file->initializePsr7File($uploadedFiles);
 
         return $this;
     }
@@ -355,41 +391,5 @@ class ServerRequest extends Request implements ServerRequestInterface
         unset($this->attributes[$name]);
 
         return $this;
-    }
-
-    /**
-     * @param array $files
-     * @return UploadedFileInterface[]
-     */
-    private function initializePsr7File(array $files)
-    {
-        $fileBag = $files;
-
-        $recursionFileBag = function ($files, &$fileBag) use (&$recursionFileBag) {
-            foreach ($files as $name => $value) {
-                if (!isset($value['name']) && is_array($value)) {
-                    $fileBag = &$fileBag[$name];
-                    $recursionFileBag($value, $fileBag);
-                }
-                if (isset($value['name'])) {
-                    if (is_array($value['name'])) {
-                        $tmpFiles = [];
-                        foreach ($value['name'] as $index => $val) {
-                            $tmpFiles[] = new UploadedFile($val, $value['type'][$index], $value['tmp_name'][$index], $value['error'][$index], $value['size'][$index]);
-                        }
-                        $fileBag[$name] = $tmpFiles;
-                        unset($tmpFiles);
-                    } else {
-                        $fileBag[$name] = new UploadedFile($value['name'], $value['type'], $value['tmp_name'], $value['error'], $value['size']);
-                    }
-                }
-            }
-        };
-
-        $recursionFileBag($files, $fileBag);
-
-        unset($recursionFileBag);
-
-        return $fileBag;
     }
 }
