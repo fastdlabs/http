@@ -19,8 +19,4 @@ use FastD\Http\Uri;
 
 $request = ServerRequest::createFromGlobals();
 
-$request->withUri(new Uri('http://localhost'));
-
-$request->withRequestTarget('/');
-
-$response = $request->send();
+echo $request->server->getPathInfo();
