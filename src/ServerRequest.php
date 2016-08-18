@@ -63,12 +63,14 @@ class ServerRequest extends Request implements ServerRequestInterface
      * The http request is has once request object.
      *
      * @param $get
+     * @param $post
      * @param $files
      * @param $cookie
      * @param $server
      */
     public function __construct(
         array $get = [],
+        array $post = [],
         array $files = [],
         array $cookie = [],
         array $server = []
@@ -94,6 +96,7 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     /**
      * @param array $get
+     * @param array $post
      * @param array $files
      * @param array $cookie
      * @param array $server
@@ -101,6 +104,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public static function createFromGlobals(
         array $get = null,
+        array $post = null,
         array $files = null,
         array $cookie = null,
         array $server = null
@@ -109,6 +113,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         if (null === static::$requestFactory) {
             static::$requestFactory = new static(
                 null === $get ? $_GET : [],
+                null === $post ? $_POST : [],
                 null === $files ? $_FILES : [],
                 null === $cookie ? $_COOKIE : [],
                 null === $server ? $_SERVER : []

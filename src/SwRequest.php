@@ -12,5 +12,8 @@ namespace FastD\Http;
 
 class SwRequest extends Request
 {
+    public function __construct($method, $uri, array $headers, $body)
+    {
 
+    }
 }
