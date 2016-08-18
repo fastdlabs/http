@@ -42,14 +42,10 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
 
     public function testToStringFoHeaderBag()
     {
-        $headerBag = new HeaderBag($this->_headers);
-
-        echo $headerBag;
-
         $headerBag = new HeaderBag([
             'X-Session-Id' => '111'
         ]);
 
-        $this->assertEquals('X-Session-Id: 111', trim((string) $headerBag));
+        $this->assertEquals('X-Session-Id: 111' . "\r\n", ((string) $headerBag));
     }
 }

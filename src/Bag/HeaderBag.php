@@ -17,8 +17,6 @@ namespace FastD\Http\Bag;
  */
 class HeaderBag extends Bag
 {
-    protected $alias = [];
-
     /**
      * HeaderBag constructor.
      *

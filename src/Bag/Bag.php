@@ -138,6 +138,10 @@ class Bag
      */
     public function set($name, $value)
     {
+        if (is_string($value)) {
+            $value = [$value];
+        }
+
         $this->bag[$name] = $value;
 
         return $this;

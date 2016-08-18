@@ -49,6 +49,14 @@ class Message implements MessageInterface
     }
 
     /**
+     * @return HeaderBag
+     */
+    public function getHeaderBag()
+    {
+        return $this->header;
+    }
+
+    /**
      * Retrieves the HTTP protocol version as a string.
      *
      * The string MUST contain only the HTTP version number (e.g., "1.1", "1.0").
@@ -189,10 +197,6 @@ class Message implements MessageInterface
      */
     public function withHeader($name, $value)
     {
-        if (is_string($value)) {
-            $value = [$value];
-        }
-
         $this->header->set($name, $value);
 
         return $this;

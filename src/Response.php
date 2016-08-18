@@ -10,7 +10,10 @@
 
 namespace FastD\Http;
 
+use DateTime;
+use DateTimeZone;
 use FastD\Http\Bag\HeaderBag;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -84,22 +87,8 @@ class Response extends Message implements ResponseInterface
     const HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;                             // RFC6585
 
     /**
-     * Http response header
-     * 
-     * @var HeaderBag
-     */
-    protected $header;
-
-    /**
-     * Http response content.
-     * 
-     * @var string
-     */
-    protected $content;
-
-    /**
      * Http protocol version
-     * 
+     *
      * @var string
      */
     protected $version = '1.1';
@@ -112,11 +101,11 @@ class Response extends Message implements ResponseInterface
     protected $statusCode;
 
     /**
-     * Http response status text.
+     * Http response status code reason phrase.
      *
      * @var string
      */
-    protected $statusText;
+    protected $reasonPhrase;
 
     /**
      * Http response charset.
@@ -206,7 +195,13 @@ class Response extends Message implements ResponseInterface
      * @param int $statusCode
      * @param array $headers
      */
-    public function __construct($content = '', $statusCode = Response::HTTP_OK, array $headers = ['Content-Type' => 'text/html; charset=utf-8;'])
+    public function __construct(
+        $content = '',
+        $statusCode = Response::HTTP_OK,
+        array $headers = [
+            'Content-Type' => 'text/html; charset=UTF-8'
+        ]
+    )
     {
         $this->withBody(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
@@ -221,13 +216,20 @@ class Response extends Message implements ResponseInterface
      */
     public function sendHeaders()
     {
-        // headers have already been sent by the developer
         if (headers_sent()) {
             return $this;
         }
 
-        // status
-        header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
+        header(
+            sprintf(
+                'HTTP/%s %s %s',
+                $this->getProtocolVersion(),
+                $this->getStatusCode(),
+                $this->getReasonPhrase()
+            ),
+            true,
+            $this->getStatusCode()
+        );
 
         foreach ($this->header->all() as $name => $value) {
             header(sprintf('%s: %s', $name, $value), false, $this->statusCode);
@@ -246,7 +248,8 @@ class Response extends Message implements ResponseInterface
     public function send()
     {
         $this->sendHeaders();
-        echo $this->getBody()->read(-1);
+
+        echo (string)$this->getBody();
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -275,112 +278,84 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * Sets the response charset.
+     * @param $cacheControl
+     * @return $this
+     */
+    public function setCacheControl($cacheControl)
+    {
+        $this->header->remove('Cache-Control');
+        $this->header->set('Cache-Control', $cacheControl);
+
+        return $this;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getCacheControl()
+    {
+        return $this->header->get('Cache-Control');
+    }
+
+    /**
+     * Returns the literal value of the ETag HTTP header.
      *
-     * @param string $charset Character set
+     * @return string|null The ETag HTTP header or null if it does not exist
+     *
+     * @api
+     */
+    public function getETag()
+    {
+        return $this->header->get('ETag');
+    }
+
+    /**
+     * Sets the ETag value.
+     *
+     * @param string|null $eTag The ETag unique identifier or null to remove the header
+     * @param bool $weak        Whether you want a weak ETag or not
      *
      * @return Response
-     *
-     * @api
      */
-    public function setCharset($charset)
+    public function setETag($eTag = null, $weak = false)
     {
-        $this->charset = $charset;
+        $this->header->remove('ETag');
+        $this->header->set('ETag', (true === $weak ? 'W/' : '') . $eTag);
 
         return $this;
     }
 
     /**
-     * Retrieves the response charset.
-     *
-     * @return string Character set
-     *
-     * @api
-     */
-    public function getCharset()
-    {
-        return $this->charset;
-    }
-
-    /**
-     * Returns true if the response is "fresh".
-     *
-     * Fresh responses may be served from cache without any interaction with the
-     * origin. A response is considered fresh when it includes a Cache-Control/max-age
-     * indicator or Expires header and the calculated age is less than the freshness lifetime.
-     *
-     * @return bool true if the response is fresh, false otherwise
-     *
-     * @api
-     */
-    public function isFresh()
-    {
-        return $this->getTtl() > 0;
-    }
-
-    /**
-     * Returns true if the response includes headers that can be used to validate
-     * the response with the origin server using a conditional GET request.
-     *
-     * @return bool true if the response is validateable, false otherwise
-     *
-     * @api
-     */
-    public function isValidateable()
-    {
-        return $this->header->has('Last-Modified') || $this->header->has('ETag');
-    }
-
-    /**
-     * Returns the age of the response.
-     *
-     * @return int The age of the response in seconds
-     */
-    public function getAge()
-    {
-        if (null !== $age = $this->headers->get('Age')) {
-            return (int) $age;
-        }
-
-        return max(time() - $this->getDate()->format('U'), 0);
-    }
-
-    /**
+     * @param $location
      * @return $this
      */
-    public function setPrivate()
+    public function setLocation($location)
     {
-        $this->header->remove('Cache-Control');
-        $this->header->set('Cache-Control', 'private');
+        $this->header->set('Location', $location);
 
         return $this;
     }
 
     /**
-     * @return $this
+     * @return mixed|string
      */
-    public function setPublic()
+    public function getLocation()
     {
-        $this->header->remove('Cache-Control');
-        $this->header->set('Cache-Control', 'public');
-
-        return $this;
+        return $this->header->get('Location');
     }
 
     /**
      * Returns the value of the Expires header as a DateTime instance.
      *
-     * @return \DateTime|null A DateTime instance or null if the header does not exist
-     *
-     * @api
+     * @return DateTime|null A DateTime instance or null if the header does not exist
      */
     public function getExpires()
     {
         try {
-            return $this->header->getDate('Expires');
-        } catch (\RuntimeException $e) {
+            return new DateTime($this->header->get('Expires'));
+        } catch (InvalidArgumentException $e) {
             // according to RFC 2616 invalid date formats (e.g. "0" and "-1") must be treated as in the past
-            return \DateTime::createFromFormat(DATE_RFC2822, 'Sat, 01 Jan 00 00:00:00 +0000');
+            return DateTime::createFromFormat(DATE_RFC2822, 'Sat, 01 Jan 00 00:00:00 +0000');
         }
     }
 
@@ -389,16 +364,14 @@ class Response extends Message implements ResponseInterface
      *
      * Passing null as value will remove the header.
      *
-     * @param \DateTime|null $date A \DateTime instance or null to remove the header
+     * @param DateTime|null $date A \DateTime instance or null to remove the header
      *
-     * @return Response
-     *
-     * @api
+     * @return $this
      */
-    public function setExpires(\DateTime $date = null)
+    public function setExpires(DateTime $date = null)
     {
         $this->header->remove('Expires');
-        $date->setTimezone(new \DateTimeZone("PRC"));
+        $date->setTimezone(new DateTimeZone("PRC"));
         $this->header->set('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
@@ -427,20 +400,11 @@ class Response extends Message implements ResponseInterface
      *
      * @param int $value Number of seconds
      *
-     * @return Response
-     *
-     * @api
+     * @return $this
      */
     public function setMaxAge($value)
     {
-        $caches = ['max-age=' . $value];
-
-        $cacheControl = $this->header->hasGet('Cache-Control', null);
-        if (null !== $cacheControl) {
-            array_unshift($caches, $cacheControl);
-        }
-
-        $this->header->set('Cache-Control',  implode(',', $caches));
+        $this->header->add('Cache-Control', 'max-age=' . $value);
 
         return $this;
     }
@@ -452,70 +416,13 @@ class Response extends Message implements ResponseInterface
      *
      * @param int $value Number of seconds
      *
-     * @return Response
-     *
-     * @api
+     * @return $this
      */
     public function setSharedMaxAge($value)
     {
-        $this->setPublic();
+        $this->setCacheControl('public');
 
-        $this->header->set('Cache-Control', implode(',', [$this->header->get('Cache-Control'), 's-maxage=' . $value]) );
-    }
-
-    /**
-     * Returns the response's time-to-live in seconds.
-     *
-     * It returns null when no freshness information is present in the response.
-     *
-     * When the responses TTL is <= 0, the response may not be served from cache without first
-     * revalidating with the origin.
-     *
-     * @return int|null The TTL in seconds
-     *
-     * @api
-     */
-    public function getTtl()
-    {
-        if (null !== $maxAge = $this->getMaxAge()) {
-            return $maxAge - $this->getAge();
-        }
-
-        return null;
-    }
-
-    /**
-     * Sets the response's time-to-live for shared caches.
-     *
-     * This method adjusts the Cache-Control/s-maxage directive.
-     *
-     * @param int $seconds Number of seconds
-     *
-     * @return Response
-     *
-     * @api
-     */
-    public function setTtl($seconds)
-    {
-        $this->setSharedMaxAge($this->getAge() + $seconds);
-
-        return $this;
-    }
-
-    /**
-     * Sets the response's time-to-live for private/client caches.
-     *
-     * This method adjusts the Cache-Control/max-age directive.
-     *
-     * @param int $seconds Number of seconds
-     *
-     * @return Response
-     *
-     * @api
-     */
-    public function setClientTtl($seconds)
-    {
-        $this->setMaxAge($this->getAge() + $seconds);
+        $this->header->add('Cache-Control', 's-maxage=' . $value);
 
         return $this;
     }
@@ -523,11 +430,7 @@ class Response extends Message implements ResponseInterface
     /**
      * Returns the Last-Modified HTTP header as a DateTime instance.
      *
-     * @return \DateTime|null A DateTime instance or null if the header does not exist
-     *
-     * @throws \RuntimeException When the HTTP header is not parseable
-     *
-     * @api
+     * @return DateTime|null A DateTime instance or null if the header does not exist
      */
     public function getLastModified()
     {
@@ -539,88 +442,13 @@ class Response extends Message implements ResponseInterface
      *
      * Passing null as value will remove the header.
      *
-     * @param \DateTime|null $date A \DateTime instance or null to remove the header
-     *
-     * @return Response
-     *
-     * @api
+     * @param DateTime|null $date A \DateTime instance or null to remove the header
+     * @return $this
      */
-    public function setLastModified(\DateTime $date = null)
+    public function setLastModified(DateTime $date = null)
     {
         $this->header->remove('Last-Modified');
         $this->header->set('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
-
-        return $this;
-    }
-
-    /**
-     * Returns the literal value of the ETag HTTP header.
-     *
-     * @return string|null The ETag HTTP header or null if it does not exist
-     *
-     * @api
-     */
-    public function getEtag()
-    {
-        return $this->header->get('ETag');
-    }
-
-    /**
-     * Sets the ETag value.
-     *
-     * @param string|null $etag The ETag unique identifier or null to remove the header
-     * @param bool        $weak Whether you want a weak ETag or not
-     *
-     * @return Response
-     *
-     * @api
-     */
-    public function setEtag($etag = null, $weak = false)
-    {
-        $this->header->remove('Etag');
-        $this->header->set('ETag', (true === $weak ? 'W/' : '') . $etag);
-
-        return $this;
-    }
-
-    /**
-     * Sets the response's cache headers (validation and/or expiration).
-     *
-     * Available options are: etag, last_modified, max_age, s_maxage, private, and public.
-     *
-     * @param array $options An array of cache options
-     *
-     * @return Response
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @api
-     */
-    public function setCache(array $options)
-    {
-        if (isset($options['etag'])) {
-            $this->setEtag($options['etag']);
-        }
-
-        if (isset($options['last_modified'])) {
-            $this->setLastModified($options['last_modified']);
-        }
-
-        if (isset($options['max_age'])) {
-            $this->setMaxAge($options['max_age']);
-        }
-
-        if (isset($options['s_maxage'])) {
-            $this->setSharedMaxAge($options['s_maxage']);
-        }
-
-        if (isset($options['public']) || in_array('public', $options)) {
-            $this->setPublic();
-        }
-
-        if (isset($options['private']) || in_array('private', $options)) {
-            $this->setPrivate();
-        }
 
         return $this;
     }
@@ -634,8 +462,6 @@ class Response extends Message implements ResponseInterface
      * @return Response
      *
      * @see http://tools.ietf.org/html/rfc2616#section-10.3.5
-     *
-     * @api
      */
     public function setNotModified()
     {
@@ -655,135 +481,12 @@ class Response extends Message implements ResponseInterface
      *
      * Is response invalid?
      *
+     * @param int $code
      * @return bool
-     *
-     * @api
      */
-    public function isInvalid()
+    public function isInvalidStatusCode($code)
     {
-        return $this->statusCode < 100 || $this->statusCode >= 600;
-    }
-
-    /**
-     * Is response informative?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isInformational()
-    {
-        return $this->statusCode >= 100 && $this->statusCode < 200;
-    }
-
-    /**
-     * Is response successful?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isSuccessful()
-    {
-        return $this->statusCode >= 200 && $this->statusCode < 300;
-    }
-
-    /**
-     * Is the response a redirect?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isRedirection()
-    {
-        return $this->statusCode >= 300 && $this->statusCode < 400;
-    }
-
-    /**
-     * Is there a client error?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isClientError()
-    {
-        return $this->statusCode >= 400 && $this->statusCode < 500;
-    }
-
-    /**
-     * Was there a server side error?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isServerError()
-    {
-        return $this->statusCode >= 500 && $this->statusCode < 600;
-    }
-
-    /**
-     * Is the response OK?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isOk()
-    {
-        return 200 === $this->statusCode;
-    }
-
-    /**
-     * Is the response forbidden?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isForbidden()
-    {
-        return 403 === $this->statusCode;
-    }
-
-    /**
-     * Is the response a not found error?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isNotFound()
-    {
-        return 404 === $this->statusCode;
-    }
-
-    /**
-     * Is the response a redirect of some form?
-     *
-     * @param string $location
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isRedirect($location = null)
-    {
-        return in_array($this->statusCode, array(201, 301, 302, 303, 307, 308)) && (null === $location ?: $location == $this->header->get('Location'));
-    }
-
-    /**
-     * Is the response empty?
-     *
-     * @return bool
-     *
-     * @api
-     */
-    public function isEmpty()
-    {
-        return in_array($this->statusCode, array(204, 304));
+        return $code < 100 || $code >= 600;
     }
 
     /**
@@ -794,8 +497,6 @@ class Response extends Message implements ResponseInterface
      * has been called before.
      *
      * @return string The Response as an HTTP string
-     *
-     * @see prepare()
      */
     public function __toString()
     {
@@ -828,21 +529,19 @@ class Response extends Message implements ResponseInterface
      *                             provided status code; if none is provided, implementations MAY
      *                             use the defaults as suggested in the HTTP specification.
      * @return static
-     * @throws \InvalidArgumentException For invalid status code arguments.
+     * @throws InvalidArgumentException For invalid status code arguments.
      */
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = null)
     {
+        if ($this->isInvalidStatusCode($code)) {
+            throw new InvalidArgumentException(sprintf('Invalid status code "%s"; must be an integer between 100 and 599, inclusive', $code));
+        }
+
         $this->statusCode = $code;
 
-        if ($this->isInvalid()) {
-            $this->statusCode = $code = Response::HTTP_INTERNAL_SERVER_ERROR;
-        }
-
         if (null === $reasonPhrase) {
-            $reasonPhrase = isset(self::$statusTexts[$code]) ? self::$statusTexts[$code] : '';
+            $this->reasonPhrase = isset(self::$statusTexts[$this->statusCode]) ? self::$statusTexts[$this->statusCode] : '';
         }
-
-        $this->statusText = $reasonPhrase;
 
         return $this;
     }
@@ -862,7 +561,7 @@ class Response extends Message implements ResponseInterface
      */
     public function getReasonPhrase()
     {
-        return $this->statusText;
+        return $this->reasonPhrase;
     }
 
     /**

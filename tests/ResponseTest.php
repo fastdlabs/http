@@ -31,4 +31,17 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $response = $this->response->withStatus(400);
         $this->assertEquals(400, $response->getStatusCode());
     }
+
+    public function testResponseHeaderCache()
+    {
+        $this->response->setCacheControl('public');
+
+        $header = $this->response->getHeaderBag();
+        
+        $this->assertEquals(
+            'Content-Type: text/html; charset=UTF-8' . "\r\n" .
+            'Cache-Control: public' . "\r\n"
+            , (string)$header
+        );
+    }
 }
