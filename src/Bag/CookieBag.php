@@ -20,7 +20,8 @@ use FastD\Http\Cookie;
 class CookieBag extends Bag
 {
     /**
-     * CookiesAttribute constructor.
+     * CookieBag constructor.
+     *
      * @param array $bag
      */
     public function __construct(array $bag = [])

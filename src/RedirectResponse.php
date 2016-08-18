@@ -17,10 +17,17 @@ namespace FastD\Http;
  */
 class RedirectResponse extends Response
 {
-    public function __construct($url = '', $status = 302, $headers = array())
+    /**
+     * RedirectResponse constructor.
+     *
+     * @param string $url
+     * @param int $status
+     * @param array $headers
+     */
+    public function __construct($url = '', $status = 302, array $headers = [])
     {
         parent::__construct('', $status, $headers);
 
-        $this->header->set('Location', $url);
+        $this->setLocation($url);
     }
 }

@@ -26,12 +26,10 @@ class JsonResponse extends Response
      */
     public function __construct(array $data, $status = 200, $headers = array())
     {
-        parent::__construct('', $status, $headers);
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 
-        $data = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
-
-        $this->header->set('Content-Type', 'application/json; charset=' . $this->getCharset(). ';');
-
-        $this->setContent($data);
+        parent::__construct($json, $status, [
+            'Content-Type' => 'application/json; charset=UTF-8',
+        ]);
     }
 }
