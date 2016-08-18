@@ -205,7 +205,7 @@ class Response extends Message implements ResponseInterface
     {
         $this->withBody(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
-        $this->getBody()->write($content);
+        $this->withContent($content);
         parent::__construct($headers);
     }
 
@@ -256,6 +256,25 @@ class Response extends Message implements ResponseInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @param $content
+     * @return $this
+     */
+    public function withContent($content)
+    {
+        $this->getBody()->write($content);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContent()
+    {
+        return $this->getBody()->getContents();
     }
 
     /**

@@ -37,11 +37,18 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->response->setCacheControl('public');
 
         $header = $this->response->getHeaderBag();
-        
+
         $this->assertEquals(
             'Content-Type: text/html; charset=UTF-8' . "\r\n" .
             'Cache-Control: public' . "\r\n"
             , (string)$header
         );
+    }
+
+    public function testResponseContents()
+    {
+        $this->response->withContent('test');
+
+        $this->assertEquals('test', $this->response->getBody()->getContents());
     }
 }
