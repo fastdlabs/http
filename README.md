@@ -26,4 +26,8 @@
 
 ## 使用
 
+```php
+$requestServer = RequestServer::createFromGlobals();
+```
+
 ## License MIT
