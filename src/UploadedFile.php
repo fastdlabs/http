@@ -12,6 +12,7 @@ namespace FastD\Http;
 
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use RuntimeException;
 
 /**
  * Class File
@@ -44,6 +45,13 @@ class UploadedFile implements UploadedFileInterface
      * @var int
      */
     protected $size;
+
+    /**
+     * @var false
+     */
+    protected $moved = false;
+
+    protected $stream;
 
     /**
      * File constructor.
@@ -81,7 +89,17 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getStream()
     {
+        if ($this->moved) {
+            throw new RuntimeException('Cannot retrieve stream after it has already been moved');
+        }
 
+        if ($this->stream instanceof StreamInterface) {
+            return $this->stream;
+        }
+
+        $this->stream = new Stream($this->tmpName);
+
+        return $this->stream;
     }
 
     /**
@@ -131,6 +149,8 @@ class UploadedFile implements UploadedFileInterface
                 throw new \RuntimeException('Failed to move uploaded file.');
             }
 
+            $this->moved = true;
+
             return $targetFile;
         }
 
@@ -145,6 +165,8 @@ class UploadedFile implements UploadedFileInterface
         if (!move_uploaded_file($this->tmpName, $targetFile)) {
             throw new \RuntimeException('Failed to move uploaded file.');
         }
+
+        $this->moved = true;
 
         return $targetFile;
     }
