@@ -51,6 +51,9 @@ class UploadedFile implements UploadedFileInterface
      */
     protected $moved = false;
 
+    /**
+     * @var StreamInterface
+     */
     protected $stream;
 
     /**
