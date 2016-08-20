@@ -1,54 +1,37 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: janhuang
+ * Date: 15/7/14
+ * Time: 上午10:18
+ * Github: https://www.github.com/janhuang
+ * Coding: https://www.coding.net/janhuang
+ * SegmentFault: http://segmentfault.com/u/janhuang
+ * Blog: http://segmentfault.com/blog/janhuang
+ * Gmail: bboyjanhuang@gmail.com
+ * WebSite: http://www.janhuang.me
+ */
+
+namespace Tests;
+
 use FastD\Http\Response;
 
-/**
- *
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2016
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
-class ResponseTest extends PHPUnit_Framework_TestCase
+class ResponseTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var Response
-     */
-    protected $response;
-
-    public function setUp()
+    public function testResponseContent()
     {
-        $this->response = new Response();
+        $response = new Response('demo');
+        $this->assertEquals('demo', $response->getContent());
     }
 
-    public function testBaseResponse()
+    public function testErrorResponse()
     {
-        $this->assertEquals(200, $this->response->getStatusCode());
+        $response = new Response('demo', 403);
+        $this->assertEquals($response->getStatusCode(), 403);
     }
 
-    public function testStatusCodeMutatorReturnsCloneWithChanges()
+    public function testHeader()
     {
-        $response = $this->response->withStatus(400);
-        $this->assertEquals(400, $response->getStatusCode());
-    }
 
-    public function testResponseHeaderCache()
-    {
-        $this->response->setCacheControl('public');
-
-        $header = $this->response->getHeaderBag();
-
-        $this->assertEquals(
-            'Content-Type: text/html; charset=UTF-8' . "\r\n" .
-            'Cache-Control: public' . "\r\n"
-            , (string)$header
-        );
-    }
-
-    public function testResponseContents()
-    {
-        $this->response->withContent('test');
-
-        $this->assertEquals('test', $this->response->getBody()->getContents());
     }
 }
