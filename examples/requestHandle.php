@@ -15,8 +15,7 @@
 include __DIR__ . '/../vendor/autoload.php';
 
 use FastD\Http\ServerRequest;
-use FastD\Http\Uri;
 
 $request = ServerRequest::createFromGlobals();
 
-echo $request->server->getPathInfo();
+$request->server->getPathInfo();

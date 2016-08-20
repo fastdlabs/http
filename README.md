@@ -26,8 +26,18 @@
 
 ## 使用
 
+http 组件封装了常用的方法和对象, 分别封装在 `FastD\Http\Bag\Bag` 对象中, 实例化 `FastD\Http\ServerRequest` 对象后,
+
+分别通过类属性 `query`, `body`, `server`, `header`, `cookie` 对对象进行获取与操作
+
+获取 pathinfo
+
 ```php
-$requestServer = RequestServer::createFromGlobals();
+use FastD\Http\ServerRequest;
+
+$request = ServerRequest::createFromGlobals();
+
+$request->server->getPathInfo();
 ```
 
 ## License MIT
