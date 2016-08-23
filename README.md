@@ -40,6 +40,4 @@ $request = ServerRequest::createFromGlobals();
 $request->server->getPathInfo();
 ```
 
-
-
 ## License MIT
