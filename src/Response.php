@@ -232,7 +232,7 @@ class Response extends Message implements ResponseInterface
         );
 
         foreach ($this->header->all() as $name => $value) {
-            header(sprintf('%s: %s', $name, $value), false, $this->statusCode);
+            header(sprintf('%s: %s', $name, implode(',', $value)), false, $this->statusCode);
         }
 
         return $this;
