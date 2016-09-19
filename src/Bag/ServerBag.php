@@ -119,6 +119,8 @@ class ServerBag extends Bag
             $this->pathInfo = substr($this->pathInfo, 0, strpos($this->pathInfo, '.'));
         }
 
+        $this->pathInfo = empty($this->pathInfo) ? '/' : $this->pathInfo;
+
         return $this->pathInfo;
     }
 
