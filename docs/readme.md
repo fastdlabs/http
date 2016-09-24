@@ -1,4 +1,4 @@
-# FastD Http
+# 简介 (FastD Http)
 
 ![Building](https://api.travis-ci.org/JanHuang/http.svg?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/fastd/http/v/stable)](https://packagist.org/packages/fastd/http) [![Total Downloads](https://poser.pugx.org/fastd/http/downloads)](https://packagist.org/packages/fastd/http) [![Latest Unstable Version](https://poser.pugx.org/fastd/http/v/unstable)](https://packagist.org/packages/fastd/http) [![License](https://poser.pugx.org/fastd/http/license)](https://packagist.org/packages/fastd/http)
@@ -8,33 +8,3 @@
 * [Goutte](https://github.com/FriendsOfPHP/Goutte)
 
 以上库可以满足大部分 HTTP 请求处理相关工作, 支持 Swoole 处理, 具体请看项目[Swoole](https://github.com/JanHuang/swoole)。
-
-## 要求
-
-* php >= 5.6, >= 7.0
-
-## 安装
-
-```
-{
-    "fastd/http": "~3.0.x-dev"
-}
-```
-
-## 使用
-
-http 组件封装了常用的方法和对象, 分别封装在 `FastD\Http\Bag\Bag` 对象中, 实例化 `FastD\Http\ServerRequest` 对象后,
-
-分别通过类属性 `query`, `body`, `server`, `header`, `cookie` 对对象进行获取与操作
-
-获取 pathinfo
-
-```php
-use FastD\Http\ServerRequest;
-
-$request = ServerRequest::createFromGlobals();
-
-$request->server->getPathInfo();
-```
-
-## License MIT
