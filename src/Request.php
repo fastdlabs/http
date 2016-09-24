@@ -10,7 +10,6 @@
 
 namespace FastD\Http;
 
-use FastD\Http\Bag\HeaderBag;
 use FastD\Http\Exceptions\RequestException;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
@@ -38,11 +37,6 @@ class Request extends Message implements RequestInterface
     protected $method = 'GET';
 
     /**
-     * @var int
-     */
-    protected $statusCode = 0;
-
-    /**
      * @var string
      */
     protected $requestTarget;
@@ -58,7 +52,6 @@ class Request extends Message implements RequestInterface
      * @var array
      */
     private $validMethods = [
-        'CONNECT',
         'DELETE',
         'GET',
         'HEAD',
@@ -66,7 +59,6 @@ class Request extends Message implements RequestInterface
         'PATCH',
         'POST',
         'PUT',
-        'TRACE',
     ];
 
     /**
@@ -271,31 +263,35 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param $userAgent
-     * @return $this
-     */
-    public function setUserAgent($userAgent)
-    {
-        $this->setOption(CURLOPT_USERAGENT, $userAgent);
-
-        return $this;
-    }
-
-    /**
      * @param array $data
      * @param array $headers
-     * @return string
+     * @return Response
      */
     public function send(array $data = [], array $headers = [])
     {
         $ch = curl_init();
         $url = (string) $this->uri;
-        curl_setopt($ch, CURLOPT_URL, $url);
 
-        $this->setUserAgent(self::USER_AGENT);
+        $data = http_build_query($data);
+
+        if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
+            $this->setOption(CURLOPT_POSTFIELDS, $data);
+        } else if (!empty($data))  {
+            $concat = '?';
+            if (false === strpos($url, '?')) {
+                $concat = '&';
+            }
+            $url .= $concat . $data;
+        }
+
+        $this->setOption(CURLOPT_USERAGENT, static::USER_AGENT);
+        $this->setOption(CURLOPT_HTTPHEADER, $headers);
+        $this->setOption(CURLOPT_URL, $url);
+        $this->setOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
         $this->setOption(CURLINFO_HEADER_OUT, true);
         $this->setOption(CURLOPT_HEADER, true);
         $this->setOption(CURLOPT_RETURNTRANSFER, true);
+
         foreach ($this->options as $key => $option) {
             curl_setopt($ch, $key, $option);
         }
@@ -323,6 +319,9 @@ class Request extends Message implements RequestInterface
         }, $responseHeaders);
 
         curl_close($ch);
+
+        $this->options = [];
+        $this->method = 'GET';
 
         return new Response($response, $statusCode, $headers);
     }
