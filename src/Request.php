@@ -26,7 +26,7 @@ class Request extends Message implements RequestInterface
     /**
      * @var string
      */
-    protected $method;
+    protected $method = 'GET';
 
     /**
      * @var string
@@ -58,18 +58,18 @@ class Request extends Message implements RequestInterface
     /**
      * Request constructor.
      *
-     * @param $method
      * @param $uri
      * @param array $headers
      * @param string $body
      */
-    public function __construct($method = 'GET', $uri = null, array $headers = [], $body = 'php://memory')
+    public function __construct($uri, array $headers = [], $body = 'php://memory')
     {
-        $this->withMethod($method);
         $this->withUri(new Uri($uri));
         $this->withBody(new Stream($body));
 
-        parent::__construct($headers);
+        parent::__construct(array_merge([
+            'USER_AGENT' => 'PHP Curl/1.1 (+https://github.com/JanHuang/http)'
+        ], $headers));
     }
 
     /**
