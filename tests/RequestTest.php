@@ -14,6 +14,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $request = new Request('https://api.github.com/');
 
-        echo $request->getHeaderLine('USER_AGENT');
+        $request->setBasicAuthentication('jan', '123456');
+        $request->setReferrer('http://example.com/');
+
+        $response = $request->send();
     }
 }

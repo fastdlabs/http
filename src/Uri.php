@@ -115,7 +115,7 @@ class Uri implements UriInterface
             return $this->uriString;
         }
 
-        $this->uriString = static::createUriString(
+        $this->uriString = $this->createUriString(
             $this->scheme,
             $this->getAuthority(),
             $this->getPath(), // Absolute URIs should use a "/" for an empty path
@@ -415,7 +415,7 @@ class Uri implements UriInterface
      * @param string $fragment
      * @return string
      */
-    protected static function createUriString($scheme, $authority, $path, $query, $fragment)
+    public function createUriString($scheme, $authority, $path, $query, $fragment)
     {
         $uri = '';
 

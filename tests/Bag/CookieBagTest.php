@@ -25,6 +25,6 @@ class CookieBagTest extends PHPUnit_Framework_TestCase
     {
         $this->cookie->set('name', 'jan');
 
-        echo $this->cookie;
+//        echo $this->cookie;
     }
 }

@@ -10,6 +10,8 @@
 
 namespace FastD\Http;
 
+use FastD\Http\Bag\HeaderBag;
+use FastD\Http\Exceptions\RequestException;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
@@ -23,10 +25,22 @@ use Psr\Http\Message\UriInterface;
  */
 class Request extends Message implements RequestInterface
 {
+    const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/JanHuang/http)';
+
+    /**
+     * @var array
+     */
+    protected $options = [];
+
     /**
      * @var string
      */
     protected $method = 'GET';
+
+    /**
+     * @var int
+     */
+    protected $statusCode = 0;
 
     /**
      * @var string
@@ -68,7 +82,7 @@ class Request extends Message implements RequestInterface
         $this->withBody(new Stream($body));
 
         parent::__construct(array_merge([
-            'USER_AGENT' => 'PHP Curl/1.1 (+https://github.com/JanHuang/http)'
+            'USER_AGENT' => static::USER_AGENT
         ], $headers));
     }
 
@@ -207,5 +221,109 @@ class Request extends Message implements RequestInterface
         $this->uri = $uri;
 
         return $this;
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param array $options
+     * @return $this
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = array_merge($this->options, $options);
+
+        return $this;
+    }
+
+    /**
+     * @param $username
+     * @param $password
+     * @return $this
+     */
+    public function setBasicAuthentication($username, $password)
+    {
+        $this->setOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        $this->setOption(CURLOPT_USERPWD, $username . ':' . $password);
+
+        return $this;
+    }
+
+    /**
+     * @param $referer
+     * @return $this
+     */
+    public function setReferrer($referer)
+    {
+        $this->setOption(CURLOPT_REFERER, $referer);
+
+        return $this;
+    }
+
+    /**
+     * @param $userAgent
+     * @return $this
+     */
+    public function setUserAgent($userAgent)
+    {
+        $this->setOption(CURLOPT_USERAGENT, $userAgent);
+
+        return $this;
+    }
+
+    /**
+     * @param array $data
+     * @param array $headers
+     * @return string
+     */
+    public function send(array $data = [], array $headers = [])
+    {
+        $ch = curl_init();
+        $url = (string) $this->uri;
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        $this->setUserAgent(self::USER_AGENT);
+        $this->setOption(CURLINFO_HEADER_OUT, true);
+        $this->setOption(CURLOPT_HEADER, true);
+        $this->setOption(CURLOPT_RETURNTRANSFER, true);
+        foreach ($this->options as $key => $option) {
+            curl_setopt($ch, $key, $option);
+        }
+
+        $response = curl_exec($ch);
+        $errorCode = curl_errno($ch);
+        $errorMsg = curl_error($ch);
+
+        if ((strpos($response, "\r\n\r\n") === false) || !($errorCode === 0)) {
+            throw new RequestException($errorMsg);
+        }
+
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
+
+        $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
+        array_shift($responseHeaders);
+
+        $headers = [];
+        array_map(function ($headerLine) use (&$headers) {
+            list($key, $value) = explode(':', $headerLine);
+            $headers[$key] = trim($value);
+            unset($headerLine, $key, $value);
+        }, $responseHeaders);
+
+        curl_close($ch);
+
+        return new Response($response, $statusCode, $headers);
     }
 }
