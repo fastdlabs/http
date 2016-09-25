@@ -15,7 +15,7 @@
 
 ```
 {
-    "fastd/http": "~3.0.x-dev"
+    "fastd/http": "3.0.x-dev"
 }
 ```
 
@@ -25,7 +25,7 @@ http 组件封装了常用的方法和对象, 分别封装在 `FastD\Http\Bag\Ba
 
 分别通过类属性 `query`, `body`, `server`, `header`, `cookie` 对对象进行获取与操作
 
-获取 pathinfo
+##### 获取 pathinfo
 
 ```php
 use FastD\Http\ServerRequest;
@@ -33,6 +33,19 @@ use FastD\Http\ServerRequest;
 $request = ServerRequest::createFromGlobals();
 
 $request->server->getPathInfo();
+```
+
+##### Swoole Http 服务器
+
+```php
+$http = new swoole_http_server("127.0.0.1", 9501);
+
+$http->on('request', function ($request, $response) {
+    $server = SwooleServerRequest::createFormSwoole($request, $response);
+    $server->response($server->server->getPathInfo());
+});
+
+$http->start();
 ```
 
 ## License MIT
