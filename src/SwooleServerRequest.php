@@ -45,7 +45,7 @@ class SwooleServerRequest extends ServerRequest
      * @param \swoole_http_response $response
      * @return SwooleServerRequest
      */
-    public static function createFormSwoole(\swoole_http_request $request, \swoole_http_response $response)
+    public static function createFromSwoole(\swoole_http_request $request, \swoole_http_response $response)
     {
         $config = [
             'document_root' => realpath('.'),
