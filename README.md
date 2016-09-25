@@ -19,6 +19,10 @@
 }
 ```
 
+## 文档
+
+[文档](docs/readme.md)
+
 ## 使用
 
 http 组件封装了常用的方法和对象, 分别封装在 `FastD\Http\Bag\Bag` 对象中, 实例化 `FastD\Http\ServerRequest` 对象后,
@@ -47,5 +51,19 @@ $http->on('request', function ($request, $response) {
 
 $http->start();
 ```
+
+##### cURL 请求
+
+Request 对象内部封装了 cURL 请求, 可以直接通过方法调用
+
+```php
+$request = new Request('https://api.github.com/');
+
+$request->setReferrer('http://example.com/');
+
+$response = $request->send(); // FastD\Http\Response
+```
+
+响应内容会通过 `Response` 对象返回。
 
 ## License MIT
