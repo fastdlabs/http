@@ -13,7 +13,6 @@ use FastD\Http\Bag\Bag;
 use FastD\Http\Bag\CookieBag;
 use FastD\Http\Bag\FileBag;
 use FastD\Http\Bag\ServerBag;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**

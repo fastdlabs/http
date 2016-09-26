@@ -9,6 +9,9 @@
 
 namespace FastD\Http;
 
+use swoole_http_request;
+use swoole_http_response;
+
 /**
  * Class SwooleServerRequest
  *
@@ -17,7 +20,7 @@ namespace FastD\Http;
 class SwooleServerRequest extends ServerRequest
 {
     /**
-     * @var \swoole_http_response
+     * @var swoole_http_response
      */
     protected $response;
 
@@ -41,11 +44,11 @@ class SwooleServerRequest extends ServerRequest
     /**
      * 处理 swoole 请求
      *
-     * @param \swoole_http_request $request
-     * @param \swoole_http_response $response
+     * @param swoole_http_request $request
+     * @param swoole_http_response $response
      * @return SwooleServerRequest
      */
-    public static function createFromSwoole(\swoole_http_request $request, \swoole_http_response $response)
+    public static function createFromSwoole(swoole_http_request $request, swoole_http_response $response)
     {
         $config = [
             'document_root' => realpath('.'),
@@ -58,7 +61,7 @@ class SwooleServerRequest extends ServerRequest
         $post = isset($request->post) ? $request->post : [];
         $cookie = isset($request->cookie) ? $request->cookie : [];
         $files = isset($request->files) ? $request->files : [];
-        $server = (function (\swoole_http_request $request, $config) {
+        $server = (function (swoole_http_request $request, $config) {
             return [
                 // Server
                 'REQUEST_METHOD' => $request->server['request_method'],
@@ -93,14 +96,5 @@ class SwooleServerRequest extends ServerRequest
         })($request, $config);
 
         return new static($get, $post, $files, $cookie, $server, $response);
-    }
-
-    /**
-     * @param $content
-     * @param array $headers
-     */
-    public function response($content, array $headers = [])
-    {
-        $this->response->end($content);
     }
 }
