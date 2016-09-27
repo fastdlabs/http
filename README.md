@@ -9,14 +9,12 @@
 
 ## 要求
 
-* php >= 5.6, >= 7.0
+* php >= 5.6
 
 ## 安装
 
 ```
-{
-    "fastd/http": "3.0.x-dev"
-}
+composer require "fastd/http:3.0.x-dev" -vvv
 ```
 
 ## 文档

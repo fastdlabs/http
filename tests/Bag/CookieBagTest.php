@@ -1,5 +1,7 @@
 <?php
+
 use FastD\Http\Bag\CookieBag;
+use FastD\Http\Cookie;
 
 /**
  *
@@ -11,20 +13,27 @@ use FastD\Http\Bag\CookieBag;
  */
 class CookieBagTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var CookieBag
-     */
-    protected $cookie;
-
-    public function setUp()
+    public function testCookieString()
     {
-        $this->cookie = new CookieBag();
+        $cookie = new Cookie('name', 'jan');
+
+        $this->assertEquals('jan', $cookie->getValue());
+        $this->assertNull($cookie->getPath());
+        $this->assertNull($cookie->getDomain());
+    }
+
+    public function testCookieExpire()
+    {
+        $cookie = new Cookie('name', 'jan', 3600);
+
+        $this->assertEquals($cookie->getExpire(), 3600);
     }
 
     public function testToStringForCookieBag()
     {
-        $this->cookie->set('name', 'jan');
+        $cookieBag = new CookieBag();
 
-//        echo $this->cookie;
+        $cookieBag->set('name', 'jan');
+        $this->assertEquals(1, count($cookieBag->all()));
     }
 }

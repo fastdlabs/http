@@ -42,7 +42,7 @@ class CookieBag extends Bag
      * @param bool $httpOnly
      * @return $this
      */
-    public function set($name, $value = null, $expire = null, $path = '/', $domain = null, $secure = null, $httpOnly = null)
+    public function set($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
     {
         parent::set($name, new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly));
 

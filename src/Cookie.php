@@ -222,10 +222,10 @@ class Cookie
             $str .= 'deleted; expires=' . gmdate("D, d-M-Y H:i:s T", time() - 31536001);
         } else {
             $str .= urlencode($this->getValue());
+        }
 
-            if ($this->getExpire() !== 0) {
-                $str .= '; expires=' . gmdate("D, d-M-Y H:i:s T", $this->getExpire());
-            }
+        if ($this->getExpire() > 0) {
+            $str .= '; expires=' . gmdate("D, d-M-Y H:i:s T", $this->getExpire());
         }
 
         if ($this->path) {

@@ -188,6 +188,11 @@ class Response extends Message implements ResponseInterface
     );
 
     /**
+     * @var Cookie[]
+     */
+    protected $cookies = [];
+
+    /**
      * Response constructor.
      *
      * @param string $content
@@ -219,19 +224,19 @@ class Response extends Message implements ResponseInterface
             return $this;
         }
 
-        header(
-            sprintf(
+        header(sprintf(
                 'HTTP/%s %s %s',
                 $this->getProtocolVersion(),
                 $this->getStatusCode(),
                 $this->getReasonPhrase()
-            ),
-            true,
-            $this->getStatusCode()
-        );
+            ), true, $this->getStatusCode());
 
         foreach ($this->header->all() as $name => $value) {
             header(sprintf('%s: %s', $name, implode(',', $value)), false, $this->statusCode);
+        }
+
+        foreach ($this->cookies as $cookie) {
+            header(sprintf('Set-Cookie: %s', $cookie->asString()), false, $this->getStatusCode());
         }
 
         return $this;
@@ -248,11 +253,22 @@ class Response extends Message implements ResponseInterface
     {
         $this->sendHeaders();
 
-        echo (string)$this->getBody();
+        echo (string) $this->getBody();
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
+
+        return $this;
+    }
+
+    /**
+     * @param array $cookieParams
+     * @return $this
+     */
+    public function withCookies(array $cookieParams)
+    {
+        $this->cookies = $cookieParams;
 
         return $this;
     }
@@ -526,7 +542,7 @@ class Response extends Message implements ResponseInterface
                 $this->getReasonPhrase()
             ) . "\r\n" .
             $this->header . "\r\n" .
-            $this->getBody()->read(-1);
+            $this->getBody()->getContents();
     }
 
     /**

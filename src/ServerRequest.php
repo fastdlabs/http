@@ -87,7 +87,7 @@ class ServerRequest extends Request implements ServerRequestInterface
             }
         });
 
-        parent::__construct($this->server->getPathInfo(), $headers, 'php://input');
+        parent::__construct(sprintf('%s://%s', $this->server->getScheme(), ($this->server->getHost() . $this->server->getBaseUrl() . $this->server->getPathInfo())), $headers, 'php://input');
         $this->withMethod($this->server->getMethod());
 
         unset($headers);
