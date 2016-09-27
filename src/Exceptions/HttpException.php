@@ -11,7 +11,15 @@ namespace FastD\Http\Exceptions;
 
 use RuntimeException;
 
-class HttpException extends RuntimeException
+/**
+ * Class HttpException
+ *
+ * @package FastD\Http\Exceptions
+ */
+abstract class HttpException extends RuntimeException
 {
-
+    /**
+     * @return int
+     */
+    abstract public function getStatusCode();
 }
