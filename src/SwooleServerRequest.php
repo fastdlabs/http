@@ -83,7 +83,6 @@ class SwooleServerRequest extends ServerRequest
                 'SCRIPT_FILENAME' => $config['script_filename'],
                 'SCRIPT_NAME' => '/' . $config['script_name'],
                 'PHP_SELF' => '/' . $config['script_name'],
-
                 // Headers
                 'HTTP_HOST' => $request->header['host'] ?? '::1',
                 'HTTP_USER_AGENT' => $request->header['user-agent'] ?? '',
