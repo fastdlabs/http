@@ -43,6 +43,11 @@ class ServerRequest extends Request implements ServerRequestInterface
     public $server;
 
     /**
+     * @var Bag
+     */
+    public $body;
+
+    /**
      * @var FileBag
      */
     public $file;
@@ -75,7 +80,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     )
     {
         $this->query = new Bag($get);
-        $this->body = new PhpInputStream();
+        $this->body = new Bag($post);
         $this->server = new ServerBag($server);
         $this->cookie = new CookieBag($cookie);
         $this->file = new FileBag($files);
@@ -117,6 +122,13 @@ class ServerRequest extends Request implements ServerRequestInterface
                 null === $cookie ? $_COOKIE : [],
                 null === $server ? $_SERVER : []
             );
+
+            if (in_array(static::$requestFactory->server->getMethod(), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
+                $phpInputSteam = new PhpInputStream();
+                parse_str($phpInputSteam->getContents(), $post);
+                static::$requestFactory->body = new Bag($post);
+                unset($phpInputSteam);
+            }
         }
 
         return static::$requestFactory;

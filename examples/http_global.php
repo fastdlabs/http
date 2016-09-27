@@ -7,16 +7,18 @@
  * @link      http://www.fast-d.cn/
  */
 
-use FastD\Http\Response;
+use FastD\Http\JsonResponse;
 use FastD\Http\ServerRequest;
 
 include __DIR__ . '/../vendor/autoload.php';
 
 $server = ServerRequest::createFromGlobals();
 
-$server->cookie->set('name', 'jan');
+//$server->cookie->set('name', 'jan');
 
-$response = new Response('hello world');
+$content = !($server->server->isMethod('GET')) ? $server->body->all() : $server->query->all();
+
+$response = new JsonResponse($content);
 
 $response->withCookies($server->getCookieParams());
 

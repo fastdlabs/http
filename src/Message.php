@@ -35,7 +35,7 @@ class Message implements MessageInterface
     /**
      * @var StreamInterface
      */
-    protected $body;
+    protected $stream;
 
     /**
      * Message constructor.
@@ -264,7 +264,7 @@ class Message implements MessageInterface
      */
     public function getBody()
     {
-        return $this->body;
+        return $this->stream;
     }
 
     /**
@@ -276,13 +276,13 @@ class Message implements MessageInterface
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param StreamInterface $body Body.
+     * @param StreamInterface $stream Body.
      * @return static
      * @throws \InvalidArgumentException When the body is not valid.
      */
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $stream)
     {
-        $this->body = $body;
+        $this->stream = $stream;
 
         return $this;
     }
