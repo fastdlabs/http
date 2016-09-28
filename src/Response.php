@@ -24,6 +24,10 @@ use Psr\Http\Message\StreamInterface;
  */
 class Response extends Message implements ResponseInterface
 {
+    const HEADERS = [
+        'Content-Type' => 'text/html; charset=UTF-8'
+    ];
+
     const HTTP_CONTINUE = 100;
     const HTTP_SWITCHING_PROTOCOLS = 101;
     const HTTP_PROCESSING = 102;            // RFC2518
@@ -202,15 +206,13 @@ class Response extends Message implements ResponseInterface
     public function __construct(
         $content = '',
         $statusCode = Response::HTTP_OK,
-        array $headers = [
-            'Content-Type' => 'text/html; charset=UTF-8'
-        ]
+        array $headers = []
     )
     {
         $this->withBody(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
         $this->withContent($content);
-        parent::__construct($headers);
+        parent::__construct(array_merge(static::HEADERS, $headers));
     }
 
     /**
