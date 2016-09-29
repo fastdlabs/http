@@ -9,6 +9,7 @@
 
 namespace FastD\Http;
 
+use FastD\Session\SessionHandler;
 use swoole_http_request;
 use swoole_http_response;
 
@@ -32,13 +33,19 @@ class SwooleServerRequest extends ServerRequest
      * @param array $files
      * @param array $cookie
      * @param array $server
-     * @param $response
+     * @param $sessionHandler
      */
-    public function __construct(array $get, array $post, array $files, array $cookie, array $server, $response)
+    public function __construct(array $get, array $post, array $files, array $cookie, array $server, SessionHandler $sessionHandler = null)
+    {
+        parent::__construct($get, $post, $files, $cookie, $server, $sessionHandler);
+    }
+
+    /**
+     * @param swoole_http_response $response
+     */
+    public function setSwooleResponse(swoole_http_response $response)
     {
         $this->response = $response;
-
-        parent::__construct($get, $post, $files, $cookie, $server);
     }
 
     /**
@@ -46,9 +53,10 @@ class SwooleServerRequest extends ServerRequest
      *
      * @param swoole_http_request $request
      * @param swoole_http_response $response
+     * @param SessionHandler $sessionHandler
      * @return SwooleServerRequest
      */
-    public static function createFromSwoole(swoole_http_request $request, swoole_http_response $response)
+    public static function createFromSwoole(swoole_http_request $request, swoole_http_response $response, SessionHandler $sessionHandler = null)
     {
         $config = [
             'document_root' => realpath('.'),
@@ -94,6 +102,6 @@ class SwooleServerRequest extends ServerRequest
             ];
         })($request, $config);
 
-        return new static($get, $post, $files, $cookie, $server, $response);
+        return new static($get, $post, $files, $cookie, $server, $sessionHandler);
     }
 }

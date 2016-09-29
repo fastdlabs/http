@@ -9,11 +9,13 @@
 
 namespace FastD\Http;
 
+use FastD\Session\Session;
 use FastD\Http\Bag\Bag;
 use FastD\Http\Bag\CookieBag;
 use FastD\Http\Bag\FileBag;
 use FastD\Http\Bag\ServerBag;
-use FastD\Session\Session;
+use FastD\Session\SessionHandler;
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -69,20 +71,22 @@ class ServerRequest extends Request implements ServerRequestInterface
     protected static $requestFactory;
 
     /**
-     * The http request is has once request object.
+     * ServerRequest constructor.
      *
-     * @param $get
-     * @param $post
-     * @param $files
-     * @param $cookie
-     * @param $server
+     * @param array $get
+     * @param array $post
+     * @param array $files
+     * @param array $cookie
+     * @param array $server
+     * @param SessionHandler|null $sessionHandler
      */
     public function __construct(
         array $get = [],
         array $post = [],
         array $files = [],
         array $cookie = [],
-        array $server = []
+        array $server = [],
+        SessionHandler $sessionHandler = null
     )
     {
         $this->query = new Bag($get);
@@ -90,7 +94,6 @@ class ServerRequest extends Request implements ServerRequestInterface
         $this->server = new ServerBag($server);
         $this->cookie = new CookieBag($cookie);
         $this->file = new FileBag($files);
-//        $this->session = Session::start();
 
         $headers = [];
         array_walk($server, function ($value, $key) use (&$headers) {
@@ -101,24 +104,35 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         parent::__construct(sprintf('%s://%s', $this->server->getScheme(), ($this->server->getHost() . $this->server->getBaseUrl() . $this->server->getPathInfo())), $headers, 'php://input');
         $this->withMethod($this->server->getMethod());
-
         unset($headers);
+
+        try {
+            $sessionKey = $this->getHeaderLine(Session::SESSION_KEY);
+        } catch (InvalidArgumentException $e) {
+            $sessionKey = null;
+        }
+
+        $this->session = Session::start($sessionKey, $sessionHandler);
+        $this->withHeader(Session::SESSION_KEY, $this->session->getSessionId());
+        $this->withCookieParams([Session::SESSION_KEY => $this->session->getSessionId()]);
     }
 
     /**
-     * @param array $get
-     * @param array $post
-     * @param array $files
-     * @param array $cookie
-     * @param array $server
-     * @return static
+     * @param array|null $get
+     * @param array|null $post
+     * @param array|null $files
+     * @param array|null $cookie
+     * @param array|null $server
+     * @param SessionHandler|null $sessionHandler
+     * @return ServerRequest
      */
     public static function createFromGlobals(
         array $get = null,
         array $post = null,
         array $files = null,
         array $cookie = null,
-        array $server = null
+        array $server = null,
+        SessionHandler $sessionHandler = null
     )
     {
         if (null === static::$requestFactory) {
@@ -127,7 +141,8 @@ class ServerRequest extends Request implements ServerRequestInterface
                 null === $post ? $_POST : [],
                 null === $files ? $_FILES : [],
                 null === $cookie ? $_COOKIE : [],
-                null === $server ? $_SERVER : []
+                null === $server ? $_SERVER : [],
+                $sessionHandler
             );
 
             if (in_array(static::$requestFactory->server->getMethod(), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
@@ -270,7 +285,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @param array $uploadedFiles An array tree of UploadedFileInterface instances.
      * @return static
-     * @throws \InvalidArgumentException if an invalid structure is provided.
+     * @throws InvalidArgumentException if an invalid structure is provided.
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
@@ -324,7 +339,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param null|array|object $data The deserialized body data. This will
      *                                typically be in an array or object.
      * @return static
-     * @throws \InvalidArgumentException if an unsupported argument type is
+     * @throws InvalidArgumentException if an unsupported argument type is
      *                                provided.
      */
     public function withParsedBody($data)

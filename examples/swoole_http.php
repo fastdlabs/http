@@ -15,10 +15,8 @@ $http = new swoole_http_server("127.0.0.1", 9501);
 
 $http->on('request', function ($request, $response) {
     $server = SwooleServerRequest::createFromSwoole($request, $response);
-    foreach ($server->getCookieParams() as $cookieParam) {
-//        $response->cookie($cookieParam->getName(), $cookieParam->);
-    }
-    $server->response($server->server->getPathInfo());
+    $server->session->set('name', 'jan');
+    $response->end('hello world');
 });
 
 $http->start();
