@@ -177,7 +177,7 @@ class HeaderBag extends Bag
         $header = '';
 
         foreach ($this->headers as $name => $value) {
-            $header .= sprintf('%s: %s', $name, implode(',', $value)) . "\r\n";
+            $header .= sprintf('%s: %s', ucfirst($name), implode(',', $value)) . "\r\n";
         }
 
         return $header;
