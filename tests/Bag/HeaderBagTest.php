@@ -37,7 +37,7 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
             'HTTP_HOST' => 'localhost',
         ]);
 
-        $this->assertEquals($headerBag->get('HTTP_HOST'), ['localhost']);
+        $this->assertEquals($headerBag->get('host'), ['localhost']);
     }
 
     public function testToStringFoHeaderBag()
@@ -45,7 +45,7 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $headerBag = new HeaderBag([
             'X-Session-Id' => '111'
         ]);
-
+        
         $this->assertEquals('X-Session-Id: 111' . "\r\n", ((string) $headerBag));
     }
 }

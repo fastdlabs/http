@@ -23,14 +23,14 @@ use Psr\Http\Message\StreamInterface;
 class Message implements MessageInterface
 {
     /**
+     * @var HeaderBag
+     */
+    public $header;
+    
+    /**
      * @var string
      */
     protected $protocolVersion = '1.1';
-
-    /**
-     * @var HeaderBag
-     */
-    protected $header;
 
     /**
      * @var StreamInterface

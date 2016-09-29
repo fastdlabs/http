@@ -13,6 +13,7 @@ use FastD\Http\Bag\Bag;
 use FastD\Http\Bag\CookieBag;
 use FastD\Http\Bag\FileBag;
 use FastD\Http\Bag\ServerBag;
+use FastD\Session\Session;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -53,6 +54,11 @@ class ServerRequest extends Request implements ServerRequestInterface
     public $file;
 
     /**
+     * @var Session
+     */
+    public $session;
+
+    /**
      * @var mixed
      */
     protected $parsedBody;
@@ -84,6 +90,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         $this->server = new ServerBag($server);
         $this->cookie = new CookieBag($cookie);
         $this->file = new FileBag($files);
+//        $this->session = Session::start();
 
         $headers = [];
         array_walk($server, function ($value, $key) use (&$headers) {
