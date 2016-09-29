@@ -16,5 +16,5 @@ $server = ServerRequest::createFromGlobals();
 
 $headerLine = $server->getHeaderLine('x-session-id');
 
-var_dump($headerLine)
+var_dump($headerLine);
 
