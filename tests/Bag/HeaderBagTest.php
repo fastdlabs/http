@@ -49,7 +49,5 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('X-Session-Id: 111' . "\r\n", ((string) $headerBag));
 
         $headerBag->set('name', 'jan');
-
-        echo $headerBag;
     }
 }

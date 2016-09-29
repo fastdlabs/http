@@ -94,7 +94,7 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         $headers = [];
         array_walk($server, function ($value, $key) use (&$headers) {
-            if (0 === strpos($value, 'HTTP_')) {
+            if (0 === strpos($key, 'HTTP_')) {
                 $headers[$key] = $value;
             }
         });

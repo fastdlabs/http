@@ -14,8 +14,7 @@ include __DIR__ . '/../vendor/autoload.php';
 
 $server = ServerRequest::createFromGlobals();
 
-echo '<pre>';
-print_r($server->header);
-print_r($server->server);
-echo $server->header->hasGet(Session::SESSION_KEY, null);
+$headerLine = $server->getHeaderLine('x-session-id');
+
+var_dump($headerLine)
 
