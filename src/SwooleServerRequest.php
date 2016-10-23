@@ -102,6 +102,10 @@ class SwooleServerRequest extends ServerRequest
             ];
         })($request, $config);
 
-        return new static($get, $post, $files, $cookie, $server, $sessionHandler);
+        $server = new static($get, $post, $files, $cookie, $server, $sessionHandler);
+
+        $server->setSwooleResponse($response);
+
+        return $server;
     }
 }
