@@ -262,6 +262,17 @@ class Request extends Message implements RequestInterface
     }
 
     /**
+     * Upload some files to Uri.
+     *
+     * @param array $files
+     * @return Response
+     */
+    public function upload(array $files)
+    {
+        $this->reset();
+    }
+
+    /**
      * @param array $data
      * @param array $headers
      * @return Response
@@ -319,9 +330,19 @@ class Request extends Message implements RequestInterface
 
         curl_close($ch);
 
-        $this->options = [];
-        $this->method = 'GET';
+        $this->reset();
 
         return new Response($response, $statusCode, $headers);
+    }
+
+    /**
+     * Reset request options and request method.
+     *
+     * @return void
+     */
+    public function reset()
+    {
+        $this->options = [];
+        $this->method = 'GET';
     }
 }
