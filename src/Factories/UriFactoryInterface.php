@@ -7,7 +7,7 @@
  * @link      http://www.fast-d.cn/
  */
 
-namespace FastD\Http;
+namespace FastD\Http\Factories;
 
 use Psr\Http\Message\UriInterface;
 
