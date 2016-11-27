@@ -68,6 +68,7 @@ class Stream implements StreamInterface
     public function __toString()
     {
         try {
+            $this->rewind();
             return $this->getContents();
         } catch (RuntimeException $e) {
             return '';
@@ -299,10 +300,9 @@ class Stream implements StreamInterface
     public function getContents()
     {
         if (!$this->isReadable()) {
-            return '';
+            throw new RuntimeException('Stream is not readable');
         }
 
-        $this->rewind();
         $result = stream_get_contents($this->resource);
 
         if (false === $result) {

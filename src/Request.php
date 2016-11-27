@@ -73,9 +73,11 @@ class Request extends Message implements RequestInterface, RequestFactoryInterfa
         $this->withUri(new Uri($uri));
         $this->withBody(new Stream($body));
 
-        parent::__construct(array_merge([
-            'USER_AGENT' => static::USER_AGENT
-        ], $headers));
+        if (!isset($headers['USER_AGENT'])) {
+            $headers['USER_AGENT'] = static::USER_AGENT;
+        }
+
+        parent::__construct($headers);
     }
 
     /**
@@ -260,17 +262,6 @@ class Request extends Message implements RequestInterface, RequestFactoryInterfa
         $this->setOption(CURLOPT_REFERER, $referer);
 
         return $this;
-    }
-
-    /**
-     * Upload some files to Uri.
-     *
-     * @param array $files
-     * @return Response
-     */
-    public function upload(array $files)
-    {
-        $this->reset();
     }
 
     /**

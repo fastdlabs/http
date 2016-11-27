@@ -71,7 +71,7 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
     /**
      * @var static
      */
-    protected static $requestFactory;
+    public static $requestFactory;
 
     /**
      * ServerRequest constructor.

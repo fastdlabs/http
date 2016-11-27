@@ -9,6 +9,7 @@
 
 namespace FastD\Http;
 
+use CURLFile;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
@@ -18,7 +19,7 @@ use RuntimeException;
  *
  * @package FastD\Http\Bag
  */
-class UploadedFile implements UploadedFileInterface
+class UploadedFile extends CURLFile implements UploadedFileInterface
 {
     /**
      * @var string
@@ -28,7 +29,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * @var string
      */
-    protected $type;
+    protected $mediaType;
 
     /**
      * @var string
@@ -67,10 +68,12 @@ class UploadedFile implements UploadedFileInterface
     public function __construct($name, $type, $tmpName, $error, $size)
     {
         $this->name = $name;
-        $this->type = $type;
+        $this->mediaType = $type;
         $this->tmpName = $tmpName;
         $this->error = $error;
         $this->size = $size;
+
+        parent::__construct($this->tmpName, $this->mediaType, $this->name);
     }
 
     /**
@@ -239,6 +242,6 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getClientMediaType()
     {
-        return $this->type;
+        return $this->mediaType;
     }
 }
