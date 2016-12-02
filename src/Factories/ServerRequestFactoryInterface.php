@@ -10,20 +10,9 @@
 namespace FastD\Http\Factories;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 
-interface ServerRequestFactoryInterface
+interface ServerRequestFactoryInterface extends RequestFactoryInterface
 {
-    /**
-     * Create a new server request.
-     *
-     * @param string $method
-     * @param UriInterface|string $uri
-     *
-     * @return ServerRequestInterface
-     */
-    public function createServerRequest($method, $uri);
-
     /**
      * Create a new server request from PHP globals.
      *

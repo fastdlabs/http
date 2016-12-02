@@ -12,6 +12,7 @@ namespace FastD\Http;
 use DateTime;
 use DateTimeZone;
 use FastD\Http\Bag\HeaderBag;
+use FastD\Http\Factories\ResponseFactoryInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -22,7 +23,7 @@ use Psr\Http\Message\StreamInterface;
  *
  * @package FastD\Http
  */
-class Response extends Message implements ResponseInterface
+class Response extends Message implements ResponseInterface, ResponseFactoryInterface
 {
     const HEADERS = [
         'Content-Type' => 'text/html; charset=UTF-8'
@@ -611,5 +612,17 @@ class Response extends Message implements ResponseInterface
     public function getStatusCode()
     {
         return $this->statusCode;
+    }
+
+    /**
+     * Create a new response.
+     *
+     * @param integer $code HTTP status code
+     *
+     * @return ResponseInterface
+     */
+    public function createResponse($code = 200)
+    {
+        return new static('', $code);
     }
 }

@@ -9,6 +9,7 @@
 
 namespace FastD\Http;
 
+use FastD\Http\Factories\ServerRequestFactoryInterface;
 use FastD\Session\Session;
 use FastD\Http\Bag\Bag;
 use FastD\Http\Bag\CookieBag;
@@ -16,14 +17,16 @@ use FastD\Http\Bag\FileBag;
 use FastD\Http\Bag\ServerBag;
 use FastD\Session\SessionHandler;
 use InvalidArgumentException;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Class ServerRequest
  *
  * @package FastD\Http
  */
-class ServerRequest extends Request implements ServerRequestInterface
+class ServerRequest extends Request implements ServerRequestInterface, ServerRequestFactoryInterface
 {
     /**
      * @var array
@@ -434,5 +437,28 @@ class ServerRequest extends Request implements ServerRequestInterface
         unset($this->attributes[$name]);
 
         return $this;
+    }
+
+    /**
+     * Create a new server request.
+     *
+     * @param string $method
+     * @param UriInterface|string $uri
+     *
+     * @return RequestInterface
+     */
+    public function createServerRequest($method, $uri)
+    {
+        return $this->createRequest($method, $uri);
+    }
+
+    /**
+     * Create a new server request from PHP globals.
+     *
+     * @return ServerRequestInterface
+     */
+    public function createServerRequestFromGlobals()
+    {
+        return ServerRequest::createFromGlobals();
     }
 }

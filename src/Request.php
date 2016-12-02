@@ -10,6 +10,7 @@
 namespace FastD\Http;
 
 use FastD\Http\Exceptions\RequestException;
+use FastD\Http\Factories\RequestFactoryInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
@@ -21,7 +22,7 @@ use Psr\Http\Message\UriInterface;
  *
  * @package FastD\Http
  */
-class Request extends Message implements RequestInterface
+class Request extends Message implements RequestInterface, RequestFactoryInterface
 {
     const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/JanHuang/http)';
 
@@ -344,5 +345,20 @@ class Request extends Message implements RequestInterface
     {
         $this->options = [];
         $this->method = 'GET';
+    }
+
+    /**
+     * Create a new request.
+     *
+     * @param string $method
+     * @param UriInterface|string $uri
+     *
+     * @return RequestInterface
+     */
+    public function createRequest($method, $uri)
+    {
+        $request = new static($uri);
+
+        return $request->withMethod($method);
     }
 }
