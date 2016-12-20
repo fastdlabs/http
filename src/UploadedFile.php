@@ -24,16 +24,6 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
     /**
      * @var string
      */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $mediaType;
-
-    /**
-     * @var string
-     */
     protected $tmpName;
 
     /**
@@ -67,13 +57,11 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      */
     public function __construct($name, $type, $tmpName, $error, $size)
     {
-        $this->name = $name;
-        $this->mediaType = $type;
         $this->tmpName = $tmpName;
         $this->error = $error;
         $this->size = $size;
 
-        parent::__construct($this->tmpName, $this->mediaType, $this->name);
+        parent::__construct($tmpName, $type, $name);
     }
 
     /**
@@ -242,6 +230,6 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      */
     public function getClientMediaType()
     {
-        return $this->mediaType;
+        return $this->mime;
     }
 }
