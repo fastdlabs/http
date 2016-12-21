@@ -11,11 +11,8 @@ namespace FastD\Http;
 
 use DateTime;
 use DateTimeZone;
-use FastD\Http\Bag\HeaderBag;
-use FastD\Http\Factories\ResponseFactoryInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 
 
 /**
@@ -25,10 +22,6 @@ use Psr\Http\Message\StreamInterface;
  */
 class Response extends Message implements ResponseInterface
 {
-    const HEADERS = [
-        'Content-Type' => 'text/html; charset=UTF-8'
-    ];
-
     const HTTP_CONTINUE = 100;
     const HTTP_SWITCHING_PROTOCOLS = 101;
     const HTTP_PROCESSING = 102;            // RFC2518
@@ -119,6 +112,11 @@ class Response extends Message implements ResponseInterface
     protected $charset = 'utf-8';
 
     /**
+     * @var array
+     */
+    protected $cookie = [];
+
+    /**
      * Status codes translation table.
      *
      * The list of codes is complete according to the
@@ -193,11 +191,6 @@ class Response extends Message implements ResponseInterface
     );
 
     /**
-     * @var Cookie[]
-     */
-    protected $cookies = [];
-
-    /**
      * Response constructor.
      *
      * @param string $content
@@ -210,10 +203,9 @@ class Response extends Message implements ResponseInterface
         array $headers = []
     )
     {
-        $this->withBody(new Stream('php://memory', 'wb+'));
+        parent::__construct(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
         $this->withContent($content);
-        parent::__construct(array_merge(static::HEADERS, $headers));
     }
 
     /**
@@ -234,11 +226,11 @@ class Response extends Message implements ResponseInterface
                 $this->getReasonPhrase()
             ), true, $this->getStatusCode());
 
-        foreach ($this->header->all() as $name => $value) {
+        foreach ($this->header as $name => $value) {
             header(sprintf('%s: %s', $name, implode(',', $value)), false, $this->statusCode);
         }
 
-        foreach ($this->cookies as $cookie) {
+        foreach ($this->cookie as $cookie) {
             header(sprintf('Set-Cookie: %s', $cookie->asString()), false, $this->getStatusCode());
         }
 
@@ -266,12 +258,12 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @param array $cookieParams
+     * @param array $cookie
      * @return $this
      */
-    public function withCookies(array $cookieParams)
+    public function withCookieParams(array $cookie)
     {
-        $this->cookies = $cookieParams;
+        $this->cookie = $cookie;
 
         return $this;
     }
@@ -292,6 +284,8 @@ class Response extends Message implements ResponseInterface
      */
     public function getContent()
     {
+        $this->getBody()->rewind();
+
         return $this->getBody()->getContents();
     }
 
@@ -301,7 +295,7 @@ class Response extends Message implements ResponseInterface
      */
     public function setContentType($contentType)
     {
-        $this->header->set('Content-Type', $contentType);
+        $this->withHeader('Content-Type', $contentType);
 
         return $this;
     }
@@ -311,7 +305,7 @@ class Response extends Message implements ResponseInterface
      */
     public function getContentType()
     {
-        return $this->header->get('Content-Type');
+        return $this->getHeaderLine('Content-Type');
     }
 
     /**
@@ -320,8 +314,8 @@ class Response extends Message implements ResponseInterface
      */
     public function setCacheControl($cacheControl)
     {
-        $this->header->remove('Cache-Control');
-        $this->header->set('Cache-Control', $cacheControl);
+        $this->withoutHeader('Cache-Control');
+        $this->withHeader('Cache-Control', $cacheControl);
 
         return $this;
     }
@@ -331,7 +325,7 @@ class Response extends Message implements ResponseInterface
      */
     public function getCacheControl()
     {
-        return $this->header->get('Cache-Control');
+        return $this->getHeaderLine('Cache-Control');
     }
 
     /**
@@ -343,7 +337,7 @@ class Response extends Message implements ResponseInterface
      */
     public function getETag()
     {
-        return $this->header->get('ETag');
+        return $this->getHeaderLine('ETag');
     }
 
     /**
@@ -356,8 +350,8 @@ class Response extends Message implements ResponseInterface
      */
     public function setETag($eTag = null, $weak = false)
     {
-        $this->header->remove('ETag');
-        $this->header->set('ETag', (true === $weak ? 'W/' : '') . $eTag);
+        $this->withoutHeader('ETag');
+        $this->withHeader('ETag', (true === $weak ? 'W/' : '') . $eTag);
 
         return $this;
     }
@@ -368,7 +362,7 @@ class Response extends Message implements ResponseInterface
      */
     public function setLocation($location)
     {
-        $this->header->set('Location', $location);
+        $this->withHeader('Location', $location);
 
         return $this;
     }
@@ -378,7 +372,7 @@ class Response extends Message implements ResponseInterface
      */
     public function getLocation()
     {
-        return $this->header->get('Location');
+        return $this->getHeaderLine('Location');
     }
 
     /**
@@ -389,7 +383,7 @@ class Response extends Message implements ResponseInterface
     public function getExpires()
     {
         try {
-            return new DateTime($this->header->get('Expires'));
+            return new DateTime($this->getHeaderLine('Expires'));
         } catch (InvalidArgumentException $e) {
             // according to RFC 2616 invalid date formats (e.g. "0" and "-1") must be treated as in the past
             return DateTime::createFromFormat(DATE_RFC2822, 'Sat, 01 Jan 00 00:00:00 +0000');
@@ -407,9 +401,9 @@ class Response extends Message implements ResponseInterface
      */
     public function setExpires(DateTime $date = null)
     {
-        $this->header->remove('Expires');
+        $this->withoutHeader('Expires');
         $date->setTimezone(new DateTimeZone("PRC"));
-        $this->header->set('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
+        $this->withHeader('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
     }
@@ -421,13 +415,17 @@ class Response extends Message implements ResponseInterface
      * First, it checks for a s-maxage directive, then a max-age directive, and then it falls
      * back on an expires header. It returns null when no maximum age can be established.
      *
-     * @return int|null Number of seconds
+     * @return int|null|DateTime Number of seconds
      *
      * @api
      */
     public function getMaxAge()
     {
-        return $this->header->hasGet('Cache-Control', $this->getExpires());
+        if ($this->hasHeader('Cache-Control')) {
+            return $this->getHeaderLine('Cache-Control');
+        }
+
+        return $this->getExpires();
     }
 
     /**
@@ -441,7 +439,7 @@ class Response extends Message implements ResponseInterface
      */
     public function setMaxAge($value)
     {
-        $this->header->add('Cache-Control', 'max-age=' . $value);
+        $this->withHeader('Cache-Control', 'max-age=' . $value);
 
         return $this;
     }
@@ -459,7 +457,7 @@ class Response extends Message implements ResponseInterface
     {
         $this->setCacheControl('public');
 
-        $this->header->add('Cache-Control', 's-maxage=' . $value);
+        $this->withHeader('Cache-Control', 's-maxage=' . $value);
 
         return $this;
     }
@@ -467,11 +465,11 @@ class Response extends Message implements ResponseInterface
     /**
      * Returns the Last-Modified HTTP header as a DateTime instance.
      *
-     * @return DateTime|null A DateTime instance or null if the header does not exist
+     * @return string|DateTime|null A DateTime instance or null if the header does not exist
      */
     public function getLastModified()
     {
-        return $this->header->get('Last-Modified');
+        return $this->getHeaderLine('Last-Modified');
     }
 
     /**
@@ -484,8 +482,8 @@ class Response extends Message implements ResponseInterface
      */
     public function setLastModified(DateTime $date = null)
     {
-        $this->header->remove('Last-Modified');
-        $this->header->set('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
+        $this->withoutHeader('Last-Modified');
+        $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
     }
@@ -507,7 +505,7 @@ class Response extends Message implements ResponseInterface
 
         // remove headers that MUST NOT be included with 304 Not Modified responses
         foreach (array('Allow', 'Content-Encoding', 'Content-Language', 'Content-Length', 'Content-MD5', 'Content-Type', 'Last-Modified') as $header) {
-            $this->header->remove($header);
+            $this->withoutHeader($header);
         }
 
         return $this;
@@ -612,17 +610,5 @@ class Response extends Message implements ResponseInterface
     public function getStatusCode()
     {
         return $this->statusCode;
-    }
-
-    /**
-     * Create a new response.
-     *
-     * @param integer $code HTTP status code
-     *
-     * @return ResponseInterface
-     */
-    public function createResponse($code = 200)
-    {
-        return new static('', $code);
     }
 }

@@ -44,7 +44,7 @@ class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
     public function testSwooleServerRequestCreateFromSwoole()
     {
         $swoole = $this->dataFromSwoole();
-        $serverRequest = SwooleServerRequest::createServerRequestFromSwoole($swoole);
-        print_r($serverRequest);
+//        $serverRequest = SwooleServerRequest::createServerRequestFromSwoole($swoole);
+//        print_r($serverRequest);
     }
 }
