@@ -12,24 +12,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
 {
     public function testBaseRequest()
     {
-        $request = new Request('https://api.github.com/');
+        $request = new Request('GET', 'http://example.com');
 
-        $request->setReferrer('http://example.com/');
-
-        $response = $request->send();
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('HTTP/1.1 200 OK', sprintf('HTTP/%s %s %s', $response->getProtocolVersion(), $response->getStatusCode(), $response->getReasonPhrase()));
+        $this->assertEquals($request->getUri()->getHost(), 'example.com');
+        $this->assertNull($request->getUri()->getPort());
+        $this->assertEquals('/', $request->getUri()->getPath());
     }
 
-    public function testGetRequestMethod()
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidRequestUri()
     {
-        $request = new Request('https://api.github.com/');
-
-        $request->withMethod('POST');
-
-        $response = $request->send();
-
-        $this->assertEquals(404, $response->getStatusCode());
+        new Request('GET', '///');
     }
 }

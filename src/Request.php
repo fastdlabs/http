@@ -13,6 +13,7 @@ use FastD\Http\Exceptions\RequestException;
 use FastD\Http\Factories\RequestFactoryInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -22,7 +23,7 @@ use Psr\Http\Message\UriInterface;
  *
  * @package FastD\Http
  */
-class Request extends Message implements RequestInterface, RequestFactoryInterface
+class Request extends Message implements RequestInterface
 {
     const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/JanHuang/http)';
 
@@ -64,20 +65,27 @@ class Request extends Message implements RequestInterface, RequestFactoryInterfa
     /**
      * Request constructor.
      *
+     * @param $method
      * @param $uri
      * @param array $headers
-     * @param string $body
+     * @param StreamInterface $body
      */
-    public function __construct($uri, array $headers = [], $body = 'php://memory')
+    public function __construct($method, $uri, array $headers = [], StreamInterface $body = null)
     {
+        $this->withMethod($method);
         $this->withUri(new Uri($uri));
-        $this->withBody(new Stream($body));
 
-        if (!isset($headers['USER_AGENT'])) {
-            $headers['USER_AGENT'] = static::USER_AGENT;
+        foreach ($headers as $key => $header) {
+            if (is_array($header)) {
+                foreach ($header as $item) {
+                    $this->withAddedHeader($key, $item);
+                }
+            } else {
+                $this->withHeader($key, $header);
+            }
         }
 
-        parent::__construct($headers);
+        parent::__construct($body);
     }
 
     /**
@@ -206,7 +214,7 @@ class Request extends Message implements RequestInterface, RequestFactoryInterfa
      * new UriInterface instance.
      *
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
-     * @param UriInterface $uri  New request URI to use.
+     * @param UriInterface $uri New request URI to use.
      * @param bool $preserveHost Preserve the original state of the Host header.
      * @return static
      */
@@ -272,13 +280,13 @@ class Request extends Message implements RequestInterface, RequestFactoryInterfa
     public function send(array $data = [], array $headers = [])
     {
         $ch = curl_init();
-        $url = (string) $this->uri;
+        $url = (string)$this->uri;
 
         $data = http_build_query($data);
 
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
             $this->setOption(CURLOPT_POSTFIELDS, $data);
-        } else if (!empty($data))  {
+        } else if (!empty($data)) {
             $concat = '?';
             if (false === strpos($url, '?')) {
                 $concat = '&';
@@ -336,20 +344,5 @@ class Request extends Message implements RequestInterface, RequestFactoryInterfa
     {
         $this->options = [];
         $this->method = 'GET';
-    }
-
-    /**
-     * Create a new request.
-     *
-     * @param string $method
-     * @param UriInterface|string $uri
-     *
-     * @return RequestInterface
-     */
-    public function createRequest($method, $uri)
-    {
-        $request = new static($uri);
-
-        return $request->withMethod($method);
     }
 }

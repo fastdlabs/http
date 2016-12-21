@@ -9,7 +9,6 @@
 
 namespace FastD\Http;
 
-use FastD\Http\Bag\HeaderBag;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -23,9 +22,9 @@ use Psr\Http\Message\StreamInterface;
 class Message implements MessageInterface
 {
     /**
-     * @var HeaderBag
+     * @var array
      */
-    public $header;
+    public $header = [];
     
     /**
      * @var string
@@ -39,20 +38,15 @@ class Message implements MessageInterface
 
     /**
      * Message constructor.
-     *
-     * @param array $headers
+     * @param StreamInterface|null $stream
      */
-    public function __construct(array $headers = [])
+    public function __construct(StreamInterface $stream = null)
     {
-        $this->header = new HeaderBag($headers);
-    }
+        if (null === $stream) {
+            $stream = new Stream('php://memory', 'wb+');
+        }
 
-    /**
-     * @return HeaderBag
-     */
-    public function getHeaderBag()
-    {
-        return $this->header;
+        $this->withBody($stream);
     }
 
     /**
@@ -108,13 +102,13 @@ class Message implements MessageInterface
      * While header names are not case-sensitive, getHeaders() will preserve the
      * exact case in which headers were originally specified.
      *
-     * @return string[][] Returns an associative array of the message's headers. Each
+     * @return array Returns an associative array of the message's headers. Each
      *     key MUST be a header name, and each value MUST be an array of strings
      *     for that header.
      */
     public function getHeaders()
     {
-        return $this->header->all();
+        return $this->header;
     }
 
     /**
@@ -127,7 +121,7 @@ class Message implements MessageInterface
      */
     public function hasHeader($name)
     {
-        return $this->header->has($name);
+        return isset($this->header[$name]);
     }
 
     /**
@@ -140,13 +134,13 @@ class Message implements MessageInterface
      * empty array.
      *
      * @param string $name Case-insensitive header field name.
-     * @return string[] An array of string values as provided for the given
+     * @return array An array of string values as provided for the given
      *                     header. If the header does not appear in the message, this method MUST
      *                     return an empty array.
      */
     public function getHeader($name)
     {
-        return $this->header->get($name);
+        return $this->header[strtolower($name)];
     }
 
     /**
@@ -196,7 +190,7 @@ class Message implements MessageInterface
      */
     public function withHeader($name, $value)
     {
-        $this->header->set($name, $value);
+        $this->header[strtolower($name)] = [$value];
 
         return $this;
     }
@@ -219,15 +213,7 @@ class Message implements MessageInterface
      */
     public function withAddedHeader($name, $value)
     {
-        if (is_string($value)) {
-            $value = [$value];
-        }
-
-        if (!$this->hasHeader($name)) {
-            return $this->withHeader($name, $value);
-        }
-
-        $this->header->add($name, $value);
+        $this->header[strtolower($name)][] = $value;
 
         return $this;
     }
@@ -246,13 +232,13 @@ class Message implements MessageInterface
      */
     public function withoutHeader($name)
     {
-        $name = strtoupper($name);
+        $name = strtolower($name);
 
         if (!$this->hasHeader($name)) {
             return $this;
         }
 
-        $this->header->remove($name);
+        unset($this->header[$name]);
 
         return $this;
     }

@@ -38,6 +38,7 @@ class StreamTest extends PHPUnit_Framework_TestCase
     {
         $message = 'foo bar';
         $this->stream->write($message);
+        $this->stream->rewind();
         $this->assertEquals($message, (string) $this->stream->getContents());
     }
 }

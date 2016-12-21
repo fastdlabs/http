@@ -19,14 +19,14 @@ class RedirectResponse extends Response
     /**
      * RedirectResponse constructor.
      *
-     * @param string $url
+     * @param string $uri
      * @param int $status
      * @param array $headers
      */
-    public function __construct($url = '', $status = 302, array $headers = [])
+    public function __construct($uri, $status = 302, array $headers = [])
     {
         parent::__construct('', $status, $headers);
 
-        $this->setLocation($url);
+        $this->setLocation($uri);
     }
 }

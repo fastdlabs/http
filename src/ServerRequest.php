@@ -9,24 +9,16 @@
 
 namespace FastD\Http;
 
-use FastD\Http\Factories\ServerRequestFactoryInterface;
-use FastD\Session\Session;
-use FastD\Http\Bag\Bag;
-use FastD\Http\Bag\CookieBag;
-use FastD\Http\Bag\FileBag;
-use FastD\Http\Bag\ServerBag;
-use FastD\Session\SessionHandler;
 use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Class ServerRequest
  *
  * @package FastD\Http
  */
-class ServerRequest extends Request implements ServerRequestInterface, ServerRequestFactoryInterface
+class ServerRequest extends Request implements ServerRequestInterface
 {
     /**
      * @var array
@@ -34,34 +26,24 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
     public $attributes;
 
     /**
-     * @var CookieBag
+     * @var array
      */
-    public $cookie;
+    public $cookieParams = [];
 
     /**
-     * @var Bag
+     * @var array
      */
-    public $query;
+    public $queryParams = [];
 
     /**
-     * @var ServerBag
+     * @var array
      */
-    public $server;
+    public $serverParams = [];
 
     /**
-     * @var Bag
+     * @var UploadedFile[]
      */
-    public $body;
-
-    /**
-     * @var FileBag
-     */
-    public $file;
-
-    /**
-     * @var Session
-     */
-    public $session;
+    public $uploadFile = [];
 
     /**
      * @var mixed
@@ -75,88 +57,23 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
 
     /**
      * ServerRequest constructor.
-     *
-     * @param array $get
-     * @param array $post
-     * @param array $files
-     * @param array $cookie
-     * @param array $server
-     * @param SessionHandler|null $sessionHandler
+     * @param null $method
+     * @param $uri
+     * @param array $headers
+     * @param StreamInterface|null $body
+     * @param array $serverParams
      */
     public function __construct(
-        array $get = [],
-        array $post = [],
-        array $files = [],
-        array $cookie = [],
-        array $server = [],
-        SessionHandler $sessionHandler = null
+        $method,
+        $uri,
+        array $headers = [],
+        StreamInterface $body = null,
+        array $serverParams = []
     )
     {
-        $this->query = new Bag($get);
-        $this->body = new Bag($post);
-        $this->server = new ServerBag($server);
-        $this->cookie = new CookieBag($cookie);
-        $this->file = new FileBag($files);
+        $this->withServerParams($serverParams);
 
-        $headers = [];
-        array_walk($server, function ($value, $key) use (&$headers) {
-            if (0 === strpos($key, 'HTTP_')) {
-                $headers[$key] = $value;
-            }
-        });
-
-        parent::__construct(sprintf('%s://%s', $this->server->getScheme(), ($this->server->getHost() . $this->server->getBaseUrl() . $this->server->getPathInfo())), $headers, 'php://input');
-        $this->withMethod($this->server->getMethod());
-        unset($headers);
-
-        try {
-            $sessionKey = $this->getHeaderLine(Session::SESSION_KEY);
-        } catch (InvalidArgumentException $e) {
-            $sessionKey = null;
-        }
-
-        $this->session = Session::start($sessionKey, $sessionHandler);
-        $this->withHeader(Session::SESSION_KEY, $this->session->getSessionId());
-        $this->withCookieParams([Session::SESSION_KEY => $this->session->getSessionId()]);
-    }
-
-    /**
-     * @param array|null $get
-     * @param array|null $post
-     * @param array|null $files
-     * @param array|null $cookie
-     * @param array|null $server
-     * @param SessionHandler|null $sessionHandler
-     * @return ServerRequest
-     */
-    public static function createFromGlobals(
-        array $get = null,
-        array $post = null,
-        array $files = null,
-        array $cookie = null,
-        array $server = null,
-        SessionHandler $sessionHandler = null
-    )
-    {
-        if (null === static::$requestFactory) {
-            static::$requestFactory = new static(
-                null === $get ? $_GET : [],
-                null === $post ? $_POST : [],
-                null === $files ? $_FILES : [],
-                null === $cookie ? $_COOKIE : [],
-                null === $server ? $_SERVER : [],
-                $sessionHandler
-            );
-
-            if (in_array(static::$requestFactory->server->getMethod(), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
-                $phpInputSteam = new PhpInputStream();
-                parse_str($phpInputSteam->getContents(), $post);
-                static::$requestFactory->body = new Bag($post);
-                unset($phpInputSteam);
-            }
-        }
-
-        return static::$requestFactory;
+        parent::__construct($method, $uri, $headers, $body);
     }
 
     /**
@@ -170,7 +87,24 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      */
     public function getServerParams()
     {
-        return $this->server->all();
+        return $this->serverParams;
+    }
+
+    /**
+     * @param array $server
+     * @return $this
+     */
+    public function withServerParams(array $server)
+    {
+        array_walk($server, function ($value, $key) {
+            if (0 === strpos($key, 'HTTP_')) {
+                $this->withAddedHeader($key, $value);
+            }
+        });
+
+        $this->serverParams = $server;
+
+        return $this;
     }
 
     /**
@@ -185,7 +119,7 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      */
     public function getCookieParams()
     {
-        return $this->cookie->all();
+        return $this->cookieParams;
     }
 
     /**
@@ -203,12 +137,12 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      * updated cookie values.
      *
      * @param array $cookies Array of key/value pairs representing cookies.
-     * @return static
+     * @return $this
      */
     public function withCookieParams(array $cookies)
     {
         while (list($name, $value) = each($cookies)) {
-            $this->cookie->set($name, $value);
+            $this->cookieParams[$name] = $value;
         }
 
         return $this;
@@ -228,7 +162,7 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      */
     public function getQueryParams()
     {
-        return $this->query->all();
+        return $this->queryParams;
     }
 
     /**
@@ -255,8 +189,8 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      */
     public function withQueryParams(array $query)
     {
-        while (list($name, $value) = each($cookies)) {
-            $this->query->set($name, $value);
+        while (list($name, $value) = each($query)) {
+            $this->queryParams[$name] = $value;
         }
 
         return $this;
@@ -271,12 +205,12 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      * These values MAY be prepared from $_FILES or the message body during
      * instantiation, or MAY be injected via withUploadedFiles().
      *
-     * @return array An array tree of UploadedFileInterface instances; an empty
+     * @return UploadedFile[] An array tree of UploadedFileInterface instances; an empty
      *     array MUST be returned if no data is present.
      */
     public function getUploadedFiles()
     {
-        return $this->file->all();
+        return $this->uploadFile;
     }
 
     /**
@@ -292,7 +226,7 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        $this->file->initUploadedFiles($uploadedFiles);
+        $this->uploadFile = $uploadedFiles;
 
         return $this;
     }
@@ -379,7 +313,7 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
      * specifying a default value to return if the attribute is not found.
      *
      * @see getAttributes()
-     * @param string $name   The attribute name.
+     * @param string $name The attribute name.
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
      */
@@ -440,25 +374,41 @@ class ServerRequest extends Request implements ServerRequestInterface, ServerReq
     }
 
     /**
-     * Create a new server request.
-     *
-     * @param string $method
-     * @param UriInterface|string $uri
-     *
-     * @return RequestInterface
-     */
-    public function createServerRequest($method, $uri)
-    {
-        return $this->createRequest($method, $uri);
-    }
-
-    /**
      * Create a new server request from PHP globals.
      *
      * @return ServerRequestInterface
      */
-    public function createServerRequestFromGlobals()
+    public static function createServerRequestFromGlobals()
     {
-        return ServerRequest::createFromGlobals();
+        $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $body = new PhpInputStream();
+
+        $uri = '';
+        if (isset($_SERVER['HTTPS'])) {
+            $uri .= $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+        }
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $uri .= $_SERVER['HTTP_HOST'];
+        } elseif (isset($_SERVER['SERVER_NAME'])) {
+            $uri .= $_SERVER['SERVER_NAME'];
+        }
+        if (isset($_SERVER['SERVER_PORT'])) {
+            $uri .= ':' . $_SERVER['SERVER_PORT'];
+        }
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $uri .= $_SERVER['REQUEST_URI'];
+        }
+        if (isset($_SERVER['QUERY_STRING'])) {
+            $uri .= '?' . $_SERVER['QUERY_STRING'];
+        }
+
+        $serverRequest = new ServerRequest($method, $uri, $headers, $body, $_SERVER);
+
+        return $serverRequest
+            ->withCookieParams($_COOKIE)
+            ->withQueryParams($_GET)
+            ->withParsedBody($_POST)
+            ->withUploadedFiles($_FILES);
     }
 }

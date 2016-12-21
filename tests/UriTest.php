@@ -11,6 +11,26 @@ use FastD\Http\Uri;
  */
 class UriTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidUri()
+    {
+        new Uri('///');
+    }
+
+    public function testPath()
+    {
+        $uri = new Uri('/');
+        $this->assertEquals('/', $uri->getPath());
+    }
+
+    public function testRootPath()
+    {
+        $uri = new Uri('https://example.com');
+        $this->assertEquals('/', $uri->getPath());
+    }
+
     public function testUri()
     {
         $uri = new Uri('https://user:pass@local.example.com:3001/foo?bar=baz#quz');
@@ -35,6 +55,6 @@ class UriTest extends PHPUnit_Framework_TestCase
     {
         $url = '/foo?bar=baz#quz';
         $uri = new Uri($url);
-        $this->assertEquals($url, (string) $uri);
+        $this->assertEquals($url, (string)$uri);
     }
 }

@@ -23,7 +23,7 @@ use Psr\Http\Message\StreamInterface;
  *
  * @package FastD\Http
  */
-class Response extends Message implements ResponseInterface, ResponseFactoryInterface
+class Response extends Message implements ResponseInterface
 {
     const HEADERS = [
         'Content-Type' => 'text/html; charset=UTF-8'
