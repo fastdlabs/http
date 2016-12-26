@@ -535,6 +535,11 @@ class Response extends Message implements ResponseInterface
      */
     public function __toString()
     {
+        $headerLine = '';
+        foreach ($this->getHeaders() as $name => $value) {
+            $headerLine .= $this->getHeaderLine($name);
+        }
+        $this->getBody()->rewind();
         return
             sprintf(
                 'HTTP/%s %s %s',
@@ -542,7 +547,7 @@ class Response extends Message implements ResponseInterface
                 $this->getStatusCode(),
                 $this->getReasonPhrase()
             ) . "\r\n" .
-            $this->header . "\r\n" .
+            $headerLine . "\r\n" .
             $this->getBody()->getContents();
     }
 

@@ -15,12 +15,25 @@
 namespace Tests;
 
 use FastD\Http\Response;
+use Psr\Http\Message\ResponseInterface;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Response
+     */
+    protected $response;
+
+    public function setUp()
+    {
+        $this->response = new Response();
+    }
+
     public function testResponseContent()
     {
-//        $response = new Response('demo');
+        $this->response->withContent('hello world');
+
+        echo $this->response;
     }
 
     public function testErrorResponse()
