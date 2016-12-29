@@ -25,9 +25,9 @@ class JsonResponse extends Response
      */
     public function __construct(array $data, $status = Response::HTTP_OK, $headers = array())
     {
-        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 
-        $this->setContentType('application/json; charset=UTF-8');
+        $this->withContentType('application/json; charset=UTF-8');
 
         parent::__construct($json, $status, $headers);
     }

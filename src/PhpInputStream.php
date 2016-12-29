@@ -47,6 +47,7 @@ class PhpInputStream extends Stream
         }
 
         $this->getContents();
+
         return $this->cache;
     }
 

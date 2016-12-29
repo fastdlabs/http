@@ -33,15 +33,12 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $this->response->withContent('hello world');
 
-        echo $this->response;
+        echo $this->response->getBody();
+
+        $this->expectOutputString('hello world');
     }
 
-    public function testErrorResponse()
-    {
-//        $response = new Response('demo', 403);
-    }
-
-    public function testHeader()
+    public function testResponseHeaders()
     {
 
     }

@@ -121,7 +121,7 @@ class Message implements MessageInterface
      */
     public function hasHeader($name)
     {
-        return isset($this->header[$name]);
+        return isset($this->header[strtolower($name)]);
     }
 
     /**
@@ -134,13 +134,13 @@ class Message implements MessageInterface
      * empty array.
      *
      * @param string $name Case-insensitive header field name.
-     * @return array An array of string values as provided for the given
+     * @return array|bool An array of string values as provided for the given
      *                     header. If the header does not appear in the message, this method MUST
      *                     return an empty array.
      */
     public function getHeader($name)
     {
-        return $this->header[strtolower($name)];
+        return $this->hasHeader($name) ? $this->header[strtolower($name)] : false;
     }
 
     /**

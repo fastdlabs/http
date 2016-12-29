@@ -25,9 +25,47 @@ class Stream implements StreamInterface
     protected $stream;
 
     /**
+     * @var string
+     */
+    protected $mode;
+
+    /**
      * @var resource
      */
     protected $resource;
+
+    /**
+     * @var bool
+     */
+    protected $readable = false;
+
+    /**
+     * @var bool
+     */
+    protected $writable = false;
+
+    /**
+     * @var bool
+     */
+    protected $seekable = false;
+
+    /**
+     * @var array
+     */
+    protected static $modeHash = [
+        'read' => [
+            'r' => true, 'w+' => true, 'r+' => true, 'x+' => true, 'c+' => true,
+            'rb' => true, 'w+b' => true, 'r+b' => true, 'x+b' => true,
+            'c+b' => true, 'rt' => true, 'w+t' => true, 'r+t' => true,
+            'x+t' => true, 'c+t' => true, 'a+' => true
+        ],
+        'write' => [
+            'w' => true, 'w+' => true, 'rw' => true, 'r+' => true, 'x+' => true,
+            'c+' => true, 'wb' => true, 'w+b' => true, 'r+b' => true,
+            'x+b' => true, 'c+b' => true, 'w+t' => true, 'r+t' => true,
+            'x+t' => true, 'c+t' => true, 'a' => true, 'a+' => true
+        ]
+    ];
 
     /**
      * Stream constructor.
@@ -40,7 +78,15 @@ class Stream implements StreamInterface
     {
         $this->stream = $stream;
 
-        $this->resource = fopen($stream, $mode);
+        $this->mode = $mode;
+
+        $this->resource = fopen($stream, $this->mode);
+
+        $meta = $this->getMetadata();
+
+        $this->seekable = $meta['seekable'];
+        $this->readable = isset(static::$modeHash['read'][$meta['mode']]);
+        $this->writable = isset(static::$modeHash['write'][$meta['mode']]);
     }
 
     /**
@@ -158,12 +204,7 @@ class Stream implements StreamInterface
      */
     public function isSeekable()
     {
-        if (!$this->resource) {
-            return false;
-        }
-
-        $meta = stream_get_meta_data($this->resource);
-        return $meta['seekable'];
+        return $this->seekable;
     }
 
     /**
@@ -220,12 +261,7 @@ class Stream implements StreamInterface
      */
     public function isWritable()
     {
-        if (!$this->resource) {
-            return false;
-        }
-
-        $meta = stream_get_meta_data($this->resource);
-        return is_writable($meta['uri']);
+        return $this->writable;
     }
 
     /**
@@ -244,7 +280,7 @@ class Stream implements StreamInterface
         $result = fwrite($this->resource, $string);
 
         if (false === $result) {
-            throw new RuntimeException('Error writing to stream');
+            throw new RuntimeException('Unable to writing from stream');
         }
 
         return $result;
@@ -257,14 +293,7 @@ class Stream implements StreamInterface
      */
     public function isReadable()
     {
-        if (!$this->resource) {
-            return false;
-        }
-
-        $meta = stream_get_meta_data($this->resource);
-        $mode = $meta['mode'];
-
-        return (strstr($mode, 'r') || strstr($mode, '+'));
+        return $this->readable;
     }
 
     /**
@@ -287,7 +316,13 @@ class Stream implements StreamInterface
             throw new RuntimeException('Stream is not readable');
         }
 
-        return fread($this->resource, (int) $length);
+        $string = fread($this->resource, (int)$length);
+
+        if (false === $string) {
+            throw new \RuntimeException('Unable to read from stream');
+        }
+
+        return $string;
     }
 
     /**
@@ -308,7 +343,16 @@ class Stream implements StreamInterface
         if (false === $result) {
             throw new RuntimeException('Error reading from stream');
         }
+
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMode()
+    {
+        return $this->mode;
     }
 
     /**
