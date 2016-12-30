@@ -23,7 +23,7 @@ class RedirectResponse extends Response
      * @param int $status
      * @param array $headers
      */
-    public function __construct($uri, $status = Response::HTTP_FOUND, array $headers = [])
+    public function __construct($uri, $status = 302, array $headers = [])
     {
         parent::__construct('', $status, $headers);
 

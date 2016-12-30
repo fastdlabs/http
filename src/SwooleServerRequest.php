@@ -11,7 +11,6 @@ namespace FastD\Http;
 
 use Psr\Http\Message\ServerRequestInterface;
 use swoole_http_request;
-use swoole_http_response;
 
 /**
  * Class SwooleServerRequest

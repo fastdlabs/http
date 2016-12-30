@@ -10,14 +10,16 @@
 
 use FastD\Http\SwooleServerRequest;
 
-class swoole_http_request2
-{
-    public $get = [];
-    public $post = [];
-    public $cookie = [];
-    public $file = [];
-    public $header = [];
-    public $server = [];
+if (!class_exists('swoole_http_request')) {
+    class swoole_http_request
+    {
+        public $get = [];
+        public $post = [];
+        public $cookie = [];
+        public $file = [];
+        public $header = [];
+        public $server = [];
+    }
 }
 
 class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
