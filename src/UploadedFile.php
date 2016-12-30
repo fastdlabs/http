@@ -232,4 +232,14 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
     {
         return $this->mime;
     }
+
+    public static function normalizer(array $file)
+    {
+        return new UploadedFile($file['name'],
+            $file['type'],
+            $file['tmp_name'],
+            (int) $file['error'],
+            (int) $file['size']
+        );
+    }
 }

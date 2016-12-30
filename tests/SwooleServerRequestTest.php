@@ -30,7 +30,7 @@ class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
         $swoole->post = [];
         $swoole->file = [];
         $swoole->header = [
-            'host' => '11.11.11.22:9527',
+            'host' => '11.11.11.22',
             'connection' => 'keep-alive',
             'pragma' => 'no-cache',
             'cache-control' => 'no-cache',
@@ -61,6 +61,8 @@ class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
     {
         $swoole = $this->dataFromSwoole();
         $serverRequest = SwooleServerRequest::createServerRequestFromSwoole($swoole);
-//        print_r($serverRequest);
+        $this->assertEmpty($serverRequest->getQueryParams());
+        $this->assertEmpty($serverRequest->getParsedBody());
+        $this->assertEmpty($serverRequest->getUploadedFiles());
     }
 }

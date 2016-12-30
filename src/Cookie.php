@@ -138,7 +138,7 @@ class Cookie
      */
     public function asString()
     {
-        $str = urlencode($this->expire) . '=';
+        $str = urlencode($this->name) . '=';
         if ('' === (string)$this->value) {
             $str .= 'deleted; expires=' . gmdate("D, d-M-Y H:i:s T", time() - 31536001);
         } else {

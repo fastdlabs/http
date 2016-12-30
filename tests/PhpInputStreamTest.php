@@ -11,15 +11,28 @@ use FastD\Http\PhpInputStream;
  */
 class PhpInputStreamTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \Psr\Http\Message\StreamInterface
+     */
     protected $stream;
 
     public function setUp()
     {
-        $this->stream = new PhpInputStream();
+        $this->stream = new PhpInputStream('php://temp', 'wr');
+
+        $this->stream->write(http_build_query([
+            'age' => 11
+        ]));
     }
 
     public function testPhpInputRawData()
     {
+        $this->stream->rewind();
+        $content = $this->stream->getContents();
 
+        parse_str($content, $_POST);
+        $this->assertEquals([
+            'age' => 11
+        ], $_POST);
     }
 }

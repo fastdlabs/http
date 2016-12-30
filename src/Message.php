@@ -196,6 +196,25 @@ class Message implements MessageInterface
     }
 
     /**
+     * @param array $headers
+     * @return $this
+     */
+    public function withHeaders(array $headers)
+    {
+        foreach ($headers as $key => $header) {
+            if (is_array($header)) {
+                foreach ($header as $item) {
+                    $this->withAddedHeader($key, $item);
+                }
+            } else {
+                $this->withHeader($key, $header);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Return an instance with the specified header appended with the given value.
      *
      * Existing values for the specified header will be maintained. The new

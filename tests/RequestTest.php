@@ -1,5 +1,6 @@
 <?php
 use FastD\Http\Request;
+use FastD\Http\Uri;
 
 /**
  * @author    jan huang <bboyjanhuang@gmail.com>
@@ -39,8 +40,17 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request->withMethod('ABC');
     }
 
+    public function server()
+    {
+        $uri = new Uri('http://www.weather.com.cn/data/cityinfo/101010100.html');
+
+        return new Request('GET', (string) $uri);
+    }
+
     public function testRequestTarget()
     {
-        $request = new Request('GET', 'http://example.com');
+        $request = $this->server();
+        $response = $request->send();
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }

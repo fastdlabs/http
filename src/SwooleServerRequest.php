@@ -26,11 +26,11 @@ class SwooleServerRequest extends ServerRequest
      */
     public static function createServerRequestFromSwoole(swoole_http_request $request)
     {
-        $_GET = isset($request->get) ? $request->get : [];
-        $_POST = isset($request->post) ? $request->post : [];
-        $_COOKIE = isset($request->cookie) ? $request->cookie : [];
-        $_FILES = isset($request->files) ? $request->files : [];
-        $_SERVER = [
+        $get = isset($request->get) ? $request->get : [];
+        $post = isset($request->post) ? $request->post : [];
+        $cookie = isset($request->cookie) ? $request->cookie : [];
+        $files = isset($request->files) ? $request->files : [];
+        $server = [
             'REQUEST_METHOD' => $request->server['request_method'],
             'REQUEST_URI' => $request->server['request_uri'],
             'PATH_INFO' => $request->server['path_info'],
@@ -46,15 +46,28 @@ class SwooleServerRequest extends ServerRequest
             'REMOTE_PORT' => isset($request->header['remote_port']) ? $request->header['remote_port'] : $request->server['remote_port'],
             'QUERY_STRING' => isset($request->server['query_string']) ? $request->server['query_string'] : '',
             // Headers
-            'HTTP_HOST' => $request->header['host'] ?? '::1',
-            'HTTP_USER_AGENT' => $request->header['user-agent'] ?? '',
-            'HTTP_ACCEPT' => $request->header['accept'] ?? '*/*',
-            'HTTP_ACCEPT_LANGUAGE' => $request->header['accept-language'] ?? '',
-            'HTTP_ACCEPT_ENCODING' => $request->header['accept-encoding'] ?? '',
-            'HTTP_CONNECTION' => $request->header['connection'] ?? '',
+            'HTTP_HOST' => isset($request->header['host']) ? $request->header['host'] : '::1',
+            'HTTP_USER_AGENT' => isset($request->header['user-agent']) ? $request->header['user-agent'] : '',
+            'HTTP_ACCEPT' => isset($request->header['accept']) ? $request->header['accept'] : '*/*',
+            'HTTP_ACCEPT_LANGUAGE' => isset($request->header['accept-language']) ? $request->header['accept-language'] : '',
+            'HTTP_ACCEPT_ENCODING' => isset($request->header['accept-encoding']) ? $request->header['accept-encoding'] : '',
+            'HTTP_CONNECTION' => isset($request->header['connection']) ? $request->header['connection'] : '',
             'HTTP_CACHE_CONTROL' => isset($request->header['cache-control']) ? $request->header['cache-control'] : '',
-        ];;
+        ];
 
-        return parent::createServerRequestFromGlobals();
+        $serverRequest = new ServerRequest(
+            $server['REQUEST_METHOD'],
+            static::createUriFromGlobal($server),
+            $request->header,
+            null,
+            $server
+        );
+
+        return $serverRequest
+            ->withParsedBody($post)
+            ->withQueryParams($get)
+            ->withCookieParams($cookie)
+            ->withUploadedFiles($files)
+            ;
     }
 }

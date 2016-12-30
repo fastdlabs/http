@@ -12,6 +12,7 @@ namespace FastD\Http;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class ServerRequest
@@ -38,17 +39,17 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @var array
      */
+    public $bodyParams = [];
+
+    /**
+     * @var array
+     */
     public $serverParams = [];
 
     /**
      * @var UploadedFile[]
      */
     public $uploadFile = [];
-
-    /**
-     * @var mixed
-     */
-    protected $parsedBody;
 
     /**
      * @var static
@@ -71,9 +72,14 @@ class ServerRequest extends Request implements ServerRequestInterface
         array $serverParams = []
     )
     {
+        parent::__construct($method, $uri, $headers, $body);
+
         $this->withServerParams($serverParams);
 
-        parent::__construct($method, $uri, $headers, $body);
+        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
+            parse_str((string) $body, $data);
+            $this->withParsedBody($data);
+        }
     }
 
     /**
@@ -123,6 +129,16 @@ class ServerRequest extends Request implements ServerRequestInterface
     }
 
     /**
+     * @param $key
+     * @param $default
+     * @return bool|mixed
+     */
+    public function getCookie($key, $default = false)
+    {
+        return isset($this->cookieParams[$key]) ? $this->cookieParams[$key] : $default;
+    }
+
+    /**
      * Return an instance with the specified cookies.
      *
      * The data IS NOT REQUIRED to come from the $_COOKIE superglobal, but MUST
@@ -163,6 +179,24 @@ class ServerRequest extends Request implements ServerRequestInterface
     public function getQueryParams()
     {
         return $this->queryParams;
+    }
+
+    /**
+     * @param $key
+     * @param bool $default
+     * @return mixed
+     */
+    public function getParam($key, $default = false)
+    {
+        if (isset($this->queryParams[$key])) {
+            return $this->queryParams[$key];
+        }
+
+        if (isset($this->bodyParams[$key])) {
+            return $this->bodyParams[$key];
+        }
+
+        return $default;
     }
 
     /**
@@ -220,13 +254,13 @@ class ServerRequest extends Request implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * updated body parameters.
      *
-     * @param array $uploadedFiles An array tree of UploadedFileInterface instances.
+     * @param UploadedFile[] $uploadedFiles An array tree of UploadedFileInterface instances.
      * @return static
      * @throws InvalidArgumentException if an invalid structure is provided.
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        $this->uploadFile = $uploadedFiles;
+        $this->uploadFile = static::normalizer($uploadedFiles);
 
         return $this;
     }
@@ -248,7 +282,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getParsedBody()
     {
-        return $this->parsedBody;
+        return $this->bodyParams;
     }
 
     /**
@@ -281,7 +315,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withParsedBody($data)
     {
-        $this->parsedBody = $data;
+        $this->bodyParams = $data;
 
         return $this;
     }
@@ -374,6 +408,70 @@ class ServerRequest extends Request implements ServerRequestInterface
     }
 
     /**
+     * @param $files
+     * @return array
+     */
+    public static function normalizer($files)
+    {
+        $normalized = [];
+
+        foreach ($files as $key => $value) {
+            if ($value instanceof UploadedFileInterface) {
+                $normalized[$key] = $value;
+            } elseif (!is_array($value['name'])) {
+                $normalized[$key] = UploadedFile::normalizer($value);
+            } elseif (is_array($value['name'])) {
+                $array = [];
+                foreach ($value['name'] as $index => $item) {
+                    if (empty($item)) {
+                        continue;
+                    }
+                    $array[] = UploadedFile::normalizer([
+                        'name' => $value['name'][$index],
+                        'type' => $value['type'][$index],
+                        'tmp_name' => $value['tmp_name'][$index],
+                        'error' => $value['error'][$index],
+                        'size' => $value['size'][$index]
+                    ]);
+                }
+                $normalized[$key] = $array;
+                continue;
+            } else {
+                throw new InvalidArgumentException('Invalid value in files specification');
+            }
+        }
+
+        return $normalized;
+    }
+
+    public static function createUriFromGlobal(array $serverParams)
+    {
+        $uri = '';
+        if (isset($serverParams['HTTPS'])) {
+            $uri .= $serverParams['HTTPS'] == 'on' ? 'https://' : 'http://';
+        }
+        if (empty($uri) && !empty($serverParams['REQUEST_SCHEMA'])) {
+            $uri .= strtolower($serverParams['REQUEST_SCHEMA']) . '://';
+        }
+        if (isset($serverParams['HTTP_HOST'])) {
+            $uri .= $serverParams['HTTP_HOST'];
+        } elseif (isset($serverParams['SERVER_NAME'])) {
+            $uri .= $serverParams['SERVER_NAME'];
+        }
+        if (isset($serverParams['SERVER_PORT']) && !empty($serverParams['SERVER_PORT'])) {
+            $uri .= ':' . $serverParams['SERVER_PORT'];
+        }
+        if (isset($serverParams['REQUEST_URI'])) {
+            $uri .= $serverParams['REQUEST_URI'];
+        }
+        if (isset($serverParams['QUERY_STRING']) && !empty($serverParams['QUERY_STRING'])) {
+            $uri .= '?' . $serverParams['QUERY_STRING'];
+        }
+
+        return $uri;
+    }
+
+    /**
      * Create a new server request from PHP globals.
      *
      * @return ServerRequestInterface
@@ -383,26 +481,9 @@ class ServerRequest extends Request implements ServerRequestInterface
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
 
-        $uri = '';
-        if (isset($_SERVER['HTTPS'])) {
-            $uri .= $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
-        }
-        if (isset($_SERVER['HTTP_HOST'])) {
-            $uri .= $_SERVER['HTTP_HOST'];
-        } elseif (isset($_SERVER['SERVER_NAME'])) {
-            $uri .= $_SERVER['SERVER_NAME'];
-        }
-        if (isset($_SERVER['SERVER_PORT'])) {
-            $uri .= ':' . $_SERVER['SERVER_PORT'];
-        }
-        if (isset($_SERVER['REQUEST_URI'])) {
-            $uri .= $_SERVER['REQUEST_URI'];
-        }
-        if (isset($_SERVER['QUERY_STRING'])) {
-            $uri .= '?' . $_SERVER['QUERY_STRING'];
-        }
+        $body = new PhpInputStream();
 
-        $serverRequest = new ServerRequest($method, $uri, $headers, new PhpInputStream(), $_SERVER);
+        $serverRequest = new ServerRequest($method, static::createUriFromGlobal($_SERVER), $headers, $body, $_SERVER);
 
         return $serverRequest
             ->withCookieParams($_COOKIE)

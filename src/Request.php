@@ -73,16 +73,7 @@ class Request extends Message implements RequestInterface
     {
         $this->withMethod($method);
         $this->withUri(new Uri($uri));
-
-        foreach ($headers as $key => $header) {
-            if (is_array($header)) {
-                foreach ($header as $item) {
-                    $this->withAddedHeader($key, $item);
-                }
-            } else {
-                $this->withHeader($key, $header);
-            }
-        }
+        $this->withHeaders($headers);
 
         parent::__construct($body);
     }
@@ -324,10 +315,9 @@ class Request extends Message implements RequestInterface
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch); unset($ch);
         list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
-
         $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
-        array_shift($responseHeaders);
 
+        array_shift($responseHeaders);
         $headers = [];
         array_map(function ($headerLine) use (&$headers) {
             list($key, $value) = explode(':', $headerLine);

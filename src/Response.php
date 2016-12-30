@@ -138,6 +138,7 @@ class Response extends Message implements ResponseInterface
         parent::__construct(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
         $this->withContent($content);
+        $this->withHeaders($headers);
     }
 
     /**
@@ -158,6 +159,7 @@ class Response extends Message implements ResponseInterface
         );
 
         foreach ($this->header as $name => $value) {
+            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
             header(sprintf('%s: %s', $name, implode(',', $value)), false, $this->statusCode);
         }
 
@@ -200,7 +202,7 @@ class Response extends Message implements ResponseInterface
      */
     public function withCookie($key, $value, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
     {
-        $this->cookie[] = new Cookie($key, $value, $expire, $path, $domain, $secure, $httpOnly);
+        $this->cookie[$key] = new Cookie($key, $value, $expire, $path, $domain, $secure, $httpOnly);
 
         return $this;
     }
@@ -347,7 +349,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return $this
      */
-    public function withExpires(DateTime $date = null)
+    public function withExpires(DateTime $date)
     {
         $this->withoutHeader('Expires');
         $date->setTimezone(new DateTimeZone("PRC"));
@@ -387,7 +389,7 @@ class Response extends Message implements ResponseInterface
      */
     public function withMaxAge($value)
     {
-        $this->withHeader('Cache-Control', 'max-age=' . $value);
+        $this->withAddedHeader('Cache-Control', 'max-age=' . $value);
 
         return $this;
     }
@@ -428,7 +430,7 @@ class Response extends Message implements ResponseInterface
      * @param DateTime|null $date A \DateTime instance or null to remove the header
      * @return $this
      */
-    public function withLastModified(DateTime $date = null)
+    public function withLastModified(DateTime $date)
     {
         $this->withoutHeader('Last-Modified');
         $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
@@ -464,12 +466,70 @@ class Response extends Message implements ResponseInterface
      *
      * Is response invalid?
      *
-     * @param int $code
      * @return bool
      */
-    public function isInvalidStatusCode($code)
+    public function isInvalidStatusCode()
     {
-        return $code < 100 || $code >= 600;
+        return $this->statusCode < 100 || $this->statusCode >= 600;
+    }
+
+    /**
+     * Is response successful?
+     *
+     * @return bool
+     */
+    public function isSuccessful()
+    {
+        return $this->statusCode >= 200 && $this->statusCode < 300;
+    }
+
+    /**
+     * Was there a server side error?
+     *
+     * @return bool
+     */
+    public function isServerError()
+    {
+        return $this->statusCode >= 500 && $this->statusCode < 600;
+    }
+
+    /**
+     * Is the response OK?
+     *
+     * @return bool
+     */
+    public function isOk()
+    {
+        return 200 === $this->statusCode;
+    }
+
+    /**
+     * Is the response forbidden?
+     *
+     * @return bool
+     */
+    public function isForbidden()
+    {
+        return 403 === $this->statusCode;
+    }
+    /**
+     * Is the response a not found error?
+     *
+     * @return bool
+     */
+    public function isNotFound()
+    {
+        return 404 === $this->statusCode;
+    }
+
+    /**
+     * Is the response a redirect?
+     *
+     * @return bool
+     */
+    public function isRedirection()
+    {
+        return $this->statusCode >= 300 && $this->statusCode < 400;
     }
 
     /**
@@ -484,8 +544,13 @@ class Response extends Message implements ResponseInterface
     public function __toString()
     {
         $headerLine = '';
-        foreach ($this->getHeaders() as $name => $value) {
-            $headerLine .= $this->getHeaderLine($name);
+        foreach ($this->header as $name => $value) {
+            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
+            $headerLine .= $name . ': ' . $this->getHeaderLine($name) . "\r\n";
+        }
+
+        foreach ($this->cookie as $cookie) {
+            $headerLine .= sprintf('Set-Cookie: %s', $cookie->asString()) . "\r\n";
         }
 
         return
@@ -521,11 +586,11 @@ class Response extends Message implements ResponseInterface
      */
     public function withStatus($code, $reasonPhrase = null)
     {
-        if ($this->isInvalidStatusCode($code)) {
+        $this->statusCode = $code;
+
+        if ($this->isInvalidStatusCode()) {
             throw new InvalidArgumentException(sprintf('Invalid status code "%s"; must be an integer between 100 and 599, inclusive', $code));
         }
-
-        $this->statusCode = $code;
 
         if (null === $reasonPhrase) {
             $this->reasonPhrase = isset(self::$statusTexts[$this->statusCode]) ? self::$statusTexts[$this->statusCode] : 'Unknown phrase';

@@ -31,4 +31,12 @@ class JsonResponse extends Response
 
         parent::__construct($json, $status, $headers);
     }
+
+    /**
+     * @return mixed
+     */
+    public function toArray()
+    {
+        return json_decode($this->getContents(), true);
+    }
 }
