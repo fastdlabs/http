@@ -23,7 +23,7 @@ class JsonResponse extends Response
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      */
-    public function __construct(array $data, $status = Response::HTTP_OK, $headers = array())
+    public function __construct(array $data, $status = 200, $headers = array())
     {
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 

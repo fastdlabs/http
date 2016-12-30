@@ -131,7 +131,7 @@ class Response extends Message implements ResponseInterface
      */
     public function __construct(
         $content = '',
-        $statusCode = Response::HTTP_OK,
+        $statusCode = 200,
         array $headers = []
     )
     {
