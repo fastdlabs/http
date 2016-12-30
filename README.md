@@ -25,16 +25,16 @@ composer require "fastd/http:3.0.x-dev" -vvv
 
 http 组件封装了常用的方法和对象, 分别封装在 `FastD\Http\Bag\Bag` 对象中, 实例化 `FastD\Http\ServerRequest` 对象后,
 
-分别通过类属性 `query`, `body`, `server`, `header`, `cookie` 对对象进行获取与操作
+分别通过类属性 `queryParams`, `bodyParams`, `serverParams`, `header`, `cookieParams`, `uploadFile` 对对象进行获取与操作
 
 ##### 获取 pathinfo
 
 ```php
 use FastD\Http\ServerRequest;
 
-$request = ServerRequest::createFromGlobals();
+$request = ServerRequest::createServerRequestFromGlobals();
 
-$request->server->getPathInfo();
+$request->getUri()->getPath();
 ```
 
 ##### Swoole Http 服务器
@@ -43,8 +43,8 @@ $request->server->getPathInfo();
 $http = new swoole_http_server("127.0.0.1", 9501);
 
 $http->on('request', function ($request, $response) {
-    $server = SwooleServerRequest::createFromSwoole($request, $response);
-    $response->end($server->server->getPathInfo());
+    $server = SwooleServerRequest::createServerRequestFromSwoole($request);
+    $response->end($server->getUri()->getPath());
 });
 
 $http->start();
@@ -55,7 +55,7 @@ $http->start();
 Request 对象内部封装了 cURL 请求, 可以直接通过方法调用
 
 ```php
-$request = new Request('https://api.github.com/');
+$request = new Request('GET', 'https://api.github.com/');
 
 $request->setReferrer('http://example.com/');
 

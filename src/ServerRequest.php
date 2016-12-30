@@ -52,11 +52,6 @@ class ServerRequest extends Request implements ServerRequestInterface
     public $uploadFile = [];
 
     /**
-     * @var static
-     */
-    public static $requestFactory;
-
-    /**
      * ServerRequest constructor.
      * @param null $method
      * @param $uri
