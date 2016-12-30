@@ -6,8 +6,8 @@
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-
 namespace FastD\Http;
+
 
 /**
  * Class PhpInputStream
@@ -46,6 +46,7 @@ class PhpInputStream extends Stream
             return $this->cache;
         }
 
+        $this->rewind();
         $this->getContents();
 
         return $this->cache;

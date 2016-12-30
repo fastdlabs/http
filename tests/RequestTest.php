@@ -10,13 +10,14 @@ use FastD\Http\Request;
  */
 class RequestTest extends PHPUnit_Framework_TestCase
 {
-    public function testBaseRequest()
+    public function testRequestUri()
     {
         $request = new Request('GET', 'http://example.com');
 
         $this->assertEquals($request->getUri()->getHost(), 'example.com');
         $this->assertNull($request->getUri()->getPort());
         $this->assertEquals('/', $request->getUri()->getPath());
+        $this->assertEquals($request->getRequestTarget(), $request->getUri()->getPath());
     }
 
     /**
@@ -25,5 +26,21 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testInvalidRequestUri()
     {
         new Request('GET', '///');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testRequestMethod()
+    {
+        $request = new Request('GET', 'http://example.com');
+        $this->assertEquals('GET', $request->getMethod());
+        // Test invalid method
+        $request->withMethod('ABC');
+    }
+
+    public function testRequestTarget()
+    {
+        $request = new Request('GET', 'http://example.com');
     }
 }

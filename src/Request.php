@@ -9,8 +9,7 @@
 
 namespace FastD\Http;
 
-use FastD\Http\Exceptions\RequestException;
-use FastD\Http\Factories\RequestFactoryInterface;
+use FastD\Http\Exception\HttpException;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -124,7 +123,7 @@ class Request extends Message implements RequestInterface
      * @link http://tools.ietf.org/html/rfc7230#section-5.3 (for the various
      *     request-target forms allowed in request messages)
      * @param mixed $requestTarget
-     * @return static
+     * @return $this
      */
     public function withRequestTarget($requestTarget)
     {
@@ -226,11 +225,19 @@ class Request extends Message implements RequestInterface
     }
 
     /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
      * @param $key
      * @param $value
      * @return $this
      */
-    public function setOption($key, $value)
+    public function withOption($key, $value)
     {
         $this->options[$key] = $value;
 
@@ -241,7 +248,7 @@ class Request extends Message implements RequestInterface
      * @param array $options
      * @return $this
      */
-    public function setOptions(array $options)
+    public function withOptions(array $options)
     {
         $this->options = array_merge($this->options, $options);
 
@@ -253,10 +260,10 @@ class Request extends Message implements RequestInterface
      * @param $password
      * @return $this
      */
-    public function setBasicAuthentication($username, $password)
+    public function withBasicAuthentication($username, $password)
     {
-        $this->setOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        $this->setOption(CURLOPT_USERPWD, $username . ':' . $password);
+        $this->withOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        $this->withOption(CURLOPT_USERPWD, $username . ':' . $password);
 
         return $this;
     }
@@ -265,9 +272,9 @@ class Request extends Message implements RequestInterface
      * @param $referer
      * @return $this
      */
-    public function setReferrer($referer)
+    public function withReferrer($referer)
     {
-        $this->setOption(CURLOPT_REFERER, $referer);
+        $this->withOption(CURLOPT_REFERER, $referer);
 
         return $this;
     }
@@ -285,7 +292,7 @@ class Request extends Message implements RequestInterface
         $data = http_build_query($data);
 
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
-            $this->setOption(CURLOPT_POSTFIELDS, $data);
+            $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else if (!empty($data)) {
             $concat = '?';
             if (false === strpos($url, '?')) {
@@ -294,13 +301,13 @@ class Request extends Message implements RequestInterface
             $url .= $concat . $data;
         }
 
-        $this->setOption(CURLOPT_USERAGENT, static::USER_AGENT);
-        $this->setOption(CURLOPT_HTTPHEADER, $headers);
-        $this->setOption(CURLOPT_URL, $url);
-        $this->setOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
-        $this->setOption(CURLINFO_HEADER_OUT, true);
-        $this->setOption(CURLOPT_HEADER, true);
-        $this->setOption(CURLOPT_RETURNTRANSFER, true);
+        $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
+        $this->withOption(CURLOPT_HTTPHEADER, $headers);
+        $this->withOption(CURLOPT_URL, $url);
+        $this->withOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
+        $this->withOption(CURLINFO_HEADER_OUT, true);
+        $this->withOption(CURLOPT_HEADER, true);
+        $this->withOption(CURLOPT_RETURNTRANSFER, true);
 
         foreach ($this->options as $key => $option) {
             curl_setopt($ch, $key, $option);
@@ -311,11 +318,11 @@ class Request extends Message implements RequestInterface
         $errorMsg = curl_error($ch);
 
         if ((strpos($response, "\r\n\r\n") === false) || !($errorCode === 0)) {
-            throw new RequestException($errorMsg);
+            throw new HttpException($errorMsg);
         }
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+        curl_close($ch); unset($ch);
         list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
 
         $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
@@ -328,21 +335,6 @@ class Request extends Message implements RequestInterface
             unset($headerLine, $key, $value);
         }, $responseHeaders);
 
-        curl_close($ch);
-
-        $this->reset();
-
         return new Response($response, $statusCode, $headers);
-    }
-
-    /**
-     * Reset request options and request method.
-     *
-     * @return void
-     */
-    public function reset()
-    {
-        $this->options = [];
-        $this->method = 'GET';
     }
 }

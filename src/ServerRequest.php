@@ -382,7 +382,6 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
-        $body = new PhpInputStream();
 
         $uri = '';
         if (isset($_SERVER['HTTPS'])) {
@@ -403,7 +402,7 @@ class ServerRequest extends Request implements ServerRequestInterface
             $uri .= '?' . $_SERVER['QUERY_STRING'];
         }
 
-        $serverRequest = new ServerRequest($method, $uri, $headers, $body, $_SERVER);
+        $serverRequest = new ServerRequest($method, $uri, $headers, new PhpInputStream(), $_SERVER);
 
         return $serverRequest
             ->withCookieParams($_COOKIE)
