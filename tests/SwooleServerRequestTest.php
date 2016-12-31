@@ -22,6 +22,10 @@ if (!class_exists('swoole_http_request')) {
     }
 }
 
+if (!defined('SWOOLE_VERSION')) {
+    define('SWOOLE_VERSION', '1.8.0');
+}
+
 class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
 {
     public function dataFromSwoole()
