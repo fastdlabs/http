@@ -7,12 +7,10 @@
  * @link      http://www.fast-d.cn/
  */
 
-namespace FastD\Http\Exception;
+namespace FastD\Http;
 
 
-use RuntimeException;
-
-class HttpException extends RuntimeException
+interface TransformableInterface
 {
 
 }
