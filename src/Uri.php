@@ -418,6 +418,9 @@ class Uri implements UriInterface
 
         if (false !== $index = strpos($uri, '.php')) {
             $this->relationPath = substr($uri, ($index + 4));
+            if (empty($this->relationPath)) {
+                $this->relationPath = '/';
+            }
         }
     }
 
