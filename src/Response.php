@@ -235,14 +235,12 @@ class Response extends Message implements ResponseInterface
      * Sends HTTP headers and content.
      *
      * @return Response
-     *
-     * @api
      */
     public function send()
     {
         $this->sendHeaders();
 
-        echo (string) $this->getBody();
+        echo $this->getBody();
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -343,8 +341,6 @@ class Response extends Message implements ResponseInterface
      * Returns the literal value of the ETag HTTP header.
      *
      * @return string|null The ETag HTTP header or null if it does not exist
-     *
-     * @api
      */
     public function getETag()
     {
@@ -355,7 +351,7 @@ class Response extends Message implements ResponseInterface
      * Sets the ETag value.
      *
      * @param string|null $eTag The ETag unique identifier or null to remove the header
-     * @param bool $weak        Whether you want a weak ETag or not
+     * @param bool $weak Whether you want a weak ETag or not
      *
      * @return Response
      */
@@ -427,8 +423,6 @@ class Response extends Message implements ResponseInterface
      * back on an expires header. It returns null when no maximum age can be established.
      *
      * @return int|null|DateTime Number of seconds
-     *
-     * @api
      */
     public function getMaxAge()
     {
@@ -515,7 +509,14 @@ class Response extends Message implements ResponseInterface
         $this->getBody()->write('');
 
         // remove headers that MUST NOT be included with 304 Not Modified responses
-        foreach (array('Allow', 'Content-Encoding', 'Content-Language', 'Content-Length', 'Content-MD5', 'Content-Type', 'Last-Modified') as $header) {
+        foreach ([
+                     'Allow',
+                     'Content-Encoding',
+                     'Content-Language',
+                     'Content-Length',
+                     'Content-MD5',
+                     'Content-Type',
+                     'Last-Modified'] as $header) {
             $this->withoutHeader($header);
         }
 
@@ -573,6 +574,7 @@ class Response extends Message implements ResponseInterface
     {
         return 403 === $this->statusCode;
     }
+
     /**
      * Is the response a not found error?
      *
@@ -638,7 +640,7 @@ class Response extends Message implements ResponseInterface
      *
      * @link http://tools.ietf.org/html/rfc7231#section-6
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
-     * @param int $code            The 3-digit integer result code to set.
+     * @param int $code The 3-digit integer result code to set.
      * @param string $reasonPhrase The reason phrase to use with the
      *                             provided status code; if none is provided, implementations MAY
      *                             use the defaults as suggested in the HTTP specification.

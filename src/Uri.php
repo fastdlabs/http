@@ -69,6 +69,11 @@ class Uri implements UriInterface
     /**
      * @var string
      */
+    protected $relationPath = '/';
+
+    /**
+     * @var string
+     */
     protected $query = '';
 
     /**
@@ -186,6 +191,14 @@ class Uri implements UriInterface
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRelationPath()
+    {
+        return $this->relationPath;
     }
 
     /**
@@ -401,6 +414,10 @@ class Uri implements UriInterface
 
         if (isset($parts['pass'])) {
             $this->userInfo .= ':' . $parts['pass'];
+        }
+
+        if (false !== $index = strpos($uri, '.php')) {
+            $this->relationPath = substr($uri, ($index + 4));
         }
     }
 

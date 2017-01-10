@@ -56,5 +56,20 @@ class UriTest extends PHPUnit_Framework_TestCase
         $url = '/foo?bar=baz#quz';
         $uri = new Uri($url);
         $this->assertEquals($url, (string)$uri);
+        $this->assertEquals('/foo', $uri->getPath());
+    }
+
+    public function testLocalUriToPathInfo()
+    {
+        $url = 'http://localhost/foo/index.php/bar';
+        $uri = new Uri($url);
+        $this->assertEquals('/foo/index.php/bar', $uri->getPath());
+    }
+
+    public function testLocalUriToRelationPath()
+    {
+        $url = 'http://localhost/foo/index.php/bar';
+        $uri = new Uri($url);
+        $this->assertEquals('/bar', $uri->getRelationPath());
     }
 }

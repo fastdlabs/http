@@ -1,6 +1,6 @@
 {
     "name": "fastd/http",
-    "description": "FastD Http.",
+    "description": "FastD Http",
     "license": "MIT",
     "type": "library",
     "keywords": ["Http", "FastD"],
@@ -10,7 +10,6 @@
             "email": "bboyjanhuang@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
     "require": {
         "php": ">=5.6",
         "psr/http-message": "~1.0"
