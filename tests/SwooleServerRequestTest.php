@@ -19,6 +19,11 @@ if (!class_exists('swoole_http_request')) {
         public $file = [];
         public $header = [];
         public $server = [];
+
+        public function rawContent()
+        {
+            return http_build_query(['foo' => 'bar']);
+        }
     }
 }
 
@@ -66,6 +71,7 @@ class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
     public function testSwooleServerRequestCreateFromSwoole()
     {
         $swoole = $this->dataFromSwoole();
+        $swoole->fd = 0;
         $serverRequest = SwooleServerRequest::createServerRequestFromSwoole($swoole);
         $this->assertEmpty($serverRequest->getQueryParams());
         $this->assertEmpty($serverRequest->getParsedBody());

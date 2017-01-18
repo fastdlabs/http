@@ -54,11 +54,15 @@ class SwooleServerRequest extends ServerRequest
             'HTTP_CACHE_CONTROL' => isset($request->header['cache-control']) ? $request->header['cache-control'] : '',
         ];
 
+        $stream = new Stream('php://memory', 'wb+');
+
+        $stream->write($stream->rawContent());
+
         $serverRequest = new ServerRequest(
             $server['REQUEST_METHOD'],
             static::createUriFromGlobal($server),
             $request->header,
-            null,
+            $stream,
             $server
         );
 
