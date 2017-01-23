@@ -214,7 +214,12 @@ class Response extends Message implements ResponseInterface
         }
 
         header(
-            sprintf('HTTP/%s %s %s', $this->getProtocolVersion(), $this->getStatusCode(), $this->getReasonPhrase()),
+            sprintf(
+                'HTTP/%s %s %s',
+                $this->getProtocolVersion(),
+                $this->getStatusCode(),
+                ($this->isOk() ? '' : $this->getReasonPhrase())
+            ),
             true,
             $this->getStatusCode()
         );
@@ -656,7 +661,7 @@ class Response extends Message implements ResponseInterface
         }
 
         if (null === $reasonPhrase) {
-            $this->reasonPhrase = isset(self::$statusTexts[$this->statusCode]) ? self::$statusTexts[$this->statusCode] : 'Unknown phrase';
+            $this->reasonPhrase = isset(static::$statusTexts[$this->statusCode]) ? static::$statusTexts[$this->statusCode] : 'Unknown phrase';
         }
 
         return $this;
