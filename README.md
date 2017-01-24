@@ -1,4 +1,4 @@
-# FastD HTTP Client and Server
+# FastD HTTP Server and Client 
 
 ![Building](https://api.travis-ci.org/JanHuang/http.svg?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/fastd/http/v/stable)](https://packagist.org/packages/fastd/http) [![Total Downloads](https://poser.pugx.org/fastd/http/downloads)](https://packagist.org/packages/fastd/http) [![Latest Unstable Version](https://poser.pugx.org/fastd/http/v/unstable)](https://packagist.org/packages/fastd/http) [![License](https://poser.pugx.org/fastd/http/license)](https://packagist.org/packages/fastd/http)
@@ -14,7 +14,7 @@
 ## 安装
 
 ```
-composer require "fastd/http:3.0.x-dev" -vvv
+composer require "fastd/http" -vvv
 ```
 
 ## 文档
@@ -23,9 +23,9 @@ composer require "fastd/http:3.0.x-dev" -vvv
 
 ## 使用
 
-http 组件封装了常用的方法和对象, 分别封装在 `FastD\Http\Bag\Bag` 对象中, 实例化 `FastD\Http\ServerRequest` 对象后,
+HTTP 组件封装了常用的服务端解释,客户端请求,并且友好集成 Swoole Http Server 解析，实现PSR-7。
 
-分别通过类属性 `queryParams`, `bodyParams`, `serverParams`, `header`, `cookieParams`, `uploadFile` 对对象进行获取与操作
+HTTP 组件没有对 Session 进行封装, 如果想在项目中支持 Session, 可以通过 [Session](https://github.com/JanHuang/session) 组件进行扩展. 
 
 ##### 获取 pathinfo
 

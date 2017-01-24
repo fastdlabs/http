@@ -7,14 +7,18 @@
 
 以上库可以满足大部分 HTTP 请求处理相关工作, 支持 Swoole 处理, 具体请看项目[Swoole](https://github.com/JanHuang/swoole)。
 
-## 要求
+### 要求
 
 * php >= 5.6
 
-## 安装
+### 安装
 
 ```
-composer require "fastd/http:3.0.x-dev" -vvv
+composer require "fastd/http" -vvv
 ```
 
-## License MIT
+### Support
+
+如果你在使用中遇到问题，请联系: [bboyjanhuang@gmail.com](mailto:bboyjanhuang@gmail.com). 微博: [编码侠](http://weibo.com/ecbboyjan)
+
+### License MIT
