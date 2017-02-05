@@ -69,6 +69,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         parent::__construct($method, $uri, $headers, $body);
 
+        $this->withQueryParams($this->uri->getQuery());
         $this->withServerParams($serverParams);
 
         if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {

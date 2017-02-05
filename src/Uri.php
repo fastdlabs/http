@@ -72,9 +72,9 @@ class Uri implements UriInterface
     protected $relationPath = '/';
 
     /**
-     * @var string
+     * @var array
      */
-    protected $query = '';
+    protected $query = [];
 
     /**
      * @var string
@@ -202,7 +202,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getQuery()
     {
@@ -409,7 +409,7 @@ class Uri implements UriInterface
         $this->host = isset($parts['host']) ? $parts['host'] : '';
         $this->port = isset($parts['port']) ? $parts['port'] : 80;
         $this->path = isset($parts['path']) ? $this->filterPath($parts['path']) : '/';
-        $this->query = isset($parts['query']) ? $this->filterQuery($parts['query']) : '';
+        $this->query = isset($parts['query']) ? $this->filterQuery($parts['query']) : [];
         $this->fragment = isset($parts['fragment']) ? $this->filterFragment($parts['fragment']) : '';
 
         if (isset($parts['pass'])) {
@@ -455,7 +455,7 @@ class Uri implements UriInterface
         }
 
         if ($query) {
-            $uri .= sprintf('?%s', $query);
+            $uri .= sprintf('?%s', http_build_query($query));
         }
 
         if ($fragment) {
@@ -538,25 +538,14 @@ class Uri implements UriInterface
      */
     protected function filterQuery($query)
     {
-        if (!empty($query) && strpos($query, '?') === 0) {
-            $query = substr($query, 1);
-        }
-
+        $queryInfo = [];
         $parts = explode('&', $query);
         foreach ($parts as $index => $part) {
             list($key, $value) = $this->splitQueryValue($part);
-            if ($value === null) {
-                $parts[$index] = $this->filterQueryOrFragment($key);
-                continue;
-            }
-            $parts[$index] = sprintf(
-                '%s=%s',
-                $this->filterQueryOrFragment($key),
-                $this->filterQueryOrFragment($value)
-            );
+            $queryInfo[$this->filterQueryOrFragment($key)] = $this->filterQueryOrFragment($value);
         }
-
-        return implode('&', $parts);
+        unset($parts);
+        return $queryInfo;
     }
 
     /**

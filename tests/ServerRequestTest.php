@@ -156,6 +156,11 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
         $serverRequest = new ServerRequest('GET', 'http://example.com');
         $serverRequest->withQueryParams($this->dataQueryFromGlobals());
         $this->assertEquals($this->dataQueryFromGlobals(), $serverRequest->getQueryParams());
+
+        $serverRequest = new ServerRequest('GET', 'http://example.com?foo=bar');
+        $this->assertEquals($serverRequest->getQueryParams(), [
+            'foo' => 'bar'
+        ]);
     }
 
     public function testServerRequestCookieParams()
@@ -176,6 +181,7 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($serverRequest->getUri()->getPath(), '/blog/article.php');
         $this->assertEquals('POST', $serverRequest->getMethod());
+        $this->assertEquals($this->dataQueryFromGlobals() , $serverRequest->getQueryParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataBodyFromGlobals(), $serverRequest->getParsedBody());

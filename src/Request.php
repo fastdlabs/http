@@ -9,7 +9,6 @@
 
 namespace FastD\Http;
 
-use FastD\Http\Exception\HttpException;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;

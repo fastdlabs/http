@@ -16,10 +16,6 @@ use RuntimeException;
  * Class HttpException
  * @package FastD\Http\Exception
  */
-abstract class HttpException extends RuntimeException
+class HttpException extends RuntimeException
 {
-    /**
-     * @return int
-     */
-    abstract public function getStatusCode();
 }

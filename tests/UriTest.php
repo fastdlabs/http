@@ -40,7 +40,7 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3001, $uri->getPort());
         $this->assertEquals('user:pass@local.example.com:3001', $uri->getAuthority());
         $this->assertEquals('/foo', $uri->getPath());
-        $this->assertEquals('bar=baz', $uri->getQuery());
+        $this->assertEquals(['bar' => 'baz'], $uri->getQuery());
         $this->assertEquals('quz', $uri->getFragment());
     }
 
@@ -71,5 +71,21 @@ class UriTest extends PHPUnit_Framework_TestCase
         $url = 'http://localhost/foo/index.php/bar';
         $uri = new Uri($url);
         $this->assertEquals('/bar', $uri->getRelationPath());
+    }
+
+    public function testUriQueryString()
+    {
+        $url = 'https://user:pass@local.example.com:3001/foo?bar=baz#quz';
+        $uri = new Uri($url);
+        $this->assertEquals([
+            'bar' => 'baz',
+        ], $uri->getQuery());
+
+        $url = 'https://user:pass@local.example.com:3001/foo?bar=baz&foo=bar#quz';
+        $uri = new Uri($url);
+        $this->assertEquals([
+            'bar' => 'baz',
+            'foo' => 'bar'
+        ], $uri->getQuery());
     }
 }
