@@ -441,17 +441,18 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     public static function createUriFromGlobal(array $serverParams)
     {
-        $uri = '';
-        if (isset($serverParams['HTTPS'])) {
-            $uri .= $serverParams['HTTPS'] == 'on' ? 'https://' : 'http://';
+        $uri = 'http://';
+        if (isset($serverParams['REQUEST_SCHEME'])) {
+            $uri = strtolower($serverParams['REQUEST_SCHEME']) . '://';
+        } else {
+            if (isset($serverParams['HTTPS']) && 'on' === $serverParams['HTTPS']) {
+                $uri = 'https://';
+            }
         }
-        if (empty($uri) && !empty($serverParams['REQUEST_SCHEMA'])) {
-            $uri .= strtolower($serverParams['REQUEST_SCHEMA']) . '://';
-        }
-        if (isset($serverParams['HTTP_HOST'])) {
-            $uri .= $serverParams['HTTP_HOST'];
-        } elseif (isset($serverParams['SERVER_NAME'])) {
+        if (isset($serverParams['SERVER_NAME'])) {
             $uri .= $serverParams['SERVER_NAME'];
+        } elseif (isset($serverParams['HTTP_HOST'])) {
+            $uri .= $serverParams['HTTP_HOST'];
         }
         if (isset($serverParams['SERVER_PORT']) && !empty($serverParams['SERVER_PORT'])) {
             $uri .= ':' . $serverParams['SERVER_PORT'];
@@ -462,7 +463,6 @@ class ServerRequest extends Request implements ServerRequestInterface
         if (isset($serverParams['QUERY_STRING']) && !empty($serverParams['QUERY_STRING'])) {
             $uri .= '?' . $serverParams['QUERY_STRING'];
         }
-
         return $uri;
     }
 
