@@ -95,11 +95,6 @@ class Uri implements UriInterface
     public function __construct($uri = '')
     {
         if (!empty($uri)) {
-            // compatibility cli-server
-            // run php -S ip:port -t path
-            if ('cli-server' == php_sapi_name()) {
-                $uri = 'http://' . $uri;
-            }
             $this->parseUri($uri);
         }
     }
