@@ -102,4 +102,11 @@ class UriTest extends PHPUnit_Framework_TestCase
         $uri = new Uri($url);
         $this->assertEquals($url, (string) $uri);
     }
+
+    public function testNonStandardPort()
+    {
+        $url = 'https://example:8088/service/rest.htm';
+        $uri = new Uri($url);
+        $this->assertEquals($url, (string) $uri);
+    }
 }
