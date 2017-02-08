@@ -88,4 +88,11 @@ class UriTest extends PHPUnit_Framework_TestCase
             'foo' => 'bar'
         ], $uri->getQuery());
     }
+
+    public function testDefaultPort()
+    {
+        $url = 'https://wappaygw.alipay.com/service/rest.htm';
+        $uri = new Uri($url);
+        echo $uri;
+    }
 }

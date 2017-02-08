@@ -153,7 +153,9 @@ class Uri implements UriInterface
         }
 
         if ($this->isNonStandardPort($this->scheme, $this->host, $this->port)) {
-            $authority .= ':' . $this->port;
+            if (!in_array($this->port, ['80', '443'])) {
+                $authority .= ':' . $this->port;
+            }
         }
 
         return $authority;
