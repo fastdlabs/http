@@ -91,8 +91,15 @@ class UriTest extends PHPUnit_Framework_TestCase
 
     public function testDefaultPort()
     {
-        $url = 'https://wappaygw.alipay.com/service/rest.htm';
+        $url = 'https://example/service/rest.htm';
         $uri = new Uri($url);
         echo $uri;
+    }
+
+    public function testStandardPort()
+    {
+        $url = 'https://example/service/rest.htm';
+        $uri = new Uri($url);
+        $this->assertEquals($url, (string) $uri);
     }
 }

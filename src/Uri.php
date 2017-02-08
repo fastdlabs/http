@@ -152,10 +152,8 @@ class Uri implements UriInterface
             $authority = $this->userInfo . '@' . $authority;
         }
 
-        if ($this->isNonStandardPort($this->scheme, $this->host, $this->port)) {
-            if (!in_array($this->port, ['80', '443'])) {
-                $authority .= ':' . $this->port;
-            }
+        if ($this->isNonStandardPort()) {
+            $authority .= ':' . $this->port;
         }
 
         return $authority;
@@ -178,13 +176,11 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getPort()
     {
-        return $this->isNonStandardPort($this->scheme, $this->host, $this->port)
-            ? $this->port
-            : null;
+        return $this->port;
     }
 
     /**
@@ -470,22 +466,15 @@ class Uri implements UriInterface
     /**
      * Is a given port non-standard for the current scheme?
      *
-     * @param string $scheme
-     * @param string $host
-     * @param int $port
      * @return bool
      */
-    protected function isNonStandardPort($scheme, $host, $port)
+    protected function isNonStandardPort()
     {
-        if (!$scheme) {
-            return true;
-        }
-
-        if (!$host || !$port) {
+        if (in_array((int) $this->port, $this->allowedSchemes)) {
             return false;
         }
 
-        return !isset($this->allowedSchemes[$scheme]) || $port !== $this->allowedSchemes[$scheme];
+        return true;
     }
 
     /**

@@ -16,7 +16,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = new Request('GET', 'http://example.com');
 
         $this->assertEquals($request->getUri()->getHost(), 'example.com');
-        $this->assertNull($request->getUri()->getPort());
+        $this->assertEquals(80, $request->getUri()->getPort());
         $this->assertEquals('/', $request->getUri()->getPath());
         $this->assertEquals($request->getRequestTarget(), $request->getUri()->getPath());
     }
