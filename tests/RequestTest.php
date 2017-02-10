@@ -53,4 +53,19 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $response = $request->send();
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    public function testRequestSend()
+    {
+        $request = new Request('POST', 'http://www.weather.com.cn/data/cityinfo/101010100.html');
+
+        $raw = json_encode([
+            'foo' => 'bar'
+        ]);
+
+        $response = $request->send($raw);
+
+        print_r($response->getHeaders());
+
+//        echo $response->getBody();
+    }
 }
