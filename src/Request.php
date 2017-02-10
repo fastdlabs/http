@@ -284,11 +284,7 @@ class Request extends Message implements RequestInterface
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
             $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else if (!empty($data)) {
-            $concat = '?';
-            if (false === strpos($url, '?')) {
-                $concat = '&';
-            }
-            $url .= $concat . $data;
+            $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
         }
 
         $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
