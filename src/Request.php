@@ -270,18 +270,17 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param array $data
+     * @param array|string $data
      * @param array $headers
      * @return Response
      */
-    public function send(array $data = [], array $headers = [])
+    public function send($data = [], array $headers = [])
     {
         $ch = curl_init();
         $url = (string)$this->uri;
 
-        $data = http_build_query($data);
-
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
+            is_array($data) && $data = http_build_query($data);
             $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else if (!empty($data)) {
             $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
