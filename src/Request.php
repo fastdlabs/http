@@ -279,7 +279,7 @@ class Request extends Message implements RequestInterface
         $ch = curl_init();
         $url = (string)$this->uri;
 
-        $data = is_array($data) ? http_build_query($data) : $data;
+        is_array($data) && $data = http_build_query($data);
 
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
             $this->withOption(CURLOPT_POSTFIELDS, $data);
