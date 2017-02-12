@@ -18,4 +18,28 @@ use RuntimeException;
  */
 class HttpException extends RuntimeException
 {
+    /**
+     * @var int
+     */
+    protected $statusCode;
+
+    /**
+     * HttpException constructor.
+     * @param string $message
+     * @param int $statusCode
+     */
+    public function __construct($message = "Server Interval Error", $statusCode = 500)
+    {
+        parent::__construct($message);
+
+        $this->statusCode = $statusCode;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
 }
