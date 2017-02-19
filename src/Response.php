@@ -283,6 +283,14 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
+     * @return Cookie[]
+     */
+    public function getCookieParams()
+    {
+        return $this->cookie;
+    }
+
+    /**
      * @param $content
      * @return $this
      */
