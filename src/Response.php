@@ -203,55 +203,57 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * Sends HTTP headers.
+     * Sends HTTP headers
      *
-     * @return Response
+     * @return void
      */
     public function sendHeaders()
     {
-        if (headers_sent()) {
-            return $this;
+        if (!headers_sent()) {
+            header(
+                sprintf(
+                    'HTTP/%s %s %s',
+                    $this->getProtocolVersion(),
+                    $this->getStatusCode(),
+                    ($this->isOk() ? '' : $this->getReasonPhrase())
+                ),
+                true,
+                $this->getStatusCode()
+            );
+
+            foreach ($this->header as $name => $value) {
+                $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
+                header(sprintf('%s: %s', $name, implode(',', $value)), false, $this->statusCode);
+            }
+
+            foreach ($this->cookie as $cookie) {
+                header(sprintf('Set-Cookie: %s', $cookie->asString()), false, $this->getStatusCode());
+            }
         }
+    }
 
-        header(
-            sprintf(
-                'HTTP/%s %s %s',
-                $this->getProtocolVersion(),
-                $this->getStatusCode(),
-                ($this->isOk() ? '' : $this->getReasonPhrase())
-            ),
-            true,
-            $this->getStatusCode()
-        );
-
-        foreach ($this->header as $name => $value) {
-            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
-            header(sprintf('%s: %s', $name, implode(',', $value)), false, $this->statusCode);
-        }
-
-        foreach ($this->cookie as $cookie) {
-            header(sprintf('Set-Cookie: %s', $cookie->asString()), false, $this->getStatusCode());
-        }
-
-        return $this;
+    /**
+     * Sends HTTP body
+     */
+    public function sendBody()
+    {
+        echo $this->getBody();
     }
 
     /**
      * Sends HTTP headers and content.
      *
-     * @return Response
+     * @return void
      */
     public function send()
     {
         $this->sendHeaders();
 
-        echo $this->getBody();
+        $this->sendBody();
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
-
-        return $this;
     }
 
     /**
