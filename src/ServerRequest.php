@@ -24,7 +24,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @var array
      */
-    public $attributes;
+    public $attributes = [];
 
     /**
      * @var array
