@@ -9,6 +9,7 @@
 
 namespace FastD\Http;
 
+
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -16,7 +17,6 @@ use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class ServerRequest
- *
  * @package FastD\Http
  */
 class ServerRequest extends Request implements ServerRequestInterface
@@ -440,6 +440,10 @@ class ServerRequest extends Request implements ServerRequestInterface
         return $normalized;
     }
 
+    /**
+     * @param array $serverParams
+     * @return string
+     */
     public static function createUriFromGlobal(array $serverParams)
     {
         $uri = 'http://';
