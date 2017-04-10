@@ -25,7 +25,7 @@ class JsonResponse extends Response
      */
     public function __construct(array $data, $status = 200, $headers = array())
     {
-        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT);
 
         $this->withContentType('application/json; charset=UTF-8');
 
