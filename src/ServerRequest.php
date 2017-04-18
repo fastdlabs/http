@@ -487,6 +487,6 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         $body = new PhpInputStream();
 
-        return new ServerRequest($method, static::createUriFromGlobal($_SERVER), $headers, $body, $_SERVER);
+        return new static($method, static::createUriFromGlobal($_SERVER), $headers, $body, $_SERVER);
     }
 }
