@@ -69,8 +69,12 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         parent::__construct($method, $uri, $headers, $body);
 
-        $this->withQueryParams($this->uri->getQuery());
-        $this->withServerParams($serverParams);
+        $this
+            ->withQueryParams($this->uri->getQuery())
+            ->withServerParams($serverParams)
+            ->withParsedBody($_POST)
+            ->withCookieParams($_COOKIE)
+            ->withUploadedFiles($_FILES);
 
         if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
             parse_str((string) $body, $data);
@@ -483,12 +487,6 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         $body = new PhpInputStream();
 
-        $serverRequest = new ServerRequest($method, static::createUriFromGlobal($_SERVER), $headers, $body, $_SERVER);
-
-        return $serverRequest
-            ->withCookieParams($_COOKIE)
-            ->withQueryParams($_GET)
-            ->withParsedBody($_POST)
-            ->withUploadedFiles($_FILES);
+        return new ServerRequest($method, static::createUriFromGlobal($_SERVER), $headers, $body, $_SERVER);
     }
 }
