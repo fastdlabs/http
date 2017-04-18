@@ -464,10 +464,14 @@ class ServerRequest extends Request implements ServerRequestInterface
             $uri .= $serverParams['HTTP_HOST'];
         }
         if (isset($serverParams['SERVER_PORT']) && !empty($serverParams['SERVER_PORT'])) {
-            $uri .= ':' . $serverParams['SERVER_PORT'];
+            if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
+                $uri .= ':' . $serverParams['SERVER_PORT'];
+            }
         }
         if (isset($serverParams['REQUEST_URI'])) {
-            $uri .= $serverParams['REQUEST_URI'];
+            $requestUriParts = explode('?', $serverParams['REQUEST_URI']);
+            $uri .= $requestUriParts[0];
+            unset($requestUriParts);
         }
         if (isset($serverParams['QUERY_STRING']) && !empty($serverParams['QUERY_STRING'])) {
             $uri .= '?' . $serverParams['QUERY_STRING'];
@@ -485,8 +489,6 @@ class ServerRequest extends Request implements ServerRequestInterface
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
 
-        $body = new PhpInputStream();
-
-        return new static($method, static::createUriFromGlobal($_SERVER), $headers, $body, $_SERVER);
+        return new static($method, static::createUriFromGlobal($_SERVER), $headers, new PhpInputStream(), $_SERVER);
     }
 }
