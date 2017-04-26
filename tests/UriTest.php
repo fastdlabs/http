@@ -87,6 +87,12 @@ class UriTest extends PHPUnit_Framework_TestCase
             'bar' => 'baz',
             'foo' => 'bar'
         ], $uri->getQuery());
+
+        $url = 'https://local.example.com?foo=' . rawurlencode('!%2');
+        $uri = new Uri($url);
+        $this->assertEquals([
+            'foo' => '!%2',
+        ], $uri->getQuery());
     }
 
     public function testDefaultPort()

@@ -530,6 +530,8 @@ class Uri implements UriInterface
      *
      * Ensures that the values in the query string are properly urlencoded.
      *
+     * see: http://php.net/manual/en/function.parse-str.php#119484
+     *
      * @param string $query
      * @return string
      */
