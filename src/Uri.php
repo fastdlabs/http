@@ -536,12 +536,50 @@ class Uri implements UriInterface
     protected function filterQuery($query)
     {
         $queryInfo = [];
-        $parts = explode('&', $query);
-        foreach ($parts as $index => $part) {
-            list($key, $value) = $this->splitQueryValue($part);
-            $queryInfo[$this->filterQueryOrFragment($key)] = $this->filterQueryOrFragment($value);
+
+        foreach (explode('&', $query) as $part) {
+            list($name, $value) = explode('=', (false === strpos($part, '=') ? "{$part}=" : $part), 2);
+
+            $name = rawurldecode($name);
+            $value = rawurldecode($value);
+
+            if (0 === preg_match_all('/\[([^\]]*)\]/m', $name, $matches)) {
+                $queryInfo[$name] = $value;
+                continue;
+            }
+
+            $name   = substr($name, 0, strpos($name, '['));
+            $keys   = array_merge([$name], $matches[1]);
+            $target = &$queryInfo;
+
+            foreach ($keys as $index) {
+                if ('' === $index) {
+                    if (isset($target)) {
+                        if (is_array($target)) {
+                            $intKeys = array_filter(array_keys($target), 'is_int');
+                            $index   = count($intKeys) ? max($intKeys)+1 : 0;
+                        } else {
+                            $target = [];
+                            $index  = 1;
+                        }
+                    } else {
+                        $target = [];
+                        $index  = 0;
+                    }
+                } elseif (isset($target[$index]) && !is_array($target[$index])) {
+                    $target[$index] = [$target[$index]];
+                }
+
+                $target = &$target[$index];
+            }
+
+            if (is_array($target)) {
+                $target[] = $value;
+            } else {
+                $target = $value;
+            }
         }
-        unset($parts);
+
         return $queryInfo;
     }
 
