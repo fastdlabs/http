@@ -88,10 +88,21 @@ class UriTest extends PHPUnit_Framework_TestCase
             'foo' => 'bar'
         ], $uri->getQuery());
 
-        $url = 'https://local.example.com?foo=' . rawurlencode('!%2');
+        $url = 'https://local.example.com?foo=' . rawurlencode('!%2') . '&' . http_build_query([
+            'vars' => [
+                'a',
+                'b',
+                'c',
+            ],
+        ]);
         $uri = new Uri($url);
         $this->assertEquals([
             'foo' => '!%2',
+            'vars' => [
+                'a',
+                'b',
+                'c',
+            ],
         ], $uri->getQuery());
     }
 
