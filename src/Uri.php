@@ -530,18 +530,41 @@ class Uri implements UriInterface
      *
      * Ensures that the values in the query string are properly urlencoded.
      *
+     * see: http://php.net/manual/en/function.parse-str.php#119484
+     *
      * @param string $query
      * @return string
      */
     protected function filterQuery($query)
     {
         $queryInfo = [];
-        $parts = explode('&', $query);
-        foreach ($parts as $index => $part) {
-            list($key, $value) = $this->splitQueryValue($part);
-            $queryInfo[$this->filterQueryOrFragment($key)] = $this->filterQueryOrFragment($value);
+
+        foreach (explode('&', $query) as $part) {
+            list($name, $value) = explode('=', (false === strpos($part, '=') ? "{$part}=" : $part), 2);
+
+            $name = rawurldecode($name);
+            $value = rawurldecode($value);
+
+            if (0 === preg_match_all('/\[([^\]]*)\]/m', $name, $matches)) {
+                $queryInfo[$name] = $value;
+                continue;
+            }
+
+            $name   = substr($name, 0, strpos($name, '['));
+            $keys   = array_merge([$name], $matches[1]);
+            $target = &$queryInfo;
+
+            foreach ($keys as $index) {
+                if ('' === $index) {
+                    $target = &$target[];
+                } else {
+                    $target = &$target[$index];
+                }
+            }
+
+            $target = $value;
         }
-        unset($parts);
+
         return $queryInfo;
     }
 
