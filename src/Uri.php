@@ -556,30 +556,13 @@ class Uri implements UriInterface
 
             foreach ($keys as $index) {
                 if ('' === $index) {
-                    if (isset($target)) {
-                        if (is_array($target)) {
-                            $intKeys = array_filter(array_keys($target), 'is_int');
-                            $index   = count($intKeys) ? max($intKeys)+1 : 0;
-                        } else {
-                            $target = [];
-                            $index  = 1;
-                        }
-                    } else {
-                        $target = [];
-                        $index  = 0;
-                    }
-                } elseif (isset($target[$index]) && !is_array($target[$index])) {
-                    $target[$index] = [$target[$index]];
+                    $target = &$target[];
+                } else {
+                    $target = &$target[$index];
                 }
-
-                $target = &$target[$index];
             }
 
-            if (is_array($target)) {
-                $target[] = $value;
-            } else {
-                $target = $value;
-            }
+            $target = $value;
         }
 
         return $queryInfo;
