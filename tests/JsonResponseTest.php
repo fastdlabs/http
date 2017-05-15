@@ -24,4 +24,16 @@ class JsonResponseTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($response->isOk());
         $this->assertTrue($response->isSuccessful());
     }
+
+    public function testJsonResponsePrint()
+    {
+        $response = new JsonResponse([
+            'foo' => 'bar',
+        ]);
+
+        $body = $response->getBody();
+        $this->assertEquals(json_decode($body, true), [
+            'foo' => 'bar'
+        ]);
+    }
 }

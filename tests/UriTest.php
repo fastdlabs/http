@@ -93,14 +93,18 @@ class UriTest extends PHPUnit_Framework_TestCase
     {
         $url = 'https://example/service/rest.htm';
         $uri = new Uri($url);
-        echo $uri;
+        $this->assertEquals(443, $uri->getPort());
+        $this->assertEquals((string)$uri, $url);
     }
 
     public function testStandardPort()
     {
-        $url = 'https://example/service/rest.htm';
+        $url = 'https://example.com:443/service/rest.htm';
         $uri = new Uri($url);
-        $this->assertEquals($url, (string) $uri);
+        $this->assertEquals('https://example.com/service/rest.htm', (string) $uri);
+        $this->assertEquals(443, $uri->getPort());
+        $this->expectOutputString('https://example.com/service/rest.htm');
+        echo (string) $uri;
     }
 
     public function testNonStandardPort()
@@ -108,5 +112,6 @@ class UriTest extends PHPUnit_Framework_TestCase
         $url = 'https://example:8088/service/rest.htm';
         $uri = new Uri($url);
         $this->assertEquals($url, (string) $uri);
+        $this->assertEquals(8088, $uri->getPort());
     }
 }
