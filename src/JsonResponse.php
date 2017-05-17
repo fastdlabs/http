@@ -11,32 +11,35 @@ namespace FastD\Http;
 
 /**
  * Class JsonResponse
- *
  * @package FastD\Http
  */
 class JsonResponse extends Response
 {
+    const JSON_OPTION = JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT;
+
     /**
      * Constructor.
      *
-     * @param mixed $data    The response data
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      */
-    public function __construct(array $data, $status = 200, $headers = array())
+    public function __construct($status = 200, $headers = array())
     {
-        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
         $this->withContentType('application/json; charset=UTF-8');
 
-        parent::__construct($json, $status, $headers);
+        parent::__construct($status, $headers);
     }
 
     /**
-     * @return mixed
+     * @param array $content
+     * @return Response
      */
-    public function toArray()
+    public function withContent($content)
     {
-        return json_decode($this->getContents(), true);
+        if (is_array($content)) {
+            $content = json_encode($content,static::JSON_OPTION);
+        }
+
+        return parent::withContent($content);
     }
 }

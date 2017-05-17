@@ -305,9 +305,7 @@ class Response extends Message implements ResponseInterface
      */
     public function getContents()
     {
-        $this->getBody()->rewind();
-
-        return $this->getBody()->getContents();
+        return (string) $this->getBody();
     }
 
     /**

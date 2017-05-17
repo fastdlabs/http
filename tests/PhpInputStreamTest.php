@@ -31,6 +31,7 @@ class PhpInputStreamTest extends PHPUnit_Framework_TestCase
         $content = $this->stream->getContents();
 
         parse_str($content, $_POST);
+
         $this->assertEquals([
             'age' => 11
         ], $_POST);

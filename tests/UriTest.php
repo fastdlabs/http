@@ -23,10 +23,10 @@ class UriTest extends PHPUnit_Framework_TestCase
     {
         $uri = new Uri('/');
         $this->assertEquals('/', $uri->getPath());
-    }
+        $this->assertEmpty($uri->getHost());
+        $this->assertEquals(80, $uri->getPort());
+        $this->assertEmpty($uri->getQuery());
 
-    public function testRootPath()
-    {
         $uri = new Uri('https://example.com');
         $this->assertEquals('/', $uri->getPath());
     }
@@ -68,9 +68,9 @@ class UriTest extends PHPUnit_Framework_TestCase
 
     public function testLocalUriToRelationPath()
     {
-        $url = 'http://localhost/foo/index.php/bar';
+        $url = 'http://localhost/bar';
         $uri = new Uri($url);
-        $this->assertEquals('/bar', $uri->getRelationPath());
+        $this->assertEquals('/bar', $uri->getPath());
     }
 
     public function testUriQueryString()

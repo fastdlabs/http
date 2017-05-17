@@ -15,10 +15,10 @@ class JsonResponseTest extends PHPUnit_Framework_TestCase
 {
     public function testResponseJson()
     {
-        $response = new JsonResponse([
+        $response = new JsonResponse();
+        $response->withContent([
             'foo' => 'bar',
         ]);
-
         $this->assertEquals($response->getContentType(), 'application/json; charset=UTF-8');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($response->isOk());
@@ -27,7 +27,8 @@ class JsonResponseTest extends PHPUnit_Framework_TestCase
 
     public function testJsonResponsePrint()
     {
-        $response = new JsonResponse([
+        $response = new JsonResponse();
+        $response->withContent([
             'foo' => 'bar',
         ]);
 

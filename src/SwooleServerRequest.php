@@ -29,6 +29,7 @@ class SwooleServerRequest extends ServerRequest
         $post = isset($request->post) ? $request->post : [];
         $cookie = isset($request->cookie) ? $request->cookie : [];
         $files = isset($request->files) ? $request->files : [];
+
         $server = [
             'REQUEST_METHOD' => $request->server['request_method'],
             'REQUEST_URI' => $request->server['request_uri'],

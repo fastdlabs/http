@@ -23,7 +23,7 @@ use Psr\Http\Message\UriInterface;
  */
 class Request extends Message implements RequestInterface
 {
-    const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/JanHuang/http)';
+    const USER_AGENT = 'FastD HTTP/1.1 (+https://github.com/JanHuang/http)';
 
     /**
      * @var array
@@ -151,7 +151,7 @@ class Request extends Message implements RequestInterface
     {
         $method = strtoupper($method);
 
-        if (!in_array($method, $this->validMethods, true)) {
+        if ( ! in_array($method, $this->validMethods, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method "%s" provided',
                 $method
@@ -215,6 +215,8 @@ class Request extends Message implements RequestInterface
     }
 
     /**
+     * Get an option for a cURL transfers
+     *
      * @return array
      */
     public function getOptions()
@@ -223,6 +225,9 @@ class Request extends Message implements RequestInterface
     }
 
     /**
+     * Set an option for a cURL transfer
+     *
+     * @link http://php.net/manual/en/function.curl-setopt.php
      * @param $key
      * @param $value
      * @return $this
@@ -235,6 +240,9 @@ class Request extends Message implements RequestInterface
     }
 
     /**
+     * Set an option for a cURL transfer
+     *
+     * @link @link http://php.net/manual/en/function.curl-setopt.php
      * @param array $options
      * @return $this
      */
@@ -246,6 +254,9 @@ class Request extends Message implements RequestInterface
     }
 
     /**
+     * A username and password formatted as "[username]:[password]" to use for the connection.
+     *
+     * @link http://php.net/manual/en/function.curl-setopt.php
      * @param $username
      * @param $password
      * @return $this
@@ -253,16 +264,19 @@ class Request extends Message implements RequestInterface
     public function withBasicAuthentication($username, $password)
     {
         $this->withOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        $this->withOption(CURLOPT_USERPWD, $username . ':' . $password);
+        $this->withOption(CURLOPT_USERPWD, $username.':'.$password);
 
         return $this;
     }
 
     /**
+     * The contents of the "Referer: " header to be used in a HTTP request.
+     *
+     * @link http://php.net/manual/en/function.curl-setopt.php
      * @param $referer
      * @return $this
      */
-    public function withReferrer($referer)
+    public function withReferer($referer)
     {
         $this->withOption(CURLOPT_REFERER, $referer);
 
@@ -270,11 +284,11 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param array|string $data
+     * @param mixed $data
      * @param array $headers
      * @return Response
      */
-    public function send($data = [], array $headers = [])
+    public function send($data = null, array $headers = [])
     {
         $ch = curl_init();
         $url = (string)$this->uri;
@@ -283,8 +297,10 @@ class Request extends Message implements RequestInterface
 
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
             $this->withOption(CURLOPT_POSTFIELDS, $data);
-        } else if (!empty($data)) {
-            $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
+        } else {
+            if (!empty($data)) {
+                $url .= empty($url->getQuery()) ? '?' : ('&' . $data);
+            }
         }
 
         $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
@@ -295,20 +311,19 @@ class Request extends Message implements RequestInterface
         $this->withOption(CURLOPT_HEADER, true);
         $this->withOption(CURLOPT_RETURNTRANSFER, true);
 
-        foreach ($this->options as $key => $option) {
-            curl_setopt($ch, $key, $option);
-        }
+        curl_setopt_array($ch, $this->options);
 
         $response = curl_exec($ch);
         $errorCode = curl_errno($ch);
         $errorMsg = curl_error($ch);
 
-        if ((strpos($response, "\r\n\r\n") === false) || !($errorCode === 0)) {
+        if ((strpos($response, "\r\n\r\n") === false) || ! ($errorCode === 0)) {
             throw new HttpException($errorMsg);
         }
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch); unset($ch);
+        curl_close($ch);
+        unset($ch);
         list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
         $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
 
@@ -320,6 +335,6 @@ class Request extends Message implements RequestInterface
             unset($headerLine, $key, $value);
         }, $responseHeaders);
 
-        return new Response($response, $statusCode, $headers);
+        return (new Response($statusCode, $headers))->withContent($response);
     }
 }
