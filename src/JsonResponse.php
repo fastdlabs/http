@@ -22,12 +22,13 @@ class JsonResponse extends Response
      *
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
+     * @param string $version The response protocol version
      */
-    public function __construct($status = 200, $headers = array())
+    public function __construct($status = 200, array $headers = [], $version = '1.1')
     {
         $this->withContentType('application/json; charset=UTF-8');
 
-        parent::__construct($status, $headers);
+        parent::__construct($status, $headers, $version);
     }
 
     /**

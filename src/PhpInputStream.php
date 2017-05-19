@@ -47,9 +47,7 @@ class PhpInputStream extends Stream
         }
 
         $this->rewind();
-        $this->getContents();
-
-        return $this->cache;
+        return $this->getContents();
     }
 
     /**
@@ -91,9 +89,23 @@ class PhpInputStream extends Stream
         $contents = stream_get_contents($this->resource, $maxLength);
         $this->cache .= $contents;
 
-        if ($maxLength === -1 || $this->eof()) {
+        if (-1 === $maxLength || $this->eof()) {
             $this->reachedEof = true;
         }
+
+        return $contents;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParsedContents()
+    {
+        if ($this->getSize() <= 0) {
+            return null;
+        }
+
+        parse_str((string) $this, $contents);
 
         return $contents;
     }
