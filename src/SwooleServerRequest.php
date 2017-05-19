@@ -30,14 +30,14 @@ class SwooleServerRequest extends ServerRequest
         $cookie = isset($request->cookie) ? $request->cookie : [];
         $files = isset($request->files) ? $request->files : [];
 
-        $host = '::1';
-        if (isset($request->header['server_addr'])) {
-            $host = $request->header['server_addr'];
-            $host = parse_url($host)['host'];
-        }
-        if (isset($request->header['host'])) {
-            $host = $request->header['host'];
-            $host = parse_url($host)['host'];
+        $host = empty($request->header['host']) ? $request->header['server_addr'] : $request->header['host'];
+        if (empty($host)) {
+            $host = '::1';
+        } else {
+            $info = parse_url($host);
+            if (!empty($info['host'])) {
+                $host = $info['host'];
+            }
         }
 
         $server = [
