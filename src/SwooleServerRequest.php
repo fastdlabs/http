@@ -82,7 +82,7 @@ class SwooleServerRequest extends ServerRequest
             $server
         );
 
-//        $serverRequest->getBody()->write($request->rawContent());
+        $serverRequest->getBody()->write($request->rawContent());
 
         return $serverRequest
             ->withParsedBody($post)
