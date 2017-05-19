@@ -41,7 +41,7 @@ class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
         $swoole->post = [];
         $swoole->file = [];
         $swoole->header = [
-            'host' => '11.11.11.22',
+            'host' => '11.11.11.22:9999',
             'connection' => 'keep-alive',
             'pragma' => 'no-cache',
             'cache-control' => 'no-cache',
@@ -50,6 +50,7 @@ class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
             'referer' => 'http://11.11.11.22:9527/',
             'accept-encoding' => 'gzip, deflate, sdch',
             'accept-language' => 'zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4',
+            'x-service-id' => '1'
         ];
         $swoole->server = [
             'request_method' => 'GET',
@@ -72,9 +73,12 @@ class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
     {
         $swoole = $this->dataFromSwoole();
         $swoole->fd = 0;
-//        $serverRequest = SwooleServerRequest::createServerRequestFromSwoole($swoole);
-//        $this->assertEmpty($serverRequest->getQueryParams());
-//        $this->assertEmpty($serverRequest->getParsedBody());
-//        $this->assertEmpty($serverRequest->getUploadedFiles());
+        $serverRequest = SwooleServerRequest::createServerRequestFromSwoole($swoole);
+        $this->assertEmpty($serverRequest->getQueryParams());
+        $this->assertEmpty($serverRequest->getParsedBody());
+        $this->assertEmpty($serverRequest->getUploadedFiles());
+        $this->assertEquals('no-cache', $serverRequest->getHeaderLine('cache-control'));
+        $this->assertEquals('11.11.11.22', $serverRequest->getHeaderLine('http-host'));
+        $this->assertEquals(9999, $serverRequest->getUri()->getPort());
     }
 }

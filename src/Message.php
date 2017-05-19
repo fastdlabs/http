@@ -166,11 +166,7 @@ class Message implements MessageInterface
     {
         $value = $this->getHeader($name);
 
-        if (empty($value)) {
-            return null;
-        }
-
-        return implode(',', $value);
+        return false === $value ? null : implode(',', $value);
     }
 
     /**
@@ -190,7 +186,7 @@ class Message implements MessageInterface
      */
     public function withHeader($name, $value)
     {
-        $this->header[strtolower($name)] = [$value];
+        $this->header[strtolower(str_replace('_', '-', $name))] = [$value];
 
         return $this;
     }
@@ -232,7 +228,7 @@ class Message implements MessageInterface
      */
     public function withAddedHeader($name, $value)
     {
-        $this->header[strtolower($name)][] = $value;
+        $this->header[strtolower(str_replace('_', '-', $name))][] = $value;
 
         return $this;
     }
@@ -253,11 +249,9 @@ class Message implements MessageInterface
     {
         $name = strtolower($name);
 
-        if (!$this->hasHeader($name)) {
-            return $this;
+        if ($this->hasHeader($name)) {
+            unset($this->header[$name]);
         }
-
-        unset($this->header[$name]);
 
         return $this;
     }

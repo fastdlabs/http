@@ -138,7 +138,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
 
 
         if ('cli' === PHP_SAPI) {
-            if (!rename($this->tmpName, $targetFile)) {
+            if (!copy($this->tmpName, $targetFile)) {
                 throw new \RuntimeException('Failed to move uploaded file.');
             }
 

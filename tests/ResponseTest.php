@@ -46,8 +46,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function outputResponse(Response $response)
     {
-        echo PHP_EOL;
-        echo $response;
+//        echo $response;
     }
 
     public function testResponseContentType()
