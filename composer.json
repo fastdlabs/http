@@ -20,6 +20,9 @@
     "autoload": {
         "psr-4": {
             "FastD\\Http\\": "src"
-        }
+        },
+        "files": [
+            "helpers.php"
+        ]
     }
 }
