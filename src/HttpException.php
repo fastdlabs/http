@@ -25,12 +25,12 @@ class HttpException extends RuntimeException
 
     /**
      * HttpException constructor.
-     * @param string $message
      * @param int $statusCode
+     * @param string $message
      */
-    public function __construct($message = "Server Interval Error", $statusCode = 500)
+    public function __construct($statusCode = 500, $message = "Server Interval Error")
     {
-        parent::__construct($message);
+        parent::__construct($message, $this->getCode());
 
         $this->statusCode = $statusCode;
     }

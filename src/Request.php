@@ -298,8 +298,8 @@ class Request extends Message implements RequestInterface
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
             $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else {
-            if (!empty($data)) {
-                $url .= empty($url->getQuery()) ? '?' : ('&' . $data);
+            if ( ! empty($data)) {
+                $url .= empty($url->getQuery()) ? '?' : ('&'.$data);
             }
         }
 

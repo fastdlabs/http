@@ -47,6 +47,11 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
     protected $stream;
 
     /**
+     * @var string
+     */
+    protected $hash;
+
+    /**
      * File constructor.
      *
      * @param $name
@@ -130,9 +135,11 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      */
     public function moveTo($targetPath)
     {
+        $this->hash = hash_file('md5', $this->tmpName);
+
         $targetFile = $targetPath
             . DIRECTORY_SEPARATOR
-            . hash_file('md5', $this->tmpName)
+            . $this->hash
             . '.'
             . pathinfo($this->postname, PATHINFO_EXTENSION);
 
@@ -162,6 +169,14 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
         $this->moved = true;
 
         return $targetFile;
+    }
+
+    /**
+     * @return false
+     */
+    public function isMoved()
+    {
+        return $this->moved;
     }
 
     /**
@@ -195,6 +210,14 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
     public function getError()
     {
         return $this->error;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileHash()
+    {
+        return $this->hash;
     }
 
     /**
