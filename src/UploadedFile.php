@@ -134,7 +134,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
             . DIRECTORY_SEPARATOR
             . hash_file('md5', $this->tmpName)
             . '.'
-            . pathinfo($this->name, PATHINFO_EXTENSION);
+            . pathinfo($this->postname, PATHINFO_EXTENSION);
 
 
         if ('cli' === PHP_SAPI) {

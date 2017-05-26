@@ -9,6 +9,7 @@
 
 namespace FastD\Http;
 
+
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -16,7 +17,6 @@ use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * Class ServerRequest
- *
  * @package FastD\Http
  */
 class ServerRequest extends Request implements ServerRequestInterface
@@ -69,8 +69,12 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         parent::__construct($method, $uri, $headers, $body);
 
-        $this->withQueryParams($this->uri->getQuery());
-        $this->withServerParams($serverParams);
+        $this
+            ->withQueryParams($this->uri->getQuery())
+            ->withServerParams($serverParams)
+            ->withParsedBody($_POST)
+            ->withCookieParams($_COOKIE)
+            ->withUploadedFiles($_FILES);
 
         if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
             parse_str((string) $body, $data);
@@ -440,6 +444,10 @@ class ServerRequest extends Request implements ServerRequestInterface
         return $normalized;
     }
 
+    /**
+     * @param array $serverParams
+     * @return string
+     */
     public static function createUriFromGlobal(array $serverParams)
     {
         $uri = 'http://';
@@ -456,10 +464,14 @@ class ServerRequest extends Request implements ServerRequestInterface
             $uri .= $serverParams['HTTP_HOST'];
         }
         if (isset($serverParams['SERVER_PORT']) && !empty($serverParams['SERVER_PORT'])) {
-            $uri .= ':' . $serverParams['SERVER_PORT'];
+            if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
+                $uri .= ':' . $serverParams['SERVER_PORT'];
+            }
         }
         if (isset($serverParams['REQUEST_URI'])) {
-            $uri .= $serverParams['REQUEST_URI'];
+            $requestUriParts = explode('?', $serverParams['REQUEST_URI']);
+            $uri .= $requestUriParts[0];
+            unset($requestUriParts);
         }
         if (isset($serverParams['QUERY_STRING']) && !empty($serverParams['QUERY_STRING'])) {
             $uri .= '?' . $serverParams['QUERY_STRING'];
@@ -477,14 +489,6 @@ class ServerRequest extends Request implements ServerRequestInterface
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
 
-        $body = new PhpInputStream();
-
-        $serverRequest = new ServerRequest($method, static::createUriFromGlobal($_SERVER), $headers, $body, $_SERVER);
-
-        return $serverRequest
-            ->withCookieParams($_COOKIE)
-            ->withQueryParams($_GET)
-            ->withParsedBody($_POST)
-            ->withUploadedFiles($_FILES);
+        return new static($method, static::createUriFromGlobal($_SERVER), $headers, new PhpInputStream(), $_SERVER);
     }
 }

@@ -139,7 +139,7 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
             'SERVER_PORT' => '80',
             'SERVER_SIGNATURE' => 'Version signature: 5.123',
             'SCRIPT_NAME' => '/blog/article.php',
-            'REQUEST_URI' => '/blog/article.php?id=10&user=foo',
+            'REQUEST_URI' => '/blog/article.php?id=100&user=foo',
         ];
     }
 
@@ -209,5 +209,10 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
         $serverRequest->withUploadedFiles($this->dataFilesFromGlobals());
         $files = $serverRequest->getUploadedFiles();
         $this->assertNotEmpty($files);
+    }
+
+    public function testCreateUriFromGlobal()
+    {
+        $this->assertEquals('http://www.blakesimpson.co.uk/blog/article.php?id=10&user=foo', ServerRequest::createUriFromGlobal($this->dataPUTServerFromGlobals()));
     }
 }
