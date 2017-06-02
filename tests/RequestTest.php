@@ -54,6 +54,26 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    public function testResponseWithEncoding()
+    {
+        $request = $this->server();
+
+        $response = $request->send('', array(
+            'Accept-Encoding: gzip'
+        ));
+        $this->assertEquals(substr($response->getContents(), 2, 11), 'weatherinfo');
+
+        $response = $request->send('', array(
+            'Accept-Encoding: deflate'
+        ));
+        $this->assertEquals(substr($response->getContents(), 2, 11), 'weatherinfo');
+
+        $response = $request->send('', array(
+            'Accept-Encoding: gzip, deflate'
+        ));
+        $this->assertEquals(substr($response->getContents(), 2, 11), 'weatherinfo');
+    }
+
     public function testPostRawRequest()
     {
         $raw = '<xml><appid><![CDATA[123456789123456789]]></appid><mch_id>1234567890</mch_id><nonce_str><![CDATA[589d897212f9c]]></nonce_str><body><![CDATA[123]]></body><out_trade_no><![CDATA[runnerlee_001]]></out_trade_no><fee_type><![CDATA[CNY]]></fee_type><total_fee>1</total_fee><spbill_create_ip><![CDATA[127.0.0.1]]></spbill_create_ip><trade_type><![CDATA[NATIVE]]></trade_type><notify_url><![CDATA[http://github.com]]></notify_url><detail><![CDATA[runnerlee_test_payment]]></detail><sign><![CDATA[ZXCVBNMASDFGHJKLQWERTYUIOP123456]]></sign></xml>';
