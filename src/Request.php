@@ -321,7 +321,6 @@ class Request extends Message implements RequestInterface
         }, $responseHeaders);
 
         if (isset($headers['Content-Encoding'])) {
-            unset($headers['Content-Encoding']);
             $response = zlib_decode($response);
         }
 

@@ -196,7 +196,7 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
         $body = new PhpInputStream('php://temp', 'wr');
         $body->write(http_build_query($this->dataBodyFromGlobals()));
 
-        $serverRequest = new ServerRequest('PUT', 'http://example.com/blog/articles.php', [], $body, $_SERVER);
+        $serverRequest = new ServerRequest('DELETE', 'http://example.com/blog/articles.php', [], $body, $_SERVER);
         $serverRequest->withCookieParams($_COOKIE);
         $serverRequest->withQueryParams($_GET);
         $serverRequest->withUploadedFiles($_FILES);
