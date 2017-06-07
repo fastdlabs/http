@@ -65,13 +65,19 @@ class SwooleServerRequest extends ServerRequest
             'HTTP_CACHE_CONTROL' => isset($request->header['cache-control']) ? $request->header['cache-control'] : '',
         ];
 
+        $headers = [];
+        foreach ($request->header as $name => $value) {
+            $headers[str_replace('-', '_', $name)] = $value;
+        }
+
         $serverRequest = new ServerRequest(
             $server['REQUEST_METHOD'],
             static::createUriFromGlobal($server),
-            $request->header,
+            $request,
             null,
             $server
         );
+        unset($headers);
 
         $serverRequest->getBody()->write($request->rawContent());
 
