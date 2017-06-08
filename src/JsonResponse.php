@@ -15,7 +15,8 @@ namespace FastD\Http;
  */
 class JsonResponse extends Response
 {
-    const JSON_OPTION = JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT;
+    const JSON_OPTIONS = JSON_UNESCAPED_UNICODE;
+    const CONTENT_TYPE = 'application/json; charset=UTF-8';
 
     /**
      * Constructor.
@@ -26,7 +27,7 @@ class JsonResponse extends Response
      */
     public function __construct($status = 200, array $headers = [], $version = '1.1')
     {
-        $this->withContentType('application/json; charset=UTF-8');
+        $this->withContentType(static::CONTENT_TYPE);
 
         parent::__construct($status, $headers, $version);
     }
@@ -38,7 +39,7 @@ class JsonResponse extends Response
     public function withContent($content)
     {
         if (is_array($content)) {
-            $content = json_encode($content,static::JSON_OPTION);
+            $content = json_encode($content,static::JSON_OPTIONS);
         }
 
         return parent::withContent($content);

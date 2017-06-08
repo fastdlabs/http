@@ -330,10 +330,14 @@ class Request extends Message implements RequestInterface
         array_shift($responseHeaders);
         $headers = [];
         array_map(function ($headerLine) use (&$headers) {
-            list($key, $value) = explode(':', $headerLine);
+            list($key, $value) = explode(':', $headerLine, 2);
             $headers[$key] = trim($value);
             unset($headerLine, $key, $value);
         }, $responseHeaders);
+
+        if (isset($headers['Content-Encoding'])) {
+            $response = zlib_decode($response);
+        }
 
         return (new Response($statusCode, $headers))->withContent($response);
     }

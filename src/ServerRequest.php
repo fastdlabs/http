@@ -104,7 +104,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         array_walk($server, function ($value, $key) {
             if (0 === strpos($key, 'HTTP_')) {
-                $this->withAddedHeader($key, $value);
+                $this->withAddedHeader(str_replace('HTTP_', '', $key), $value);
             }
         });
 
