@@ -81,4 +81,30 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $response = (array)simplexml_load_string($request->send($raw)->getContents(), 'SimpleXMLElement', LIBXML_NOCDATA);
         $this->assertEquals('appid不存在', $response['return_msg']);
     }
+
+    public function testWithOptions()
+    {
+        $request = new Request('GET', '/');
+        $request->withOptions([
+            CURLOPT_CONNECTTIMEOUT => 30,
+            CURLOPT_USERAGENT => 'Hello World',
+        ]);
+        $this->assertEquals(
+            [
+                CURLOPT_CONNECTTIMEOUT => 30,
+                CURLOPT_USERAGENT => 'Hello World',
+            ],
+            $request->getOptions()
+        );
+        $request->withOptions([
+            CURLOPT_CONNECTTIMEOUT => 20,
+        ]);
+        $this->assertEquals(
+            [
+                CURLOPT_CONNECTTIMEOUT => 20,
+                CURLOPT_USERAGENT => 'Hello World',
+            ],
+            $request->getOptions()
+        );
+    }
 }
