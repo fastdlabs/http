@@ -240,7 +240,7 @@ class Request extends Message implements RequestInterface
      */
     public function withOptions(array $options)
     {
-        $this->options = array_merge($this->options, $options);
+        $this->options = $options + $this->options;
 
         return $this;
     }
@@ -287,7 +287,9 @@ class Request extends Message implements RequestInterface
             $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
         }
 
-        $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
+        if (!array_key_exists(CURLOPT_USERAGENT, $this->options)) {
+            $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
+        }
         $this->withOption(CURLOPT_HTTPHEADER, $headers);
         $this->withOption(CURLOPT_URL, $url);
         $this->withOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
