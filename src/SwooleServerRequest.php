@@ -73,7 +73,7 @@ class SwooleServerRequest extends ServerRequest
         $serverRequest = new ServerRequest(
             $server['REQUEST_METHOD'],
             static::createUriFromGlobal($server),
-            $request,
+            $request->header,
             null,
             $server
         );
