@@ -186,19 +186,23 @@ class Response extends Message implements ResponseInterface
     /**
      * Response constructor.
      *
+     * @param string $content
      * @param int $statusCode
      * @param array $headers
      * @param string $version
      */
     public function __construct(
-        $statusCode = 200,
+        string $content = '',
+        int $statusCode = 200,
         array $headers = [],
-        $version = '1.1'
+        string $version = '1.1'
     ) {
         parent::__construct(new Stream('php://memory', 'wb+'));
-        $this->withStatus($statusCode);
-        $this->withHeaders($headers);
-        $this->withProtocolVersion($version);
+        $this
+            ->withContent($content)
+            ->withStatus($statusCode)
+            ->withHeaders($headers)
+            ->withProtocolVersion($version);
     }
 
     /**
@@ -324,7 +328,7 @@ class Response extends Message implements ResponseInterface
      */
     public function getContentType()
     {
-        return $this->getHeaderLine('Content-Type');
+        return $this->getHeaderLine('Content_Type');
     }
 
     /**

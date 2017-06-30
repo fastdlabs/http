@@ -23,7 +23,7 @@ use Psr\Http\Message\UriInterface;
  */
 class Request extends Message implements RequestInterface
 {
-    const USER_AGENT = 'FastD HTTP/1.1 (+https://github.com/JanHuang/http)';
+    const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/JanHuang/http)';
 
     /**
      * @var array
@@ -63,8 +63,8 @@ class Request extends Message implements RequestInterface
     /**
      * Request constructor.
      *
-     * @param $method
-     * @param $uri
+     * @param string $method
+     * @param string $uri
      * @param array $headers
      * @param StreamInterface $body
      */
@@ -215,8 +215,6 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * Get an option for a cURL transfers
-     *
      * @return array
      */
     public function getOptions()
@@ -225,9 +223,6 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * Set an option for a cURL transfer
-     *
-     * @link http://php.net/manual/en/function.curl-setopt.php
      * @param $key
      * @param $value
      * @return $this
@@ -240,23 +235,17 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * Set an option for a cURL transfer
-     *
-     * @link @link http://php.net/manual/en/function.curl-setopt.php
      * @param array $options
      * @return $this
      */
     public function withOptions(array $options)
     {
-        $this->options = array_merge($this->options, $options);
+        $this->options = $options + $this->options;
 
         return $this;
     }
 
     /**
-     * A username and password formatted as "[username]:[password]" to use for the connection.
-     *
-     * @link http://php.net/manual/en/function.curl-setopt.php
      * @param $username
      * @param $password
      * @return $this
@@ -270,13 +259,10 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * The contents of the "Referer: " header to be used in a HTTP request.
-     *
-     * @link http://php.net/manual/en/function.curl-setopt.php
      * @param $referer
      * @return $this
      */
-    public function withReferer($referer)
+    public function withReferrer($referer)
     {
         $this->withOption(CURLOPT_REFERER, $referer);
 
@@ -284,11 +270,11 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param mixed $data
+     * @param array|string $data
      * @param array $headers
      * @return Response
      */
-    public function send($data = null, array $headers = [])
+    public function send($data = [], array $headers = [])
     {
         $ch = curl_init();
         $url = (string)$this->uri;
@@ -299,11 +285,13 @@ class Request extends Message implements RequestInterface
             $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else {
             if ( ! empty($data)) {
-                $url .= empty($url->getQuery()) ? '?' : ('&'.$data);
+                $url .= (false === strpos($url, '?') ? '?' : '&').$data;
             }
         }
 
-        $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
+        if ( ! array_key_exists(CURLOPT_USERAGENT, $this->options)) {
+            $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
+        }
         $this->withOption(CURLOPT_HTTPHEADER, $headers);
         $this->withOption(CURLOPT_URL, $url);
         $this->withOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
@@ -311,7 +299,9 @@ class Request extends Message implements RequestInterface
         $this->withOption(CURLOPT_HEADER, true);
         $this->withOption(CURLOPT_RETURNTRANSFER, true);
 
-        curl_setopt_array($ch, $this->options);
+        foreach ($this->options as $key => $option) {
+            curl_setopt($ch, $key, $option);
+        }
 
         $response = curl_exec($ch);
         $errorCode = curl_errno($ch);
@@ -330,11 +320,15 @@ class Request extends Message implements RequestInterface
         array_shift($responseHeaders);
         $headers = [];
         array_map(function ($headerLine) use (&$headers) {
-            list($key, $value) = explode(':', $headerLine);
+            list($key, $value) = explode(':', $headerLine, 2);
             $headers[$key] = trim($value);
             unset($headerLine, $key, $value);
         }, $responseHeaders);
 
-        return (new Response($statusCode, $headers))->withContent($response);
+        if (isset($headers['Content-Encoding'])) {
+            $response = zlib_decode($response);
+        }
+
+        return new Response($response, $statusCode, $headers);
     }
 }

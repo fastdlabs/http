@@ -40,10 +40,11 @@ class SwooleServerRequest extends ServerRequest
             'REQUEST_URI' => $request->server['request_uri'],
             'PATH_INFO' => $request->server['path_info'],
             'REQUEST_TIME' => $request->server['request_time'],
-            'GATEWAY_INTERFACE' => 'swoole/' . SWOOLE_VERSION,
+            'GATEWAY_INTERFACE' => 'swoole/'.SWOOLE_VERSION,
             // Server
             'SERVER_PROTOCOL' => isset($request->header['server_protocol']) ? $request->header['server_protocol'] : $request->server['server_protocol'],
-            'REQUEST_SCHEMA' => isset($request->header['request_scheme']) ? $request->header['request_scheme'] : explode('/', $request->server['server_protocol'])[0],
+            'REQUEST_SCHEMA' => isset($request->header['request_scheme']) ? $request->header['request_scheme'] : explode('/',
+                $request->server['server_protocol'])[0],
             'SERVER_NAME' => isset($request->header['server_name']) ? $request->header['server_name'] : $host,
             'SERVER_ADDR' => $host,
             'SERVER_PORT' => $port,

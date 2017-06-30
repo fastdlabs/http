@@ -109,6 +109,36 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
         ];
     }
 
+    public function dataHeadersFromGlobals()
+    {
+        return [
+            'accept' => [
+                'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            ],
+            'accept_charset' => [
+                'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+            ],
+            'accept_encoding' => [
+                'gzip,deflate',
+            ],
+            'accept_language' => [
+                'en-gb,en;q=0.5',
+            ],
+            'connection' => [
+                'keep-alive',
+            ],
+            'host' => [
+                'www.blakesimpson.co.uk',
+            ],
+            'referer' => [
+                'http://previous.url.com',
+            ],
+            'user_agent' => [
+                'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6 ( .NET CLR 3.5.30729)',
+            ],
+        ];
+    }
+
     public function dataPUTServerFromGlobals()
     {
         return  [
@@ -178,13 +208,14 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
         $_GET = $this->dataQueryFromGlobals();
         $_POST = $this->dataBodyFromGlobals();
         $serverRequest = ServerRequest::createServerRequestFromGlobals();
-
+        
         $this->assertEquals($serverRequest->getUri()->getPath(), '/blog/article.php');
         $this->assertEquals('POST', $serverRequest->getMethod());
         $this->assertEquals($this->dataQueryFromGlobals() , $serverRequest->getQueryParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataBodyFromGlobals(), $serverRequest->getParsedBody());
+        $this->assertEquals($this->dataHeadersFromGlobals(), $serverRequest->getHeaders());
     }
 
     public function testSerRequestFromGlobalsIsMethodPUT()
@@ -196,7 +227,7 @@ class ServerRequestTest extends PHPUnit_Framework_TestCase
         $body = new PhpInputStream('php://temp', 'wr');
         $body->write(http_build_query($this->dataBodyFromGlobals()));
 
-        $serverRequest = new ServerRequest('PUT', 'http://example.com/blog/articles.php', [], $body, $_SERVER);
+        $serverRequest = new ServerRequest('DELETE', 'http://example.com/blog/articles.php', [], $body, $_SERVER);
         $serverRequest->withCookieParams($_COOKIE);
         $serverRequest->withQueryParams($_GET);
         $serverRequest->withUploadedFiles($_FILES);
