@@ -153,7 +153,7 @@ class Cookie
             $str .= urlencode($this->value);
         }
         if ($this->expire > 0) {
-            $str .= '; expires='.gmdate("D, d-M-Y H:i:s T", $this->expire);
+            $str .= '; expires='.gmdate("D, d-M-Y H:i:s T", time () + $this->expire);
         }
         if ($this->path) {
             $str .= '; path='.$this->path;
