@@ -110,6 +110,11 @@ class Response extends Message implements ResponseInterface
     protected $cookie = [];
 
     /**
+     * @var int
+     */
+    protected $fileDescriptor;
+
+    /**
      * Status codes translation table.
      *
      * The list of codes is complete according to the
@@ -290,6 +295,25 @@ class Response extends Message implements ResponseInterface
     public function getCookieParams()
     {
         return $this->cookie;
+    }
+
+    /**
+     * @param $fd
+     * @return $this
+     */
+    public function withFileDescriptor($fd)
+    {
+        $this->fileDescriptor = $fd;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFileDescriptor()
+    {
+        return $this->fileDescriptor;
     }
 
     /**
