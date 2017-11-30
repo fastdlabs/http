@@ -102,12 +102,14 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withServerParams(array $server)
     {
-        array_walk($server, function ($value, $key) {
-            if (0 === strpos($key, 'HTTP_')) {
-                $this->withAddedHeader(str_replace('HTTP_', '', $key), $value);
-            }
-        });
-
+        if (empty($this->header)) {
+            array_walk($server, function ($value, $key) {
+                if (0 === strpos($key, 'HTTP_')) {
+                    $this->withAddedHeader(str_replace('HTTP_', '', $key), $value);
+                }
+            });
+        }
+        
         $this->serverParams = $server;
 
         return $this;
