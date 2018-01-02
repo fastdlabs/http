@@ -434,11 +434,11 @@ class Uri implements UriInterface
      * @param string $scheme
      * @param string $authority
      * @param string $path
-     * @param string $query
+     * @param array $query
      * @param string $fragment
      * @return string
      */
-    public function createUriString($scheme, $authority, $path, $query, $fragment)
+    public function createUriString($scheme, $authority, $path, array $query, $fragment)
     {
         $uri = '';
 
@@ -533,7 +533,7 @@ class Uri implements UriInterface
      * see: http://php.net/manual/en/function.parse-str.php#119484
      *
      * @param string $query
-     * @return string
+     * @return array
      */
     protected function filterQuery($query)
     {

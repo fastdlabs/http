@@ -65,8 +65,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         array $headers = [],
         StreamInterface $body = null,
         array $serverParams = []
-    )
-    {
+    ) {
         parent::__construct($method, $uri, $headers, $body);
 
         $this
@@ -77,7 +76,7 @@ class ServerRequest extends Request implements ServerRequestInterface
             ->withUploadedFiles($_FILES);
 
         if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
-            parse_str((string) $body, $data);
+            parse_str((string)$body, $data);
             $this->withParsedBody($data);
         }
     }
@@ -109,7 +108,7 @@ class ServerRequest extends Request implements ServerRequestInterface
                 }
             });
         }
-        
+
         $this->serverParams = $server;
 
         return $this;
@@ -355,7 +354,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getAttribute($name, $default = null)
     {
-        if (!array_key_exists($name, $this->attributes)) {
+        if ( ! array_key_exists($name, $this->attributes)) {
             return $default;
         }
 
@@ -400,13 +399,41 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withoutAttribute($name)
     {
-        if (!isset($this->attributes[$name])) {
+        if ( ! isset($this->attributes[$name])) {
             return $this;
         }
 
         unset($this->attributes[$name]);
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClientIP()
+    {
+        $unknown = 'unknown';
+        $ip = 'unknown';
+        if (
+            isset($this->serverParams['HTTP_X_FORWARDED_FOR'])
+            && $this->serverParams['HTTP_X_FORWARDED_FOR']
+            && strcasecmp($this->serverParams['HTTP_X_FORWARDED_FOR'], $unknown)
+        ) {
+            $ip = $this->serverParams['HTTP_X_FORWARDED_FOR'];
+        } else if (
+            isset($this->serverParams['REMOTE_ADDR'])
+            && $this->serverParams['REMOTE_ADDR']
+            && strcasecmp($this->serverParams['REMOTE_ADDR'], $unknown)
+        ) {
+            $ip = $this->serverParams['REMOTE_ADDR'];
+        }
+
+        if (false !== strpos($ip, ',')) {
+            $ip = reset(explode(',', $ip));
+        }
+
+        return $ip;
     }
 
     /**
@@ -420,7 +447,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         foreach ($files as $key => $value) {
             if ($value instanceof UploadedFileInterface) {
                 $normalized[$key] = $value;
-            } elseif (!is_array($value['name'])) {
+            } elseif ( ! is_array($value['name'])) {
                 $normalized[$key] = UploadedFile::normalizer($value);
             } elseif (is_array($value['name'])) {
                 $array = [];
@@ -433,7 +460,7 @@ class ServerRequest extends Request implements ServerRequestInterface
                         'type' => $value['type'][$index],
                         'tmp_name' => $value['tmp_name'][$index],
                         'error' => $value['error'][$index],
-                        'size' => $value['size'][$index]
+                        'size' => $value['size'][$index],
                     ]);
                 }
                 $normalized[$key] = $array;
@@ -454,7 +481,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         $uri = 'http://';
         if (isset($serverParams['REQUEST_SCHEME'])) {
-            $uri = strtolower($serverParams['REQUEST_SCHEME']) . '://';
+            $uri = strtolower($serverParams['REQUEST_SCHEME']).'://';
         } else {
             if (isset($serverParams['HTTPS']) && 'on' === $serverParams['HTTPS']) {
                 $uri = 'https://';
@@ -465,9 +492,9 @@ class ServerRequest extends Request implements ServerRequestInterface
         } elseif (isset($serverParams['HTTP_HOST'])) {
             $uri .= $serverParams['HTTP_HOST'];
         }
-        if (isset($serverParams['SERVER_PORT']) && !empty($serverParams['SERVER_PORT'])) {
-            if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
-                $uri .= ':' . $serverParams['SERVER_PORT'];
+        if (isset($serverParams['SERVER_PORT']) && ! empty($serverParams['SERVER_PORT'])) {
+            if ( ! in_array($serverParams['SERVER_PORT'], [80, 443])) {
+                $uri .= ':'.$serverParams['SERVER_PORT'];
             }
         }
         if (isset($serverParams['REQUEST_URI'])) {
@@ -475,9 +502,10 @@ class ServerRequest extends Request implements ServerRequestInterface
             $uri .= $requestUriParts[0];
             unset($requestUriParts);
         }
-        if (isset($serverParams['QUERY_STRING']) && !empty($serverParams['QUERY_STRING'])) {
-            $uri .= '?' . $serverParams['QUERY_STRING'];
+        if (isset($serverParams['QUERY_STRING']) && ! empty($serverParams['QUERY_STRING'])) {
+            $uri .= '?'.$serverParams['QUERY_STRING'];
         }
+
         return $uri;
     }
 
