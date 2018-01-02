@@ -635,6 +635,18 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
+     * @return array
+     */
+    public function toArray()
+    {
+        if ('' == $this->getContents()) {
+            return [];
+        }
+
+        return json_decode($this->getContents(), true);
+    }
+
+    /**
      * Returns the Response as an HTTP string.
      *
      * The string representation of the Response is the same as the
