@@ -158,7 +158,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies)
     {
-        while (list($name, $value) = each($cookies)) {
+        foreach ($cookies as $name => $value) {
             $this->cookieParams[$name] = $value;
         }
 
@@ -224,7 +224,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withQueryParams(array $query)
     {
-        while (list($name, $value) = each($query)) {
+        foreach ($query as $name => $value) {
             $this->queryParams[$name] = $value;
         }
 
