@@ -1,6 +1,6 @@
 # FastD HTTP Server and Client 
 
-![Building](https://api.travis-ci.org/JanHuang/http.svg?branch=master)
+[![Build Status](https://travis-ci.org/fastdlabs/http.svg?branch=master)](https://travis-ci.org/fastdlabs/http)
 ![Support Swoole](https://img.shields.io/badge/support-swoole-brightgreen.svg)
 ![Support PSR7](https://img.shields.io/badge/support-psr7-brightgreen.svg)
 [![Latest Stable Version](https://poser.pugx.org/fastd/http/v/stable)](https://packagist.org/packages/fastd/http) 

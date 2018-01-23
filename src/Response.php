@@ -447,9 +447,14 @@ class Response extends Message implements ResponseInterface
      */
     public function withExpires(DateTime $date)
     {
+        $timezone = new DateTimeZone("PRC");
+
         $this->withoutHeader('Expires');
-        $date->setTimezone(new DateTimeZone("PRC"));
+        $date->setTimezone($timezone);
         $this->withHeader('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
+
+        $maxAge = $date->getTimestamp() - (new DateTime('now', $timezone))->getTimestamp();
+        $this->withMaxAge($maxAge);
 
         return $this;
     }
