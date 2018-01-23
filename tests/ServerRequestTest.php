@@ -5,7 +5,7 @@ use FastD\Http\ServerRequest;
 /**
  *
  * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2016
+ * @copyright 2018
  *
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/

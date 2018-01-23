@@ -1,7 +1,7 @@
 <?php
 /**
  * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2016
+ * @copyright 2018
  *
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
@@ -25,7 +25,7 @@ class JsonResponse extends Response
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      */
-    public function __construct(array $data, $status = 200, $headers = array())
+    public function __construct(array $data, $status = Response::HTTP_OK, array $headers = array())
     {
         $json = json_encode($data, static::JSON_OPTIONS);
 

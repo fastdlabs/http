@@ -66,7 +66,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testResponseExpire()
     {
-        $this->response->withExpires(new DateTime('2016-12-31'));
+        $this->response->withExpires(new DateTime('2018-12-31'));
         $this->outputResponse($this->response);
         $this->response->withCacheControl('public');
         $this->response->withMaxAge(0);
