@@ -519,6 +519,12 @@ class ServerRequest extends Request implements ServerRequestInterface
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
 
+        foreach ($headers as $name => $value) {
+            $name = str_replace('-', '_', $name);
+            unset($headers[$name]);
+            $headers[$name] = $value;
+        }
+
         return new static($method, static::createUriFromGlobal($_SERVER), $headers, new PhpInputStream(), $_SERVER);
     }
 }
