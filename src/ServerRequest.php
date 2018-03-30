@@ -520,8 +520,8 @@ class ServerRequest extends Request implements ServerRequestInterface
         $headers = function_exists('getallheaders') ? getallheaders() : [];
 
         foreach ($headers as $name => $value) {
-            $name = str_replace('-', '_', $name);
             unset($headers[$name]);
+            $name = str_replace('-', '_', $name);
             $headers[$name] = $value;
         }
 
