@@ -77,6 +77,10 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
             parse_str((string)$body, $data);
+            if (empty($data)) {
+                $data = json_decode((string)$body);
+            }
+
             $this->withParsedBody($data);
         }
     }
