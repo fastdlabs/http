@@ -222,7 +222,7 @@ class Response extends Message implements ResponseInterface
                     $this->getStatusCode(),
                     ($this->isOk() ? '' : $this->getReasonPhrase())
                 ),
-                false,
+                true,
                 $this->getStatusCode()
             );
 
