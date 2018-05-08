@@ -311,7 +311,11 @@ class Request extends Message implements RequestInterface
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch); unset($ch);
-        list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
+        $responseInfo = explode("\r\n\r\n", $response);
+        $response = array_pop($responseInfo);
+        $responseHeaders = array_pop($responseInfo);
+        unset($responseInfo);
+
         $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
 
         array_shift($responseHeaders);
