@@ -310,8 +310,15 @@ class Request extends Message implements RequestInterface
         }
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch); unset($ch);
-        list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
+        curl_close($ch);
+        unset($ch);
+        // handle 100 continue message
+        // see: https://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.2.3
+        // see: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/100
+        // see: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Expect
+        $responseInfo = explode("\r\n\r\n", $response);
+        $response = array_pop($responseInfo);
+        $responseHeaders = array_pop($responseInfo);
         $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
 
         array_shift($responseHeaders);

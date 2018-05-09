@@ -54,6 +54,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    public function testRequestWithLargeBody()
+    {
+        $request = new Request('POST', 'https://passport.baidu.com/v2/api/?login');
+
+        $response = $request->send([
+            'a' => str_repeat('10000', 10000),
+        ]);
+
+        $this->assertSame(true, count($response->getHeaders()) > 0);
+        $this->assertSame(302, $response->getStatusCode());
+    }
+
     public function testResponseWithEncoding()
     {
         $request = $this->server();
