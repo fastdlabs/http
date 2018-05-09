@@ -281,7 +281,8 @@ class Request extends Message implements RequestInterface
 
         is_array($data) && $data = http_build_query($data);
 
-        if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'])) {
+        // DELETE request may has body
+        if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH'])) {
             $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else if (!empty($data)) {
             $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
@@ -290,6 +291,18 @@ class Request extends Message implements RequestInterface
         if (!array_key_exists(CURLOPT_USERAGENT, $this->options)) {
             $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
         }
+
+        // forces only empty Expect
+        // see: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Expect
+        // see: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/100
+        foreach ($headers as $index => $header) {
+            if (0 === strpos(strtolower($header), 'expect:')) {
+                unset($headers[$index]);
+                break;
+            }
+        }
+        $headers[] = 'Expect:';
+
         $this->withOption(CURLOPT_HTTPHEADER, $headers);
         $this->withOption(CURLOPT_URL, $url);
         $this->withOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
@@ -310,12 +323,9 @@ class Request extends Message implements RequestInterface
         }
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch); unset($ch);
-        $responseInfo = explode("\r\n\r\n", $response);
-        $response = array_pop($responseInfo);
-        $responseHeaders = array_pop($responseInfo);
-        unset($responseInfo);
-
+        curl_close($ch);
+        unset($ch);
+        list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
         $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
 
         array_shift($responseHeaders);

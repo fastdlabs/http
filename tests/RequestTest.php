@@ -54,6 +54,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    public function testRequestWithLargeBody()
+    {
+        $request = new Request('POST', 'https://github.com/session');
+
+        $response = $request->send([
+            'a' => str_repeat('11111', 1000),
+        ]);
+
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame('GitHub.com', $response->getHeader('server')[0]);
+    }
+
     public function testResponseWithEncoding()
     {
         $request = $this->server();
