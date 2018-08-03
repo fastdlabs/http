@@ -96,38 +96,40 @@ class SwooleServerRequest extends ServerRequest
     {
         $ip = '';
 
-        // get ip from proxy
-        if (isset($request->header['x-forwarded-for'])) {
-            is_array($request->header['x-forwarded-for']) ?
-                list($ip) = explode(',', current($request->header['x-forwarded-for'])) :
-                list($ip) = explode(',', $request->header['x-forwarded-for']);
-        } elseif (isset($request->header['x-real-ip'])) {
-            $ip = is_array($request->header['x-real-ip']) ?
-                current($request->header['x-real-ip']) : $request->header['x-real-ip'];
-        } else {
-            // get ip from server env
-            $_server = [
-                'HTTP_CLIENT_IP',
-                'HTTP_X_FORWARDED_FOR',
-                'HTTP_X_FORWARDED',
-                'HTTP_X_CLUSTER_CLIENT_IP',
-                'HTTP_FORWARDED_FOR',
-                'HTTP_FORWARDED',
-                'REMOTE_ADDR'
-            ];
+        // get ip from server env
+        $_server = [
+            'HTTP_CLIENT_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_X_CLUSTER_CLIENT_IP',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED',
+            'REMOTE_ADDR'
+        ];
 
-            foreach ($_server as $item) {
-                $item = strtolower($item);
+        foreach ($_server as $item) {
+            $item = strtolower($item);
 
-                if (isset($request->server[$item])) {
-                    if (is_array($request->server[$item])) {
-                        list($ip) = explode(',', current($request->server[$item]));
-                        break;
-                    } else {
-                        list($ip) = explode(',', $request->server[$item]);
-                        break;
-                    }
+            if (isset($request->server[$item])) {
+                if (is_array($request->server[$item])) {
+                    list($ip) = explode(',', current($request->server[$item]));
+                    break;
+                } else {
+                    list($ip) = explode(',', $request->server[$item]);
+                    break;
                 }
+            }
+        }
+
+        if (empty($ip)) {
+            // get ip from proxy set header or header
+            if (isset($request->header['x-forwarded-for'])) {
+                is_array($request->header['x-forwarded-for']) ?
+                    list($ip) = explode(',', current($request->header['x-forwarded-for'])) :
+                    list($ip) = explode(',', $request->header['x-forwarded-for']);
+            } elseif (isset($request->header['x-real-ip'])) {
+                $ip = is_array($request->header['x-real-ip']) ?
+                    current($request->header['x-real-ip']) : $request->header['x-real-ip'];
             }
         }
 
