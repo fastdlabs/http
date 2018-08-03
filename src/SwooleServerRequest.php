@@ -25,7 +25,7 @@ class SwooleServerRequest extends ServerRequest
      */
     public static function createServerRequestFromSwoole(swoole_http_request $request)
     {
-var_dump($request);
+
         $get = isset($request->get) ? $request->get : [];
         $post = isset($request->post) ? $request->post : [];
         $cookie = isset($request->cookie) ? $request->cookie : [];
