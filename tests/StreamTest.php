@@ -1,5 +1,6 @@
 <?php
 use FastD\Http\Stream;
+use PHPUnit\Framework\TestCase;
 
 /**
  *
@@ -9,7 +10,7 @@ use FastD\Http\Stream;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class StreamTest extends PHPUnit_Framework_TestCase
+class StreamTest extends TestCase
 {
     /**
      * @var Stream

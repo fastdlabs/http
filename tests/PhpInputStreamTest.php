@@ -9,7 +9,10 @@ use FastD\Http\PhpInputStream;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class PhpInputStreamTest extends PHPUnit_Framework_TestCase
+
+use PHPUnit\Framework\TestCase;
+
+class PhpInputStreamTest extends TestCase
 {
     /**
      * @var \Psr\Http\Message\StreamInterface

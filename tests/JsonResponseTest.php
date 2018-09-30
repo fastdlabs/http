@@ -9,8 +9,9 @@
 
 
 use FastD\Http\JsonResponse;
+use PHPUnit\Framework\TestCase;
 
-class JsonResponseTest extends PHPUnit_Framework_TestCase
+class JsonResponseTest extends TestCase
 {
     public function testResponseJson()
     {

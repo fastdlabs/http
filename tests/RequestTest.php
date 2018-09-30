@@ -1,6 +1,7 @@
 <?php
 use FastD\Http\Request;
 use FastD\Http\Uri;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @author    jan huang <bboyjanhuang@gmail.com>
@@ -9,7 +10,7 @@ use FastD\Http\Uri;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class RequestTest extends PHPUnit_Framework_TestCase
+class RequestTest extends TestCase
 {
     public function testRequestUri()
     {
