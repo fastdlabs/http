@@ -491,10 +491,10 @@ class ServerRequest extends Request implements ServerRequestInterface
                 $uri = 'https://';
             }
         }
-        if (isset($serverParams['SERVER_NAME'])) {
-            $uri .= $serverParams['SERVER_NAME'];
-        } elseif (isset($serverParams['HTTP_HOST'])) {
+        if (isset($serverParams['HTTP_HOST'])) {
             $uri .= $serverParams['HTTP_HOST'];
+        } elseif (isset($serverParams['SERVER_NAME'])) {
+            $uri .= $serverParams['SERVER_NAME'];
         }
         if (isset($serverParams['SERVER_PORT']) && ! empty($serverParams['SERVER_PORT'])) {
             if ( ! in_array($serverParams['SERVER_PORT'], [80, 443])) {
