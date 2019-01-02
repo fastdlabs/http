@@ -74,7 +74,7 @@ class Stream implements StreamInterface
      * @param $stream
      * @param string $mode
      */
-    public function __construct($stream, $mode = 'r')
+    public function __construct(string $stream, string $mode = 'r')
     {
         $this->stream = $stream;
 
@@ -111,7 +111,7 @@ class Stream implements StreamInterface
      * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         try {
             $this->rewind();
@@ -126,7 +126,7 @@ class Stream implements StreamInterface
      *
      * @return void
      */
-    public function close()
+    public function close(): void
     {
         if (null !== $this->resource) {
             $resource = $this->detach();
@@ -153,7 +153,7 @@ class Stream implements StreamInterface
      *
      * @return int|null Returns the size in bytes if known, or null if unknown.
      */
-    public function getSize()
+    public function getSize(): int
     {
         if (!$this->resource) {
             return null;
@@ -169,7 +169,7 @@ class Stream implements StreamInterface
      * @return int Position of the file pointer
      * @throws RuntimeException on error.
      */
-    public function tell()
+    public function tell(): int
     {
         if (!$this->resource) {
             throw new RuntimeException('No resource available; cannot tell position');
@@ -188,7 +188,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function eof()
+    public function eof(): bool
     {
         if (!$this->resource) {
             return true;
@@ -202,7 +202,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         return $this->seekable;
     }

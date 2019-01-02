@@ -55,22 +55,23 @@ class Cookie
     protected $httpOnly;
 
     /**
-     * @param        $name
-     * @param null $value
-     * @param int $expire
-     * @param string $path
-     * @param null $domain
+     * Cookie constructor.
+     * @param string $name
+     * @param null|string $value
+     * @param int|null $expire
+     * @param null|string $path
+     * @param null|string $domain
      * @param bool $secure
      * @param bool $httpOnly
      */
     public function __construct(
-        $name,
-        $value = null,
-        $expire = null,
-        $path = null,
-        $domain = null,
-        $secure = null,
-        $httpOnly = null
+        string $name,
+        ?string $value = null,
+        ?int $expire = null,
+        ?string $path = '/',
+        ?string $domain = null,
+        bool $secure = false,
+        bool $httpOnly = false
     ) {
         // from PHP source code
         if (preg_match("/[=,; \t\r\n\013\014]/", $name)) {
@@ -88,7 +89,7 @@ class Cookie
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -102,9 +103,9 @@ class Cookie
     }
 
     /**
-     * @return null|string
+     * @return string
      */
-    public function getDomain()
+    public function getDomain(): ?string
     {
         return $this->domain;
     }
@@ -112,7 +113,7 @@ class Cookie
     /**
      * @return int
      */
-    public function getExpire()
+    public function getExpire(): int
     {
         return $this->expire;
     }
@@ -120,7 +121,7 @@ class Cookie
     /**
      * @return string
      */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -128,7 +129,7 @@ class Cookie
     /**
      * @return boolean
      */
-    public function isSecure()
+    public function isSecure(): bool
     {
         return $this->secure;
     }
@@ -136,7 +137,7 @@ class Cookie
     /**
      * @return boolean
      */
-    public function isHttpOnly()
+    public function isHttpOnly(): bool
     {
         return $this->httpOnly;
     }
@@ -144,7 +145,7 @@ class Cookie
     /**
      * @return string
      */
-    public function asString()
+    public function asString(): string
     {
         $str = urlencode($this->name).'=';
         if ('' === (string)$this->value) {
@@ -176,30 +177,31 @@ class Cookie
      *
      * @return string The cookie value
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->value;
     }
 
     /**
-     * @param $name
-     * @param null $value
-     * @param null $expire
-     * @param null $path
-     * @param null $domain
-     * @param null $secure
-     * @param null $httpOnly
+     * @param string $name
+     * @param null|string $value
+     * @param int|null $expire
+     * @param null|string $path
+     * @param null|string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
      * @return Cookie
      */
     public static function normalizer(
-        $name,
-        $value = null,
-        $expire = null,
-        $path = null,
-        $domain = null,
-        $secure = null,
-        $httpOnly = null
-    ) {
+        string $name,
+        ?string $value = null,
+        ?int $expire = null,
+        ?string $path = '/',
+        ?string $domain = null,
+        bool $secure = false,
+        bool $httpOnly = false
+    ): Cookie
+    {
         return new static($name, $value, $expire, $path, $domain, $secure, $httpOnly);
     }
 }

@@ -10,6 +10,7 @@
 namespace FastD\Http;
 
 
+use Grpc\Server;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -53,15 +54,15 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     /**
      * ServerRequest constructor.
-     * @param null $method
-     * @param $uri
+     * @param string $method
+     * @param string $uri
      * @param array $headers
      * @param StreamInterface|null $body
      * @param array $serverParams
      */
     public function __construct(
-        $method,
-        $uri,
+        string $method,
+        string $uri,
         array $headers = [],
         StreamInterface $body = null,
         array $serverParams = []
@@ -94,16 +95,16 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getServerParams()
+    public function getServerParams(): array
     {
         return $this->serverParams;
     }
 
     /**
      * @param array $server
-     * @return $this
+     * @return ServerRequest
      */
-    public function withServerParams(array $server)
+    public function withServerParams(array $server): ServerRequest
     {
         if (empty($this->header)) {
             array_walk($server, function ($value, $key) {
@@ -128,7 +129,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->cookieParams;
     }
@@ -138,7 +139,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param $default
      * @return bool|mixed
      */
-    public function getCookie($key, $default = false)
+    public function getCookie(string $key, bool $default = null): ?Cookie
     {
         return isset($this->cookieParams[$key]) ? $this->cookieParams[$key] : $default;
     }
@@ -158,9 +159,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      * updated cookie values.
      *
      * @param array $cookies Array of key/value pairs representing cookies.
-     * @return $this
+     * @return ServerRequest
      */
-    public function withCookieParams(array $cookies)
+    public function withCookieParams(array $cookies): ServerRequest
     {
         foreach ($cookies as $name => $value) {
             $this->cookieParams[$name] = $value;
@@ -181,17 +182,17 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
         return $this->queryParams;
     }
 
     /**
-     * @param $key
-     * @param bool $default
+     * @param string $key
+     * @param string $default
      * @return mixed
      */
-    public function getParam($key, $default = false)
+    public function getParam(string $key, ?string $default = null)
     {
         if (isset($this->queryParams[$key])) {
             return $this->queryParams[$key];
@@ -224,9 +225,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @param array $query Array of query string arguments, typically from
      *                     $_GET.
-     * @return static
+     * @return ServerRequest
      */
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): ServerRequest
     {
         foreach ($query as $name => $value) {
             $this->queryParams[$name] = $value;
@@ -247,7 +248,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return UploadedFile[] An array tree of UploadedFileInterface instances; an empty
      *     array MUST be returned if no data is present.
      */
-    public function getUploadedFiles()
+    public function getUploadedFiles(): array
     {
         return $this->uploadFile;
     }
@@ -260,10 +261,10 @@ class ServerRequest extends Request implements ServerRequestInterface
      * updated body parameters.
      *
      * @param UploadedFile[] $uploadedFiles An array tree of UploadedFileInterface instances.
-     * @return static
+     * @return ServerRequest
      * @throws InvalidArgumentException if an invalid structure is provided.
      */
-    public function withUploadedFiles(array $uploadedFiles)
+    public function withUploadedFiles(array $uploadedFiles): ServerRequest
     {
         $this->uploadFile = static::normalizer($uploadedFiles);
 
@@ -282,10 +283,10 @@ class ServerRequest extends Request implements ServerRequestInterface
      * potential types MUST be arrays or objects only. A null value indicates
      * the absence of body content.
      *
-     * @return null|array|object The deserialized body parameters, if any.
+     * @return array The deserialized body parameters, if any.
      *     These will typically be an array or object.
      */
-    public function getParsedBody()
+    public function getParsedBody(): array
     {
         return $this->bodyParams;
     }
@@ -314,11 +315,11 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @param null|array|object $data The deserialized body data. This will
      *                                typically be in an array or object.
-     * @return static
+     * @return ServerRequest
      * @throws InvalidArgumentException if an unsupported argument type is
      *                                provided.
      */
-    public function withParsedBody($data)
+    public function withParsedBody($data): ServerRequest
     {
         $this->bodyParams = $data;
 
@@ -336,7 +337,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array Attributes derived from the request.
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
@@ -399,7 +400,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @see getAttributes()
      * @param string $name The attribute name.
-     * @return static
+     * @return ServerRequest
      */
     public function withoutAttribute($name)
     {
@@ -415,7 +416,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @return string
      */
-    public function getClientIP()
+    public function getClientIP(): string
     {
         $unknown = 'unknown';
         $ip = 'unknown';
@@ -444,7 +445,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param $files
      * @return array
      */
-    public static function normalizer($files)
+    public static function normalizer(array $files): array
     {
         $normalized = [];
 
@@ -481,7 +482,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param array $serverParams
      * @return string
      */
-    public static function createUriFromGlobal(array $serverParams)
+    public static function createUriFromGlobal(array $serverParams): string
     {
         $uri = 'http://';
         if (isset($serverParams['REQUEST_SCHEME'])) {
@@ -516,9 +517,9 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * Create a new server request from PHP globals.
      *
-     * @return ServerRequestInterface
+     * @return ServerRequest
      */
-    public static function createServerRequestFromGlobals()
+    public static function createServerRequestFromGlobals(): ServerRequest
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];

@@ -10,6 +10,7 @@
 namespace FastD\Http;
 
 use InvalidArgumentException;
+use phpDocumentor\Reflection\Types\String_;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -23,7 +24,7 @@ use Psr\Http\Message\UriInterface;
  */
 class Request extends Message implements RequestInterface
 {
-    const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/JanHuang/http)';
+    const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/fastdlabs/http)';
 
     /**
      * @var array
@@ -63,13 +64,17 @@ class Request extends Message implements RequestInterface
     /**
      * Request constructor.
      *
-     * @param $method
-     * @param $uri
+     * @param string $method
+     * @param string $uri
      * @param array $headers
      * @param StreamInterface $body
      */
-    public function __construct($method, $uri, array $headers = [], StreamInterface $body = null)
-    {
+    public function __construct(
+        string $method,
+        string $uri,
+        array $headers = [],
+        ?StreamInterface $body = null
+    ) {
         $this->withMethod($method);
         $this->withUri(new Uri($uri));
         $this->withHeaders($headers);
@@ -93,7 +98,7 @@ class Request extends Message implements RequestInterface
      *
      * @return string
      */
-    public function getRequestTarget()
+    public function getRequestTarget(): string
     {
         return $this->uri->getPath();
     }
@@ -113,9 +118,9 @@ class Request extends Message implements RequestInterface
      * @link http://tools.ietf.org/html/rfc7230#section-5.3 (for the various
      *     request-target forms allowed in request messages)
      * @param mixed $requestTarget
-     * @return $this
+     * @return Request
      */
-    public function withRequestTarget($requestTarget)
+    public function withRequestTarget($requestTarget): Request
     {
         $this->uri->withPath($requestTarget);
 
@@ -127,7 +132,7 @@ class Request extends Message implements RequestInterface
      *
      * @return string Returns the request method.
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->method;
     }
@@ -144,14 +149,14 @@ class Request extends Message implements RequestInterface
      * changed request method.
      *
      * @param string $method Case-sensitive method.
-     * @return static
+     * @return Request
      * @throws InvalidArgumentException for invalid HTTP methods.
      */
-    public function withMethod($method)
+    public function withMethod($method): Request
     {
         $method = strtoupper($method);
 
-        if (!in_array($method, $this->validMethods, true)) {
+        if ( ! in_array($method, $this->validMethods, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method "%s" provided',
                 $method
@@ -172,7 +177,7 @@ class Request extends Message implements RequestInterface
      * @return UriInterface Returns a UriInterface instance
      *     representing the URI of the request.
      */
-    public function getUri()
+    public function getUri(): UriInterface
     {
         return $this->uri;
     }
@@ -205,7 +210,7 @@ class Request extends Message implements RequestInterface
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
      * @param UriInterface $uri New request URI to use.
      * @param bool $preserveHost Preserve the original state of the Host header.
-     * @return static
+     * @return Request
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
@@ -217,17 +222,17 @@ class Request extends Message implements RequestInterface
     /**
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
 
     /**
-     * @param $key
-     * @param $value
-     * @return $this
+     * @param string $key
+     * @param int $value
+     * @return Request
      */
-    public function withOption($key, $value)
+    public function withOption(string $key, $value): Request
     {
         $this->options[$key] = $value;
 
@@ -236,9 +241,9 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param array $options
-     * @return $this
+     * @return Request
      */
-    public function withOptions(array $options)
+    public function withOptions(array $options): Request
     {
         $this->options = $options + $this->options;
 
@@ -246,23 +251,23 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param $username
-     * @param $password
-     * @return $this
+     * @param string $username
+     * @param string $password
+     * @return Request
      */
-    public function withBasicAuthentication($username, $password)
+    public function withBasicAuthentication(string $username, string $password): Request
     {
         $this->withOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        $this->withOption(CURLOPT_USERPWD, $username . ':' . $password);
+        $this->withOption(CURLOPT_USERPWD, $username.':'.$password);
 
         return $this;
     }
 
     /**
-     * @param $referer
+     * @param string $referer
      * @return $this
      */
-    public function withReferrer($referer)
+    public function withReferrer(string $referer): Request
     {
         $this->withOption(CURLOPT_REFERER, $referer);
 
@@ -274,7 +279,7 @@ class Request extends Message implements RequestInterface
      * @param array $headers
      * @return Response
      */
-    public function send($data = [], array $headers = [])
+    public function send($data = [], array $headers = []): Response
     {
         $ch = curl_init();
         $url = (string)$this->uri;
@@ -284,11 +289,13 @@ class Request extends Message implements RequestInterface
         // DELETE request may has body
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH'])) {
             $this->withOption(CURLOPT_POSTFIELDS, $data);
-        } else if (!empty($data)) {
-            $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
+        } else {
+            if ( ! empty($data)) {
+                $url .= (false === strpos($url, '?') ? '?' : '&').$data;
+            }
         }
 
-        if (!array_key_exists(CURLOPT_USERAGENT, $this->options)) {
+        if ( ! array_key_exists(CURLOPT_USERAGENT, $this->options)) {
             $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
         }
 
@@ -318,7 +325,7 @@ class Request extends Message implements RequestInterface
         $errorCode = curl_errno($ch);
         $errorMsg = curl_error($ch);
 
-        if ((strpos($response, "\r\n\r\n") === false) || !($errorCode === 0)) {
+        if ((strpos($response, "\r\n\r\n") === false) || ! ($errorCode === 0)) {
             throw new HttpException($errorMsg);
         }
 

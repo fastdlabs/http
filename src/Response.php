@@ -196,11 +196,10 @@ class Response extends Message implements ResponseInterface
      * @param array $headers
      */
     public function __construct(
-        $content = '',
-        $statusCode = 200,
+        string $content = '',
+        int $statusCode = 200,
         array $headers = []
-    )
-    {
+    ) {
         parent::__construct(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
         $this->withContent($content);
@@ -214,7 +213,7 @@ class Response extends Message implements ResponseInterface
      */
     public function sendHeaders()
     {
-        if (!headers_sent()) {
+        if ( ! headers_sent()) {
             header(
                 sprintf(
                     'HTTP/%s %s %s',
@@ -240,7 +239,7 @@ class Response extends Message implements ResponseInterface
     /**
      * Sends HTTP body
      */
-    public function sendBody()
+    public function sendBody(): void
     {
         echo $this->getBody();
     }
@@ -250,7 +249,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return void
      */
-    public function send()
+    public function send(): void
     {
         $this->sendHeaders();
 
@@ -262,17 +261,24 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @param $key
-     * @param $value
-     * @param null $expire
-     * @param null $path
-     * @param null $domain
-     * @param null $secure
-     * @param null $httpOnly
-     * @return $this
+     * @param string $key
+     * @param string $value
+     * @param int|null $expire
+     * @param null|string $path
+     * @param null|string $domain
+     * @param bool $secure
+     * @param bool $httpOnly
+     * @return Response
      */
-    public function withCookie($key, $value, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
-    {
+    public function withCookie(
+        string $key,
+        string $value,
+        ?int $expire = null,
+        ?string $path = null,
+        ?string $domain = null,
+        bool $secure = false,
+        bool $httpOnly = false
+    ): Response {
         $this->cookie[$key] = new Cookie($key, $value, $expire, $path, $domain, $secure, $httpOnly);
 
         return $this;
@@ -280,9 +286,9 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param Cookie[] $cookie
-     * @return $this
+     * @return Response
      */
-    public function withCookieParams(array $cookie)
+    public function withCookieParams(array $cookie): Response
     {
         $this->cookie = $cookie;
 
@@ -292,16 +298,16 @@ class Response extends Message implements ResponseInterface
     /**
      * @return Cookie[]
      */
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->cookie;
     }
 
     /**
      * @param $fd
-     * @return $this
+     * @return Response
      */
-    public function withFileDescriptor($fd)
+    public function withFileDescriptor(int $fd): Response
     {
         $this->fileDescriptor = $fd;
 
@@ -311,16 +317,16 @@ class Response extends Message implements ResponseInterface
     /**
      * @return int
      */
-    public function getFileDescriptor()
+    public function getFileDescriptor(): int
     {
         return $this->fileDescriptor;
     }
 
     /**
-     * @param $content
-     * @return $this
+     * @param string $content
+     * @return Response
      */
-    public function withContent($content)
+    public function withContent(string $content): Response
     {
         $this->getBody()->write($content);
 
@@ -330,7 +336,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @return string
      */
-    public function getContents()
+    public function getContents(): string
     {
         $this->getBody()->rewind();
 
@@ -339,9 +345,9 @@ class Response extends Message implements ResponseInterface
 
     /**
      * @param $contentType
-     * @return $this
+     * @return Response
      */
-    public function withContentType($contentType)
+    public function withContentType(string $contentType): Response
     {
         $this->withHeader('Content-Type', $contentType);
 
@@ -349,18 +355,18 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @return array|int|string
+     * @return string
      */
-    public function getContentType()
+    public function getContentType(): ?string
     {
         return $this->getHeaderLine('Content-Type');
     }
 
     /**
-     * @param $cacheControl
-     * @return $this
+     * @param string $cacheControl
+     * @return Response
      */
-    public function withCacheControl($cacheControl)
+    public function withCacheControl(string $cacheControl): Response
     {
         $this->withoutHeader('Cache-Control');
         $this->withHeader('Cache-Control', $cacheControl);
@@ -369,9 +375,9 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getCacheControl()
+    public function getCacheControl(): string
     {
         return $this->getHeaderLine('Cache-Control');
     }
@@ -381,7 +387,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return string|null The ETag HTTP header or null if it does not exist
      */
-    public function getETag()
+    public function getETag(): ?string
     {
         return $this->getHeaderLine('ETag');
     }
@@ -394,19 +400,19 @@ class Response extends Message implements ResponseInterface
      *
      * @return Response
      */
-    public function withETag($eTag = null, $weak = false)
+    public function withETag(?string $eTag = null, $weak = false): Response
     {
         $this->withoutHeader('ETag');
-        $this->withHeader('ETag', (true === $weak ? 'W/' : '') . $eTag);
+        $this->withHeader('ETag', (true === $weak ? 'W/' : '').$eTag);
 
         return $this;
     }
 
     /**
-     * @param $location
-     * @return $this
+     * @param string $location
+     * @return Response
      */
-    public function withLocation($location)
+    public function withLocation(string $location): Response
     {
         $this->withHeader('Location', $location);
 
@@ -414,9 +420,9 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getLocation()
+    public function getLocation(): ?string
     {
         return $this->getHeaderLine('Location');
     }
@@ -424,9 +430,9 @@ class Response extends Message implements ResponseInterface
     /**
      * Returns the value of the Expires header as a DateTime instance.
      *
-     * @return DateTime|null A DateTime instance or null if the header does not exist
+     * @return DateTime A DateTime instance or null if the header does not exist
      */
-    public function getExpires()
+    public function getExpires(): DateTime
     {
         try {
             return new DateTime($this->getHeaderLine('Expires'));
@@ -441,17 +447,17 @@ class Response extends Message implements ResponseInterface
      *
      * Passing null as value will remove the header.
      *
-     * @param DateTime|null $date A \DateTime instance or null to remove the header
+     * @param DateTime $date A \DateTime instance or null to remove the header
      *
      * @return $this
      */
-    public function withExpires(DateTime $date)
+    public function withExpires(DateTime $date): Response
     {
         $timezone = new DateTimeZone("PRC");
 
         $this->withoutHeader('Expires');
         $date->setTimezone($timezone);
-        $this->withHeader('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
+        $this->withHeader('Expires', $date->format('D, d M Y H:i:s').' GMT');
 
         $maxAge = $date->getTimestamp() - (new DateTime('now', $timezone))->getTimestamp();
         $this->withMaxAge($maxAge);
@@ -484,11 +490,11 @@ class Response extends Message implements ResponseInterface
      *
      * @param int $value Number of seconds
      *
-     * @return $this
+     * @return Response
      */
-    public function withMaxAge($value)
+    public function withMaxAge(int $value): Response
     {
-        $this->withAddedHeader('Cache-Control', 'max-age=' . $value);
+        $this->withAddedHeader('Cache-Control', 'max-age='.$value);
 
         return $this;
     }
@@ -500,13 +506,13 @@ class Response extends Message implements ResponseInterface
      *
      * @param int $value Number of seconds
      *
-     * @return $this
+     * @return Response
      */
-    public function withSharedMaxAge($value)
+    public function withSharedMaxAge(int $value): Response
     {
         $this->withCacheControl('public');
 
-        $this->withHeader('Cache-Control', 's-maxage=' . $value);
+        $this->withHeader('Cache-Control', 's-maxage='.$value);
 
         return $this;
     }
@@ -532,7 +538,7 @@ class Response extends Message implements ResponseInterface
     public function withLastModified(DateTime $date)
     {
         $this->withoutHeader('Last-Modified');
-        $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
+        $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s').' GMT');
 
         return $this;
     }
@@ -547,7 +553,7 @@ class Response extends Message implements ResponseInterface
      *
      * @see http://tools.ietf.org/html/rfc2616#section-10.3.5
      */
-    public function withNotModified()
+    public function withNotModified(): Response
     {
         $this->withStatus(static::HTTP_NOT_MODIFIED);
         $this->getBody()->write('');
@@ -560,7 +566,8 @@ class Response extends Message implements ResponseInterface
                      'Content-Length',
                      'Content-MD5',
                      'Content-Type',
-                     'Last-Modified'] as $header) {
+                     'Last-Modified',
+                 ] as $header) {
             $this->withoutHeader($header);
         }
 
@@ -574,7 +581,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      */
-    public function isInvalidStatusCode()
+    public function isInvalidStatusCode(): bool
     {
         return $this->statusCode < 100 || $this->statusCode >= 600;
     }
@@ -584,7 +591,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      */
-    public function isSuccessful()
+    public function isSuccessful(): bool
     {
         return $this->statusCode >= 200 && $this->statusCode < 300;
     }
@@ -594,7 +601,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      */
-    public function isServerError()
+    public function isServerError(): bool
     {
         return $this->statusCode >= 500 && $this->statusCode < 600;
     }
@@ -604,7 +611,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      */
-    public function isOk()
+    public function isOk(): bool
     {
         return 200 === $this->statusCode;
     }
@@ -614,7 +621,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      */
-    public function isForbidden()
+    public function isForbidden(): bool
     {
         return 403 === $this->statusCode;
     }
@@ -624,7 +631,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      */
-    public function isNotFound()
+    public function isNotFound(): bool
     {
         return 404 === $this->statusCode;
     }
@@ -634,7 +641,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return bool
      */
-    public function isRedirection()
+    public function isRedirection(): bool
     {
         return $this->statusCode >= 300 && $this->statusCode < 400;
     }
@@ -642,7 +649,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         if ('' == $this->getContents()) {
             return [];
@@ -665,11 +672,11 @@ class Response extends Message implements ResponseInterface
         $headerLine = '';
         foreach ($this->header as $name => $value) {
             $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
-            $headerLine .= $name . ': ' . $this->getHeaderLine($name) . "\r\n";
+            $headerLine .= $name.': '.$this->getHeaderLine($name)."\r\n";
         }
 
         foreach ($this->cookie as $cookie) {
-            $headerLine .= sprintf('Set-Cookie: %s', $cookie->asString()) . "\r\n";
+            $headerLine .= sprintf('Set-Cookie: %s', $cookie->asString())."\r\n";
         }
 
         return
@@ -678,8 +685,8 @@ class Response extends Message implements ResponseInterface
                 $this->getProtocolVersion(),
                 $this->getStatusCode(),
                 $this->getReasonPhrase()
-            ) . "\r\n" .
-            $headerLine . "\r\n" .
+            )."\r\n".
+            $headerLine."\r\n".
             $this->getContents();
     }
 
@@ -700,15 +707,16 @@ class Response extends Message implements ResponseInterface
      * @param string $reasonPhrase The reason phrase to use with the
      *                             provided status code; if none is provided, implementations MAY
      *                             use the defaults as suggested in the HTTP specification.
-     * @return static
+     * @return Response
      * @throws InvalidArgumentException For invalid status code arguments.
      */
-    public function withStatus($code, $reasonPhrase = null)
+    public function withStatus($code, $reasonPhrase = null): Response
     {
         $this->statusCode = $code;
 
         if ($this->isInvalidStatusCode()) {
-            throw new InvalidArgumentException(sprintf('Invalid status code "%s"; must be an integer between 100 and 599, inclusive', $code));
+            throw new InvalidArgumentException(sprintf('Invalid status code "%s"; must be an integer between 100 and 599, inclusive',
+                $code));
         }
 
         if (null === $reasonPhrase) {

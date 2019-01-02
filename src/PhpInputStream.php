@@ -32,7 +32,7 @@ class PhpInputStream extends Stream
      * @param string $stream
      * @param string $mode
      */
-    public function __construct($stream = 'php://input', $mode = 'r')
+    public function __construct(string $stream = 'php://input', string $mode = 'r')
     {
         parent::__construct($stream, $mode);
     }
@@ -40,7 +40,7 @@ class PhpInputStream extends Stream
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->reachedEof) {
             return $this->cache;
@@ -55,7 +55,7 @@ class PhpInputStream extends Stream
     /**
      * @return bool false
      */
-    public function isWritable()
+    public function isWritable(): bool
     {
         return false;
     }
@@ -64,7 +64,7 @@ class PhpInputStream extends Stream
      * @param int $length
      * @return string
      */
-    public function read($length)
+    public function read($length): string
     {
         $content = parent::read($length);
         if ($content && ! $this->reachedEof) {
@@ -82,7 +82,7 @@ class PhpInputStream extends Stream
      * @param int $maxLength
      * @return string
      */
-    public function getContents($maxLength = -1)
+    public function getContents($maxLength = -1): string
     {
         if ($this->reachedEof) {
             return $this->cache;

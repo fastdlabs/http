@@ -35,9 +35,9 @@ class JsonResponse extends Response
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return json_decode($this->getContents(), true);
     }
