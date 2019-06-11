@@ -433,8 +433,9 @@ class ServerRequest extends Request implements ServerRequestInterface
             $ip = $this->serverParams['REMOTE_ADDR'];
         }
 
-        if (false !== strpos($ip, ',')) {
-            $ip = reset(explode(',', $ip));
+        if (false !== strpos($ip, ',')) 
+            $ips=explode(',', $ip);
+            $ip = reset($ips);
         }
 
         return $ip;
