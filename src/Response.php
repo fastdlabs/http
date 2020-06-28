@@ -88,31 +88,31 @@ class Response extends Message implements ResponseInterface
      *
      * @var int
      */
-    protected $statusCode;
+    protected int $statusCode;
 
     /**
      * Http response status code reason phrase.
      *
      * @var string
      */
-    protected $reasonPhrase;
+    protected string $reasonPhrase;
 
     /**
      * Http response charset.
      *
      * @var string
      */
-    protected $charset = 'utf-8';
+    protected string $charset = 'utf-8';
 
     /**
      * @var Cookie[]
      */
-    protected $cookie = [];
+    protected array $cookie = [];
 
     /**
      * @var int
      */
-    protected $fileDescriptor;
+    protected int $fileDescriptor;
 
     /**
      * Status codes translation table.
@@ -212,7 +212,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return void
      */
-    public function sendHeaders()
+    public function sendHeaders(): void
     {
         if (!headers_sent()) {
             header(
@@ -240,7 +240,7 @@ class Response extends Message implements ResponseInterface
     /**
      * Sends HTTP body
      */
-    public function sendBody()
+    public function sendBody(): void
     {
         echo $this->getBody();
     }
@@ -250,7 +250,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return void
      */
-    public function send()
+    public function send(): void
     {
         $this->sendHeaders();
 
@@ -271,7 +271,7 @@ class Response extends Message implements ResponseInterface
      * @param null $httpOnly
      * @return $this
      */
-    public function withCookie($key, $value, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null)
+    public function withCookie($key, $value, $expire = null, $path = null, $domain = null, $secure = null, $httpOnly = null): Response
     {
         $this->cookie[$key] = new Cookie($key, $value, $expire, $path, $domain, $secure, $httpOnly);
 
@@ -282,7 +282,7 @@ class Response extends Message implements ResponseInterface
      * @param Cookie[] $cookie
      * @return $this
      */
-    public function withCookieParams(array $cookie)
+    public function withCookieParams(array $cookie): Response
     {
         $this->cookie = $cookie;
 
@@ -292,7 +292,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @return Cookie[]
      */
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->cookie;
     }
@@ -301,7 +301,7 @@ class Response extends Message implements ResponseInterface
      * @param $fd
      * @return $this
      */
-    public function withFileDescriptor($fd)
+    public function withFileDescriptor($fd): Response
     {
         $this->fileDescriptor = $fd;
 
@@ -311,7 +311,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @return int
      */
-    public function getFileDescriptor()
+    public function getFileDescriptor(): int
     {
         return $this->fileDescriptor;
     }
@@ -320,7 +320,7 @@ class Response extends Message implements ResponseInterface
      * @param $content
      * @return $this
      */
-    public function withContent($content)
+    public function withContent($content): Response
     {
         $this->getBody()->write($content);
 
@@ -330,7 +330,7 @@ class Response extends Message implements ResponseInterface
     /**
      * @return string
      */
-    public function getContents()
+    public function getContents(): string
     {
         $this->getBody()->rewind();
 
@@ -341,7 +341,7 @@ class Response extends Message implements ResponseInterface
      * @param $contentType
      * @return $this
      */
-    public function withContentType($contentType)
+    public function withContentType($contentType): Response
     {
         $this->withHeader('Content-Type', $contentType);
 
@@ -349,9 +349,9 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @return array|int|string
+     * @return string
      */
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->getHeaderLine('Content-Type');
     }
@@ -360,7 +360,7 @@ class Response extends Message implements ResponseInterface
      * @param $cacheControl
      * @return $this
      */
-    public function withCacheControl($cacheControl)
+    public function withCacheControl($cacheControl): Response
     {
         $this->withoutHeader('Cache-Control');
         $this->withHeader('Cache-Control', $cacheControl);
@@ -369,9 +369,9 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getCacheControl()
+    public function getCacheControl(): string
     {
         return $this->getHeaderLine('Cache-Control');
     }
@@ -379,9 +379,9 @@ class Response extends Message implements ResponseInterface
     /**
      * Returns the literal value of the ETag HTTP header.
      *
-     * @return string|null The ETag HTTP header or null if it does not exist
+     * @return string The ETag HTTP header or null if it does not exist
      */
-    public function getETag()
+    public function getETag(): string
     {
         return $this->getHeaderLine('ETag');
     }
@@ -394,7 +394,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return Response
      */
-    public function withETag($eTag = null, $weak = false)
+    public function withETag($eTag = null, $weak = false): Response
     {
         $this->withoutHeader('ETag');
         $this->withHeader('ETag', (true === $weak ? 'W/' : '') . $eTag);
@@ -406,7 +406,7 @@ class Response extends Message implements ResponseInterface
      * @param $location
      * @return $this
      */
-    public function withLocation($location)
+    public function withLocation($location): Response
     {
         $this->withHeader('Location', $location);
 
