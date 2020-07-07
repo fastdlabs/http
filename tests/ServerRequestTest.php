@@ -10,7 +10,7 @@ use FastD\Http\ServerRequest;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class ServerRequestTest extends PHPUnit_Framework_TestCase
+class ServerRequestTest extends \PHPUnit\Framework\TestCase
 {
     public function dataInputFromGlobals()
     {

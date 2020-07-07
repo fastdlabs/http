@@ -36,7 +36,7 @@ class Uri implements UriInterface
     /**
      * @var int[] Array indexed by valid scheme names to their corresponding ports.
      */
-    protected $allowedSchemes = [
+    protected array $allowedSchemes = [
         'http' => 80,
         'https' => 443,
     ];
@@ -44,49 +44,49 @@ class Uri implements UriInterface
     /**
      * @var string
      */
-    protected $scheme = '';
+    protected string $scheme = '';
 
     /**
      * @var string
      */
-    protected $userInfo = '';
+    protected string $userInfo = '';
 
     /**
      * @var string
      */
-    protected $host = '';
+    protected string $host = '';
 
     /**
      * @var int
      */
-    protected $port;
+    protected int $port;
 
     /**
      * @var string
      */
-    protected $path = '';
+    protected string $path = '';
 
     /**
      * @var string
      */
-    protected $relationPath = '/';
+    protected string $relationPath = '/';
 
     /**
      * @var array
      */
-    protected $query = [];
+    protected array $query = [];
 
     /**
      * @var string
      */
-    protected $fragment = '';
+    protected string $fragment = '';
 
     /**
      * generated uri string cache
      *
-     * @var string|null
+     * @var string
      */
-    protected $uriString;
+    protected string $uriString;
 
     /**
      * @param string $uri

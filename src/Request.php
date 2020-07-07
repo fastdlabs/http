@@ -29,29 +29,29 @@ class Request extends Message implements RequestInterface
     /**
      * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * @var string
      */
-    protected $method = 'GET';
+    protected string $method = 'GET';
 
     /**
      * @var string
      */
-    protected $requestTarget;
+    protected string $requestTarget;
 
     /**
-     * @var Uri
+     * @var UriInterface
      */
-    protected $uri;
+    protected UriInterface $uri;
 
     /**
      * Supported HTTP methods
      *
      * @var array
      */
-    private $validMethods = [
+    private array $validMethods = [
         'DELETE',
         'GET',
         'HEAD',

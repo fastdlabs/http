@@ -88,31 +88,31 @@ class Response extends Message implements ResponseInterface
      *
      * @var int
      */
-    protected $statusCode;
+    protected int $statusCode;
 
     /**
      * Http response status code reason phrase.
      *
      * @var string
      */
-    protected $reasonPhrase;
+    protected string $reasonPhrase;
 
     /**
      * Http response charset.
      *
      * @var string
      */
-    protected $charset = 'utf-8';
+    protected string $charset = 'utf-8';
 
     /**
      * @var Cookie[]
      */
-    protected $cookie = [];
+    protected array $cookie = [];
 
     /**
      * @var int
      */
-    protected $fileDescriptor;
+    protected int $fileDescriptor;
 
     /**
      * Status codes translation table.
@@ -125,7 +125,7 @@ class Response extends Message implements ResponseInterface
      *
      * @var array
      */
-    public static $statusTexts = array(
+    public static array $statusTexts = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',            // RFC2518

@@ -4,3 +4,4 @@ composer.lock
 *.orig
 examples/uploaded
 /.vscode
+/bin/

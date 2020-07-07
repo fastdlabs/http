@@ -19,7 +19,7 @@ use FastD\Http\Cookie;
 use FastD\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Response

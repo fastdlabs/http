@@ -31,7 +31,7 @@ if (!defined('SWOOLE_VERSION')) {
     define('SWOOLE_VERSION', '1.8.0');
 }
 
-class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
+class SwooleServerRequestTest extends \PHPUnit\Framework\TestCase
 {
     public function dataFromSwoole()
     {

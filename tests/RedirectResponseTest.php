@@ -12,7 +12,7 @@ use FastD\Http\RedirectResponse;
 use FastD\Http\Response;
 
 
-class RedirectResponseTest extends PHPUnit_Framework_TestCase
+class RedirectResponseTest extends \PHPUnit\Framework\TestCase
 {
     public function testResponseRedirect()
     {

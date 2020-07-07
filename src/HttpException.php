@@ -21,7 +21,7 @@ class HttpException extends RuntimeException
     /**
      * @var int
      */
-    protected $statusCode;
+    protected int $statusCode;
 
     /**
      * HttpException constructor.

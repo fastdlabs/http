@@ -9,7 +9,7 @@ use FastD\Http\Stream;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class StreamTest extends PHPUnit_Framework_TestCase
+class StreamTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Stream

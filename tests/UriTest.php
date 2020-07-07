@@ -9,7 +9,7 @@ use FastD\Http\Uri;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class UriTest extends PHPUnit_Framework_TestCase
+class UriTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @expectedException InvalidArgumentException

@@ -25,17 +25,17 @@ class Message implements MessageInterface
     /**
      * @var array
      */
-    public $header = [];
-    
+    public array $header = [];
+
     /**
      * @var string
      */
-    protected $protocolVersion = '1.1';
+    protected string $protocolVersion = '1.1';
 
     /**
      * @var StreamInterface
      */
-    protected $stream;
+    protected StreamInterface $stream;
 
     /**
      * Message constructor.

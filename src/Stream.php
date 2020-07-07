@@ -22,12 +22,12 @@ class Stream implements StreamInterface
     /**
      * @var string
      */
-    protected $stream;
+    protected string $stream;
 
     /**
      * @var string
      */
-    protected $mode;
+    protected string $mode;
 
     /**
      * @var resource
@@ -37,22 +37,22 @@ class Stream implements StreamInterface
     /**
      * @var bool
      */
-    protected $readable = false;
+    protected bool $readable = false;
 
     /**
      * @var bool
      */
-    protected $writable = false;
+    protected bool $writable = false;
 
     /**
      * @var bool
      */
-    protected $seekable = false;
+    protected bool $seekable = false;
 
     /**
      * @var array
      */
-    protected static $modeHash = [
+    protected static array $modeHash = [
         'read' => [
             'r' => true, 'w+' => true, 'r+' => true, 'x+' => true, 'c+' => true,
             'rb' => true, 'w+b' => true, 'r+b' => true, 'x+b' => true,
@@ -156,7 +156,7 @@ class Stream implements StreamInterface
     public function getSize(): int
     {
         if (!$this->resource) {
-            return null;
+            return 0;
         }
 
         $stats = fstat($this->resource);

@@ -24,27 +24,27 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
     /**
      * @var string
      */
-    protected $tmpName;
+    protected string $tmpName;
 
     /**
      * @var int
      */
-    protected $error;
+    protected int $error;
 
     /**
      * @var int
      */
-    protected $size;
+    protected int $size;
 
     /**
-     * @var false
+     * @var bool
      */
-    protected $moved = false;
+    protected bool $moved = false;
 
     /**
      * @var StreamInterface
      */
-    protected $stream;
+    protected StreamInterface $stream;
 
     /**
      * File constructor.

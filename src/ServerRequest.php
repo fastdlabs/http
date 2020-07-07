@@ -25,32 +25,32 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @var array
      */
-    public $attributes = [];
+    public array $attributes = [];
 
     /**
      * @var array
      */
-    public $cookieParams = [];
+    public array $cookieParams = [];
 
     /**
      * @var array
      */
-    public $queryParams = [];
+    public array $queryParams = [];
 
     /**
      * @var array
      */
-    public $bodyParams = [];
+    public array $bodyParams = [];
 
     /**
      * @var array
      */
-    public $serverParams = [];
+    public array $serverParams = [];
 
     /**
      * @var UploadedFile[]
      */
-    public $uploadFile = [];
+    public array $uploadFile = [];
 
     /**
      * ServerRequest constructor.

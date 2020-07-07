@@ -9,7 +9,7 @@ use FastD\Http\Uri;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class RequestTest extends PHPUnit_Framework_TestCase
+class RequestTest extends \PHPUnit\Framework\TestCase
 {
     public function testRequestUri()
     {

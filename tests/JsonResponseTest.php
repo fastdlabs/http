@@ -10,7 +10,7 @@
 
 use FastD\Http\JsonResponse;
 
-class JsonResponseTest extends PHPUnit_Framework_TestCase
+class JsonResponseTest extends \PHPUnit\Framework\TestCase
 {
     public function testResponseJson()
     {

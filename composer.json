@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.4",
         "psr/http-message": "^1.0"
     },
     "require-dev": {
@@ -21,5 +21,8 @@
         "psr-4": {
             "FastD\\Http\\": "src"
         }
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }

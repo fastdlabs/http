@@ -10,6 +10,7 @@
 namespace FastD\Http;
 
 
+
 /**
  * Class Cookie
  *
@@ -20,29 +21,29 @@ class Cookie
     /**
      * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * @var string
      */
-    protected $value;
+    protected string $value;
 
     /**
      * @var string
      */
-    protected $domain;
+    protected string $domain;
 
     /**
      * Default time() + $expire.
      *
      * @var int
      */
-    protected $expire;
+    protected int $expire;
 
     /**
      * @var string
      */
-    protected $path;
+    protected string $path;
 
     /**
      * @var bool
@@ -52,7 +53,7 @@ class Cookie
     /**
      * @var bool
      */
-    protected $httpOnly;
+    protected bool $httpOnly;
 
     /**
      * Cookie constructor.
