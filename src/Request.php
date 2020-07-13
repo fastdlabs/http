@@ -10,7 +10,6 @@
 namespace FastD\Http;
 
 use InvalidArgumentException;
-use phpDocumentor\Reflection\Types\String_;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;

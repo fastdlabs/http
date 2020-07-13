@@ -16,3 +16,5 @@ echo $response;
 $content = $response->getBody();
 $content = json_encode(json_decode($content, true), JSON_PRETTY_PRINT);
 echo $content;
+
+fn(array $config) => print_r($config);
