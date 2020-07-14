@@ -107,7 +107,7 @@ class Uri implements UriInterface
      */
     public function __clone()
     {
-        $this->uriString = null;
+        $this->uriString = '';
     }
 
     /**
@@ -115,7 +115,7 @@ class Uri implements UriInterface
      */
     public function __toString(): string
     {
-        if (null !== $this->uriString) {
+        if ('' !== $this->uriString) {
             return $this->uriString;
         }
 
