@@ -64,7 +64,7 @@ class SwooleServerRequest extends ServerRequest
 
         $headers = [];
         foreach ($request->header as $name => $value) {
-            $headers[str_replace('-', '_', $name)] = $value;
+            $headers[$name] = $value;
         }
 
         $serverRequest = new static(
@@ -82,7 +82,6 @@ class SwooleServerRequest extends ServerRequest
             ->withParsedBody($post)
             ->withQueryParams($get)
             ->withCookieParams($cookie)
-            ->withUploadedFiles($files)
-            ;
+            ->withUploadedFiles($files);
     }
 }
