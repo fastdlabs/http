@@ -452,29 +452,28 @@ class ServerRequest extends Request implements ServerRequestInterface
             if (count($value) == count($value, COUNT_RECURSIVE)) {
                 if ($value instanceof UploadedFileInterface) {
                     $normalized[$key] = $value;
-                } elseif ( ! is_array($value['name'])) {
+                } elseif (isset($value['name'])) {
                     $normalized[$key] = UploadedFile::normalizer($value);
-                } elseif (is_array($value['name'])) {
-                    $array = [];
-                    foreach ($value['name'] as $index => $item) {
-                        if (empty($item)) {
-                            continue;
-                        }
-                        $array[] = UploadedFile::normalizer([
-                            'name' => $value['name'][$index],
-                            'type' => $value['type'][$index],
-                            'tmp_name' => $value['tmp_name'][$index],
-                            'error' => $value['error'][$index],
-                            'size' => $value['size'][$index],
-                        ]);
-                    }
-                    $normalized[$key] = $array;
-                    continue;
                 } else {
                     throw new InvalidArgumentException('Invalid value in files specification');
                 }
             } else {
-                $normalized[$key] = self::normalizer($value);
+                $array = [];
+                foreach ($value['name'] as $index => $item) {
+                    if (empty($item)) {
+                        continue;
+                    }
+
+                    $array[] = UploadedFile::normalizer([
+                        'name' => $value['name'][$index],
+                        'type' => $value['type'][$index],
+                        'tmp_name' => $value['tmp_name'][$index],
+                        'error' => $value['error'][$index],
+                        'size' => $value['size'][$index],
+                    ]);
+                }
+
+                $normalized[$key] = $array;
             }
         }
 
