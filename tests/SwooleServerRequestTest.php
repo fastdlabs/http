@@ -9,6 +9,7 @@
 
 
 use FastD\Http\SwooleServerRequest;
+use PHPUnit\Framework\TestCase;
 
 if (!class_exists('swoole_http_request')) {
     class swoole_http_request
@@ -31,7 +32,7 @@ if (!defined('SWOOLE_VERSION')) {
     define('SWOOLE_VERSION', '1.8.0');
 }
 
-class SwooleServerRequestTest extends PHPUnit_Framework_TestCase
+class SwooleServerRequestTest extends TestCase
 {
     public function dataFromSwoole()
     {

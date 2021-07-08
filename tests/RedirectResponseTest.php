@@ -10,9 +10,9 @@
 
 use FastD\Http\RedirectResponse;
 use FastD\Http\Response;
+use PHPUnit\Framework\TestCase;
 
-
-class RedirectResponseTest extends PHPUnit_Framework_TestCase
+class RedirectResponseTest extends TestCase
 {
     public function testResponseRedirect()
     {

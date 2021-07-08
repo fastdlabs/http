@@ -9,7 +9,10 @@ use FastD\Http\Message;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class MessageTest extends PHPUnit_Framework_TestCase
+
+use PHPUnit\Framework\TestCase;
+
+class MessageTest extends TestCase
 {
     /**
      * @var Message

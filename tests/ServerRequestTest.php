@@ -1,6 +1,7 @@
 <?php
 use FastD\Http\PhpInputStream;
 use FastD\Http\ServerRequest;
+use PHPUnit\Framework\TestCase;
 
 /**
  *
@@ -10,7 +11,7 @@ use FastD\Http\ServerRequest;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class ServerRequestTest extends PHPUnit_Framework_TestCase
+class ServerRequestTest extends TestCase
 {
     public function dataInputFromGlobals()
     {
