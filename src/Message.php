@@ -140,9 +140,9 @@ class Message implements MessageInterface
      *                     header. If the header does not appear in the message, this method MUST
      *                     return an empty array.
      */
-    public function getHeader($name): ?array
+    public function getHeader(string $name): array
     {
-        return $this->hasHeader($name) ? $this->header[strtolower($name)] : null;
+        return $this->hasHeader($name) ? $this->header[strtolower($name)] : [];
     }
 
     /**
@@ -164,12 +164,12 @@ class Message implements MessageInterface
      *                     concatenated together using a comma. If the header does not appear in
      *                     the message, this method MUST return an empty string.
      */
-    public function getHeaderLine($name): ?string
+    public function getHeaderLine($name): string
     {
         $value = $this->getHeader($name);
 
         if (empty($value)) {
-            return null;
+            return '';
         }
 
         return implode(',', $value);
