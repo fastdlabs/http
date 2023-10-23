@@ -8,7 +8,7 @@
  */
 
 
-use FastD\Http\SwooleServerRequest;
+use FastD\Http\SwooleRequest;
 
 if (!class_exists('swoole_http_request')) {
     class swoole_http_request

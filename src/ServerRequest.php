@@ -61,12 +61,13 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param array $serverParams
      */
     public function __construct(
-        string $method,
-        string $uri,
-        array $headers = [],
+        string          $method,
+        string          $uri,
+        array           $headers = [],
         StreamInterface $body = null,
-        array $serverParams = []
-    ) {
+        array           $serverParams = []
+    )
+    {
         parent::__construct($method, $uri, $headers, $body);
 
         $this
@@ -141,7 +142,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getCookie(string $key, bool $default = null): ?Cookie
     {
-        return isset($this->cookieParams[$key]) ? $this->cookieParams[$key] : $default;
+        return $this->cookieParams[$key] ?? $default;
     }
 
     /**
@@ -352,14 +353,14 @@ class ServerRequest extends Request implements ServerRequestInterface
      * This method obviates the need for a hasAttribute() method, as it allows
      * specifying a default value to return if the attribute is not found.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
+     * @see getAttributes()
      */
     public function getAttribute($name, $default = null)
     {
-        if ( ! array_key_exists($name, $this->attributes)) {
+        if (!array_key_exists($name, $this->attributes)) {
             return $default;
         }
 
@@ -376,12 +377,12 @@ class ServerRequest extends Request implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * updated attribute.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @param mixed $value The value of the attribute.
      * @return static
+     * @see getAttributes()
      */
-    public function withAttribute($name, $value)
+    public function withAttribute($name, $value): ServerRequestInterface
     {
         $this->attributes[$name] = $value;
 
@@ -398,13 +399,13 @@ class ServerRequest extends Request implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that removes
      * the attribute.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @return ServerRequest
+     * @see getAttributes()
      */
-    public function withoutAttribute($name)
+    public function withoutAttribute($name): ServerRequestInterface
     {
-        if ( ! isset($this->attributes[$name])) {
+        if (!isset($this->attributes[$name])) {
             return $this;
         }
 
@@ -453,7 +454,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         foreach ($files as $key => $value) {
             if ($value instanceof UploadedFileInterface) {
                 $normalized[$key] = $value;
-            } elseif ( ! is_array($value['name'])) {
+            } elseif (!is_array($value['name'])) {
                 $normalized[$key] = UploadedFile::normalizer($value);
             } elseif (is_array($value['name'])) {
                 $array = [];
@@ -487,7 +488,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         $uri = 'http://';
         if (isset($serverParams['REQUEST_SCHEME'])) {
-            $uri = strtolower($serverParams['REQUEST_SCHEME']).'://';
+            $uri = strtolower($serverParams['REQUEST_SCHEME']) . '://';
         } else {
             if (isset($serverParams['HTTPS']) && 'on' === $serverParams['HTTPS']) {
                 $uri = 'https://';
@@ -498,9 +499,9 @@ class ServerRequest extends Request implements ServerRequestInterface
         } elseif (isset($serverParams['HTTP_HOST'])) {
             $uri .= $serverParams['HTTP_HOST'];
         }
-        if (isset($serverParams['SERVER_PORT']) && ! empty($serverParams['SERVER_PORT'])) {
-            if ( ! in_array($serverParams['SERVER_PORT'], [80, 443])) {
-                $uri .= ':'.$serverParams['SERVER_PORT'];
+        if (isset($serverParams['SERVER_PORT']) && !empty($serverParams['SERVER_PORT'])) {
+            if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
+                $uri .= ':' . $serverParams['SERVER_PORT'];
             }
         }
         if (isset($serverParams['REQUEST_URI'])) {
@@ -508,8 +509,8 @@ class ServerRequest extends Request implements ServerRequestInterface
             $uri .= $requestUriParts[0];
             unset($requestUriParts);
         }
-        if (isset($serverParams['QUERY_STRING']) && ! empty($serverParams['QUERY_STRING'])) {
-            $uri .= '?'.$serverParams['QUERY_STRING'];
+        if (isset($serverParams['QUERY_STRING']) && !empty($serverParams['QUERY_STRING'])) {
+            $uri .= '?' . $serverParams['QUERY_STRING'];
         }
 
         return $uri;

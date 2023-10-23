@@ -212,7 +212,7 @@ class Request extends Message implements RequestInterface
      * @param bool $preserveHost Preserve the original state of the Host header.
      * @return Request
      */
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = false): RequestInterface
     {
         $this->uri = $uri;
 
@@ -232,7 +232,7 @@ class Request extends Message implements RequestInterface
      * @param int $value
      * @return Request
      */
-    public function withOption(string $key, $value): Request
+    public function addOption(int $key, $value): Request
     {
         $this->options[$key] = $value;
 
@@ -257,8 +257,8 @@ class Request extends Message implements RequestInterface
      */
     public function withBasicAuthentication(string $username, string $password): Request
     {
-        $this->withOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        $this->withOption(CURLOPT_USERPWD, $username.':'.$password);
+        $this->addOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        $this->addOption(CURLOPT_USERPWD, $username.':'.$password);
 
         return $this;
     }
@@ -269,7 +269,7 @@ class Request extends Message implements RequestInterface
      */
     public function withReferrer(string $referer): Request
     {
-        $this->withOption(CURLOPT_REFERER, $referer);
+        $this->addOption(CURLOPT_REFERER, $referer);
 
         return $this;
     }
@@ -288,7 +288,7 @@ class Request extends Message implements RequestInterface
 
         // DELETE request may has body
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH'])) {
-            $this->withOption(CURLOPT_POSTFIELDS, $data);
+            $this->addOption(CURLOPT_POSTFIELDS, $data);
         } else {
             if ( ! empty($data)) {
                 $url .= (false === strpos($url, '?') ? '?' : '&').$data;
@@ -296,7 +296,7 @@ class Request extends Message implements RequestInterface
         }
 
         if ( ! array_key_exists(CURLOPT_USERAGENT, $this->options)) {
-            $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
+            $this->addOption(CURLOPT_USERAGENT, static::USER_AGENT);
         }
 
         // forces only empty Expect
@@ -310,12 +310,12 @@ class Request extends Message implements RequestInterface
         }
         $headers[] = 'Expect:';
 
-        $this->withOption(CURLOPT_HTTPHEADER, $headers);
-        $this->withOption(CURLOPT_URL, $url);
-        $this->withOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
-        $this->withOption(CURLINFO_HEADER_OUT, true);
-        $this->withOption(CURLOPT_HEADER, true);
-        $this->withOption(CURLOPT_RETURNTRANSFER, true);
+        $this->addOption(CURLOPT_HTTPHEADER, $headers);
+        $this->addOption(CURLOPT_URL, $url);
+        $this->addOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
+        $this->addOption(CURLINFO_HEADER_OUT, true);
+        $this->addOption(CURLOPT_HEADER, true);
+        $this->addOption(CURLOPT_RETURNTRANSFER, true);
 
         foreach ($this->options as $key => $option) {
             curl_setopt($ch, $key, $option);
@@ -333,7 +333,7 @@ class Request extends Message implements RequestInterface
         curl_close($ch);
         unset($ch);
         list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
-        $responseHeaders = preg_split('/\r\n/', $responseHeaders, null, PREG_SPLIT_NO_EMPTY);
+        $responseHeaders = preg_split('/\r\n/', $responseHeaders, -1, PREG_SPLIT_NO_EMPTY);
 
         array_shift($responseHeaders);
         $headers = [];

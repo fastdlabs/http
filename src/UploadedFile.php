@@ -35,7 +35,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
     /**
      * @var int
      */
-    protected int $size;
+    protected int $size = 0;
 
     /**
      * @var bool
@@ -81,7 +81,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @throws \RuntimeException in cases when no stream is available or can be
      *     created.
      */
-    public function getStream()
+    public function getStream(): StreamInterface
     {
         if ($this->moved) {
             throw new RuntimeException('Cannot retrieve stream after it has already been moved');
@@ -129,7 +129,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @throws \RuntimeException on any error during the move operation, or on
      *                           the second or subsequent call to the method.
      */
-    public function moveTo($targetPath): string
+    public function moveTo($targetPath): void
     {
         $targetFile = $targetPath
             . DIRECTORY_SEPARATOR
@@ -145,7 +145,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
 
             $this->moved = true;
 
-            return $targetFile;
+            return;
         }
 
         if (!is_uploaded_file($this->tmpName)) {
@@ -161,8 +161,6 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
         }
 
         $this->moved = true;
-
-        return $targetFile;
     }
 
     /**
@@ -174,7 +172,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      *
      * @return int|null The file size in bytes or null if unknown.
      */
-    public function getSize()
+    public function getSize(): int
     {
         return $this->size;
     }
@@ -193,7 +191,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @see http://php.net/manual/en/features.file-upload.errors.php
      * @return int One of PHP's UPLOAD_ERR_XXX constants.
      */
-    public function getError()
+    public function getError(): int
     {
         return $this->error;
     }
@@ -211,7 +209,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @return string|null The filename sent by the client or null if none
      *     was provided.
      */
-    public function getClientFilename()
+    public function getClientFilename(): string
     {
         return $this->name;
     }
@@ -229,7 +227,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @return string|null The media type sent by the client or null if none
      *     was provided.
      */
-    public function getClientMediaType()
+    public function getClientMediaType(): string
     {
         return $this->mime;
     }
@@ -238,7 +236,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @param array $file
      * @return UploadedFile
      */
-    public static function normalizer(array $file)
+    public static function normalizer(array $file): UploadedFile
     {
         return new UploadedFile($file['name'],
             $file['type'],

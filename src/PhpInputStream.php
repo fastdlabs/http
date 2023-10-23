@@ -83,7 +83,7 @@ class PhpInputStream extends Stream
      * @param int $maxLength
      * @return string
      */
-    public function getContents($maxLength = -1): string
+    public function getContents(int $maxLength = -1): string
     {
         if ($this->reachedEof) {
             return $this->cache;

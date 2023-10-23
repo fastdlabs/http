@@ -345,25 +345,6 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @param $contentType
-     * @return Response
-     */
-    public function withContentType(string $contentType): Response
-    {
-        $this->withHeader('Content-Type', $contentType);
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getContentType(): ?string
-    {
-        return $this->getHeaderLine('Content-Type');
-    }
-
-    /**
      * @param string $cacheControl
      * @return Response
      */
@@ -407,25 +388,6 @@ class Response extends Message implements ResponseInterface
         $this->withHeader('ETag', (true === $weak ? 'W/' : '').$eTag);
 
         return $this;
-    }
-
-    /**
-     * @param string $location
-     * @return Response
-     */
-    public function withLocation(string $location): Response
-    {
-        $this->withHeader('Location', $location);
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLocation(): ?string
-    {
-        return $this->getHeaderLine('Location');
     }
 
     /**
@@ -705,13 +667,13 @@ class Response extends Message implements ResponseInterface
      * @link http://tools.ietf.org/html/rfc7231#section-6
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
      * @param int $code The 3-digit integer result code to set.
-     * @param string $reasonPhrase The reason phrase to use with the
+     * @param string|null $reasonPhrase The reason phrase to use with the
      *                             provided status code; if none is provided, implementations MAY
      *                             use the defaults as suggested in the HTTP specification.
      * @return Response
      * @throws InvalidArgumentException For invalid status code arguments.
      */
-    public function withStatus($code, $reasonPhrase = null): ResponseInterface
+    public function withStatus(int $code, string $reasonPhrase = null): ResponseInterface
     {
         $this->statusCode = $code;
 
@@ -721,7 +683,7 @@ class Response extends Message implements ResponseInterface
         }
 
         if (null === $reasonPhrase) {
-            $this->reasonPhrase = isset(static::$statusTexts[$this->statusCode]) ? static::$statusTexts[$this->statusCode] : 'Unknown phrase';
+            $this->reasonPhrase = static::$statusTexts[$this->statusCode] ?? 'Unknown phrase';
         }
 
         return $this;

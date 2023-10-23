@@ -18,13 +18,13 @@ use Swoole\Http\Request;
  *
  * @package FastD\Http
  */
-class SwooleServerRequest extends ServerRequest
+class SwooleRequest extends ServerRequest
 {
     /**
      * @param \Swoole\Http\Request $request
-     * @return SwooleServerRequest
+     * @return SwooleRequest
      */
-    public static function createServerRequestFromSwoole(Request $request): SwooleServerRequest
+    public static function createServerRequestFromSwoole(Request $request): SwooleRequest
     {
         $get = isset($request->get) ? $request->get : [];
         $post = isset($request->post) ? $request->post : [];

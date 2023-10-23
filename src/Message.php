@@ -164,7 +164,7 @@ class Message implements MessageInterface
      *                     concatenated together using a comma. If the header does not appear in
      *                     the message, this method MUST return an empty string.
      */
-    public function getHeaderLine($name): string
+    public function getHeaderLine(string $name): string
     {
         $value = $this->getHeader($name);
 
@@ -190,7 +190,7 @@ class Message implements MessageInterface
      * @return MessageInterface
      * @throws InvalidArgumentException for invalid header names or values.
      */
-    public function withHeader($name, $value): MessageInterface
+    public function withHeader(string $name, $value): MessageInterface
     {
         $this->header[strtolower($name)] = [$value];
 

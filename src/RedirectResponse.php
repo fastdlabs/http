@@ -28,6 +28,6 @@ class RedirectResponse extends Response
     {
         parent::__construct('', $status, $headers);
 
-        $this->withLocation($uri);
+        $this->withHeader('Location', $uri);
     }
 }

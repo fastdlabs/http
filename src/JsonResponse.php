@@ -30,7 +30,7 @@ class JsonResponse extends Response
     {
         $json = json_encode($data, static::JSON_OPTIONS);
 
-        $this->withContentType('application/json; charset=UTF-8');
+        $this->withHeader('Content-Type', 'application/json; charset=UTF-8');
 
         parent::__construct($json, $status, $headers);
     }

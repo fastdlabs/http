@@ -66,15 +66,7 @@ class Cookie
      * @param bool $secure
      * @param bool $httpOnly
      */
-    public function __construct(
-        string $name,
-        string $value = '',
-        int $expire = -1,
-        string $path = '/',
-        string $domain = '',
-        bool $secure = false,
-        bool $httpOnly = false
-    ) {
+    public function __construct(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false) {
         // from PHP source code
         if (preg_match("/[=,; \t\r\n\013\014]/", $name)) {
             throw new \InvalidArgumentException(sprintf('The cookie name "%s" contains invalid characters.', $name));
