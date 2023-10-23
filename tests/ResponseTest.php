@@ -26,7 +26,7 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
      */
     protected $response;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->response = new Response();
     }

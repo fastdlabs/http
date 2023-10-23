@@ -16,7 +16,7 @@ class MessageTest extends \PHPUnit\Framework\TestCase
      */
     protected $message;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->message = $message = new Message();;
     }

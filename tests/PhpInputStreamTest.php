@@ -16,7 +16,7 @@ class PhpInputStreamTest extends \PHPUnit\Framework\TestCase
      */
     protected $stream;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->stream = new PhpInputStream('php://temp', 'wr');
 

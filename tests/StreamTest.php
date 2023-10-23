@@ -16,7 +16,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
      */
     protected $stream;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->stream = new Stream('php://memory', 'wb+');
     }
