@@ -14,9 +14,6 @@
         "php": ">=7.4",
         "psr/http-message": "*"
     },
-    "require-dev": {
-        "phpunit/phpunit": "^6.0"
-    },
     "autoload": {
         "psr-4": {
             "FastD\\Http\\": "src"
@@ -24,5 +21,8 @@
     },
     "config": {
         "bin-dir": "bin"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
     }
 }

@@ -711,7 +711,7 @@ class Response extends Message implements ResponseInterface
      * @return Response
      * @throws InvalidArgumentException For invalid status code arguments.
      */
-    public function withStatus($code, $reasonPhrase = null): Response
+    public function withStatus($code, $reasonPhrase = null): ResponseInterface
     {
         $this->statusCode = $code;
 
@@ -740,7 +740,7 @@ class Response extends Message implements ResponseInterface
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
      * @return string Reason phrase; must return an empty string if none present.
      */
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->reasonPhrase;
     }
@@ -753,7 +753,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return int Status code.
      */
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->statusCode;
     }

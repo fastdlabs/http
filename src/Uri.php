@@ -75,7 +75,7 @@ class Uri implements UriInterface
     /**
      * @var array
      */
-    protected array $query = [];
+    protected string $query = '';
 
     /**
      * @var string
@@ -203,7 +203,7 @@ class Uri implements UriInterface
     /**
      * @return array
      */
-    public function getQuery(): array
+    public function getQuery(): string
     {
         return $this->query;
     }
@@ -541,7 +541,7 @@ class Uri implements UriInterface
      * @param string $query
      * @return array
      */
-    protected function filterQuery(string $query): array
+    protected function filterQuery(string $query): string
     {
         $queryInfo = [];
 
@@ -571,7 +571,7 @@ class Uri implements UriInterface
             $target = $value;
         }
 
-        return $queryInfo;
+        return http_build_str($queryInfo);
     }
 
     /**
