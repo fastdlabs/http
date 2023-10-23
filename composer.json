@@ -18,8 +18,7 @@
     "psr/http-message": "*",
     "ext-curl": "*",
     "ext-json": "*",
-    "ext-zlib": "*",
-    "ext-http": "*"
+    "ext-zlib": "*"
   },
   "autoload": {
     "psr-4": {

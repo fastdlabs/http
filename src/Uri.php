@@ -92,7 +92,7 @@ class Uri implements UriInterface
      *
      * @var string
      */
-    protected string $uriString;
+    protected string $uriString = '';
 
     /**
      * @param string $uri
@@ -129,7 +129,7 @@ class Uri implements UriInterface
             $this->scheme,
             $this->getAuthority(),
             $this->getPath(), // Absolute URIs should use a "/" for an empty path
-            $this->query,
+            $this->queryParams,
             $this->fragment
         );
 
@@ -381,7 +381,6 @@ class Uri implements UriInterface
     protected function parseUri(string $uri): void
     {
         $parts = parse_url($uri);
-
         if (false === $parts) {
             throw new InvalidArgumentException(
                 'The source URI string appears to be malformed'
@@ -424,7 +423,7 @@ class Uri implements UriInterface
      * @param string $fragment
      * @return string
      */
-    public function createUriString(string $scheme, string $authority, string $path, array  $query, string $fragment): string
+    public function createUriString(string $scheme, string $authority, string $path, array $query = [], string $fragment = ''): string
     {
         $uri = '';
 
@@ -549,7 +548,7 @@ class Uri implements UriInterface
             $target = $value;
         }
 
-        return http_build_str($this->queryParams);
+        return http_build_query($this->queryParams);
     }
 
     /**

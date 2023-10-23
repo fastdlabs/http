@@ -11,11 +11,9 @@ use FastD\Http\Uri;
  */
 class UriTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testInvalidUri()
     {
+        $this->expectException(InvalidArgumentException::class);
         new Uri('///');
     }
 
@@ -23,6 +21,7 @@ class UriTest extends \PHPUnit\Framework\TestCase
     {
         $uri = new Uri('/');
         $this->assertEquals('/', $uri->getPath());
+        $this->assertEquals([], $uri->getQueryParams());
     }
 
     public function testRootPath()
@@ -40,7 +39,8 @@ class UriTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(3001, $uri->getPort());
         $this->assertEquals('user:pass@local.example.com:3001', $uri->getAuthority());
         $this->assertEquals('/foo', $uri->getPath());
-        $this->assertEquals(['bar' => 'baz'], $uri->getQuery());
+        $this->assertEquals(['bar' => 'baz'], $uri->getQueryParams());
+        $this->assertEquals('bar=baz', $uri->getQuery());
         $this->assertEquals('quz', $uri->getFragment());
     }
 
@@ -79,14 +79,16 @@ class UriTest extends \PHPUnit\Framework\TestCase
         $uri = new Uri($url);
         $this->assertEquals([
             'bar' => 'baz',
-        ], $uri->getQuery());
+        ], $uri->getQueryParams());
+        $this->assertEquals('bar=baz', $uri->getQuery());
 
         $url = 'https://user:pass@local.example.com:3001/foo?bar=baz&foo=bar#quz';
         $uri = new Uri($url);
         $this->assertEquals([
             'bar' => 'baz',
             'foo' => 'bar'
-        ], $uri->getQuery());
+        ], $uri->getQueryParams());
+        $this->assertEquals('bar=baz&foo=bar', $uri->getQuery());
 
         $url = 'https://local.example.com?foo=' . rawurlencode('!%2') . '&' . http_build_query([
             'vars' => [
@@ -103,7 +105,7 @@ class UriTest extends \PHPUnit\Framework\TestCase
                 'b',
                 'c',
             ],
-        ], $uri->getQuery());
+        ], $uri->getQueryParams());
     }
 
     public function testDefaultPort()
