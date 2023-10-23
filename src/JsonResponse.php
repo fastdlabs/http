@@ -26,7 +26,7 @@ class JsonResponse extends Response
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      */
-    public function __construct(array $data, $status = Response::HTTP_OK, array $headers = array())
+    public function __construct(array $data, int $status = Response::HTTP_OK, array $headers = [])
     {
         $json = json_encode($data, static::JSON_OPTIONS);
 
@@ -38,7 +38,7 @@ class JsonResponse extends Response
     /**
      * @return array
      */
-    public function toArray(): array
+    public function asArray(): array
     {
         return json_decode($this->getContents(), true);
     }

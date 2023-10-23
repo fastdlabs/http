@@ -17,7 +17,9 @@
     "php": "^7.4 || ^8.0",
     "psr/http-message": "*",
     "ext-curl": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-zlib": "*",
+    "ext-http": "*"
   },
   "autoload": {
     "psr-4": {

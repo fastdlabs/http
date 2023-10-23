@@ -37,11 +37,6 @@ class Request extends Message implements RequestInterface
     protected string $method = 'GET';
 
     /**
-     * @var string
-     */
-    protected string $requestTarget;
-
-    /**
      * @var UriInterface
      */
     protected UriInterface $uri;
@@ -69,12 +64,7 @@ class Request extends Message implements RequestInterface
      * @param array $headers
      * @param StreamInterface $body
      */
-    public function __construct(
-        string $method,
-        string $uri,
-        array $headers = [],
-        ?StreamInterface $body = null
-    ) {
+    public function __construct(string $method, string $uri, array $headers = [], ?StreamInterface $body = null) {
         $this->withMethod($method);
         $this->withUri(new Uri($uri));
         $this->withHeaders($headers);
@@ -212,7 +202,7 @@ class Request extends Message implements RequestInterface
      * @param bool $preserveHost Preserve the original state of the Host header.
      * @return Request
      */
-    public function withUri(UriInterface $uri, $preserveHost = false): RequestInterface
+    public function withUri(UriInterface $uri, bool $preserveHost = false): RequestInterface
     {
         $this->uri = $uri;
 
@@ -229,10 +219,10 @@ class Request extends Message implements RequestInterface
 
     /**
      * @param string $key
-     * @param int $value
+     * @param mixed $value
      * @return Request
      */
-    public function addOption(int $key, $value): Request
+    public function withOption(int $key, $value): Request
     {
         $this->options[$key] = $value;
 
@@ -251,35 +241,11 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param string $username
-     * @param string $password
-     * @return Request
-     */
-    public function withBasicAuthentication(string $username, string $password): Request
-    {
-        $this->addOption(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        $this->addOption(CURLOPT_USERPWD, $username.':'.$password);
-
-        return $this;
-    }
-
-    /**
-     * @param string $referer
-     * @return $this
-     */
-    public function withReferrer(string $referer): Request
-    {
-        $this->addOption(CURLOPT_REFERER, $referer);
-
-        return $this;
-    }
-
-    /**
      * @param array|string $data
      * @param array $headers
      * @return Response
      */
-    public function send($data = [], array $headers = []): Response
+    public function send(array $data = [], array $headers = []): Response
     {
         $ch = curl_init();
         $url = (string)$this->uri;
@@ -288,7 +254,7 @@ class Request extends Message implements RequestInterface
 
         // DELETE request may has body
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH'])) {
-            $this->addOption(CURLOPT_POSTFIELDS, $data);
+            $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else {
             if ( ! empty($data)) {
                 $url .= (false === strpos($url, '?') ? '?' : '&').$data;
@@ -296,7 +262,7 @@ class Request extends Message implements RequestInterface
         }
 
         if ( ! array_key_exists(CURLOPT_USERAGENT, $this->options)) {
-            $this->addOption(CURLOPT_USERAGENT, static::USER_AGENT);
+            $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
         }
 
         // forces only empty Expect
@@ -310,12 +276,12 @@ class Request extends Message implements RequestInterface
         }
         $headers[] = 'Expect:';
 
-        $this->addOption(CURLOPT_HTTPHEADER, $headers);
-        $this->addOption(CURLOPT_URL, $url);
-        $this->addOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
-        $this->addOption(CURLINFO_HEADER_OUT, true);
-        $this->addOption(CURLOPT_HEADER, true);
-        $this->addOption(CURLOPT_RETURNTRANSFER, true);
+        $this->withOption(CURLOPT_HTTPHEADER, $headers);
+        $this->withOption(CURLOPT_URL, $url);
+        $this->withOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
+        $this->withOption(CURLINFO_HEADER_OUT, true);
+        $this->withOption(CURLOPT_HEADER, true);
+        $this->withOption(CURLOPT_RETURNTRANSFER, true);
 
         foreach ($this->options as $key => $option) {
             curl_setopt($ch, $key, $option);

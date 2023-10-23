@@ -76,7 +76,7 @@ class Message implements MessageInterface
      * @param string $version HTTP protocol version
      * @return MessageInterface
      */
-    public function withProtocolVersion($version): MessageInterface
+    public function withProtocolVersion(string $version): MessageInterface
     {
         $this->protocolVersion = $version;
 
@@ -121,7 +121,7 @@ class Message implements MessageInterface
      *                     name using a case-insensitive string comparison. Returns false if
      *                     no matching header name is found in the message.
      */
-    public function hasHeader($name): bool
+    public function hasHeader(string $name): bool
     {
         return isset($this->header[strtolower($name)]);
     }
@@ -232,7 +232,7 @@ class Message implements MessageInterface
      * @return MessageInterface
      * @throws InvalidArgumentException for invalid header names or values.
      */
-    public function withAddedHeader($name, $value): MessageInterface
+    public function withAddedHeader(string $name, $value): MessageInterface
     {
         $this->header[strtolower($name)][] = $value;
 
@@ -251,7 +251,7 @@ class Message implements MessageInterface
      * @param string $name Case-insensitive header field name to remove.
      * @return Message
      */
-    public function withoutHeader($name): Message
+    public function withoutHeader(string $name): Message
     {
         $name = strtolower($name);
 

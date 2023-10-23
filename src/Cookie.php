@@ -27,12 +27,12 @@ class Cookie
     /**
      * @var string
      */
-    protected string $value;
+    protected string $value = '';
 
     /**
      * @var string
      */
-    protected string $domain;
+    protected string $domain = '';
 
     /**
      * Default time() + $expire.
@@ -44,12 +44,12 @@ class Cookie
     /**
      * @var string
      */
-    protected string $path;
+    protected string $path = '/';
 
     /**
      * @var bool
      */
-    protected $secure;
+    protected bool $secure;
 
     /**
      * @var bool
@@ -89,9 +89,9 @@ class Cookie
     }
 
     /**
-     * @return null|string
+     * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -99,7 +99,7 @@ class Cookie
     /**
      * @return string
      */
-    public function getDomain(): ?string
+    public function getDomain(): string
     {
         return $this->domain;
     }
@@ -115,7 +115,7 @@ class Cookie
     /**
      * @return string
      */
-    public function getPath(): ?string
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -173,7 +173,7 @@ class Cookie
      */
     public function __toString(): string
     {
-        return (string)$this->value;
+        return $this->value;
     }
 
     /**

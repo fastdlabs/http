@@ -56,7 +56,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @param $error
      * @param $size
      */
-    public function __construct($name, $type, $tmpName, $error, $size)
+    public function __construct(string $name, string $type, string $tmpName, int $error, int $size)
     {
         $this->tmpName = $tmpName;
         $this->error = $error;
@@ -129,7 +129,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @throws \RuntimeException on any error during the move operation, or on
      *                           the second or subsequent call to the method.
      */
-    public function moveTo($targetPath): void
+    public function moveTo(string $targetPath): void
     {
         $targetFile = $targetPath
             . DIRECTORY_SEPARATOR

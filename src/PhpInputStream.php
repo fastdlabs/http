@@ -65,7 +65,7 @@ class PhpInputStream extends Stream
      * @param int $length
      * @return string
      */
-    public function read($length): string
+    public function read(int $length): string
     {
         $content = parent::read($length);
         if ($content && ! $this->reachedEof) {

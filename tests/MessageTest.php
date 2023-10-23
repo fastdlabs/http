@@ -14,11 +14,11 @@ class MessageTest extends \PHPUnit\Framework\TestCase
     /**
      * @var Message
      */
-    protected $message;
+    protected Message $message;
 
     protected function setUp(): void
     {
-        $this->message = $message = new Message();;
+        $this->message = $message = new Message();
     }
 
     public function testDefaultHeader()

@@ -196,11 +196,8 @@ class Response extends Message implements ResponseInterface
      * @param int $statusCode
      * @param array $headers
      */
-    public function __construct(
-        string $content = '',
-        int $statusCode = 200,
-        array $headers = []
-    ) {
+    public function __construct(string $content = '', int $statusCode = 200, array $headers = [])
+    {
         parent::__construct(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
         $this->withContent($content);
@@ -214,7 +211,7 @@ class Response extends Message implements ResponseInterface
      */
     public function sendHeaders()
     {
-        if ( ! headers_sent()) {
+        if (!headers_sent()) {
             header(
                 sprintf(
                     'HTTP/%s %s %s',
@@ -271,16 +268,9 @@ class Response extends Message implements ResponseInterface
      * @param bool $httpOnly
      * @return Response
      */
-    public function withCookie(
-        string $key,
-        string $value,
-        ?int $expire = null,
-        ?string $path = null,
-        ?string $domain = null,
-        bool $secure = false,
-        bool $httpOnly = false
-    ): Response {
-        $this->cookie[$key] = new Cookie($key, $value, $expire, $path, $domain, $secure, $httpOnly);
+    public function withCookie(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false): Response
+    {
+        $this->cookie[$name] = new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
 
         return $this;
     }
@@ -382,10 +372,10 @@ class Response extends Message implements ResponseInterface
      *
      * @return Response
      */
-    public function withETag(?string $eTag = null, $weak = false): Response
+    public function withETag(?string $eTag = null, bool $weak = false): Response
     {
         $this->withoutHeader('ETag');
-        $this->withHeader('ETag', (true === $weak ? 'W/' : '').$eTag);
+        $this->withHeader('ETag', (true === $weak ? 'W/' : '') . $eTag);
 
         return $this;
     }
@@ -420,7 +410,7 @@ class Response extends Message implements ResponseInterface
 
         $this->withoutHeader('Expires');
         $date->setTimezone($timezone);
-        $this->withHeader('Expires', $date->format('D, d M Y H:i:s').' GMT');
+        $this->withHeader('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
 
         $maxAge = $date->getTimestamp() - (new DateTime('now', $timezone))->getTimestamp();
         $this->withMaxAge($maxAge);
@@ -457,7 +447,7 @@ class Response extends Message implements ResponseInterface
      */
     public function withMaxAge(int $value): Response
     {
-        $this->withAddedHeader('Cache-Control', 'max-age='.$value);
+        $this->withAddedHeader('Cache-Control', 'max-age=' . $value);
 
         return $this;
     }
@@ -475,19 +465,9 @@ class Response extends Message implements ResponseInterface
     {
         $this->withCacheControl('public');
 
-        $this->withHeader('Cache-Control', 's-maxage='.$value);
+        $this->withHeader('Cache-Control', 's-maxage=' . $value);
 
         return $this;
-    }
-
-    /**
-     * Returns the Last-Modified HTTP header as a DateTime instance.
-     *
-     * @return string|DateTime|null A DateTime instance or null if the header does not exist
-     */
-    public function getLastModified()
-    {
-        return $this->getHeaderLine('Last-Modified');
     }
 
     /**
@@ -498,10 +478,10 @@ class Response extends Message implements ResponseInterface
      * @param DateTime|null $date A \DateTime instance or null to remove the header
      * @return $this
      */
-    public function withLastModified(DateTime $date)
+    public function withLastModified(DateTime $date): Response
     {
         $this->withoutHeader('Last-Modified');
-        $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s').' GMT');
+        $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
     }
@@ -635,11 +615,11 @@ class Response extends Message implements ResponseInterface
         $headerLine = '';
         foreach ($this->header as $name => $value) {
             $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
-            $headerLine .= $name.': '.$this->getHeaderLine($name)."\r\n";
+            $headerLine .= $name . ': ' . $this->getHeaderLine($name) . "\r\n";
         }
 
         foreach ($this->cookie as $cookie) {
-            $headerLine .= sprintf('Set-Cookie: %s', $cookie->asString())."\r\n";
+            $headerLine .= sprintf('Set-Cookie: %s', $cookie->asString()) . "\r\n";
         }
 
         return
@@ -648,8 +628,8 @@ class Response extends Message implements ResponseInterface
                 $this->getProtocolVersion(),
                 $this->getStatusCode(),
                 $this->getReasonPhrase()
-            )."\r\n".
-            $headerLine."\r\n".
+            ) . "\r\n" .
+            $headerLine . "\r\n" .
             $this->getContents();
     }
 

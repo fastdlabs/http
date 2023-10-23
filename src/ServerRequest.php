@@ -358,7 +358,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return mixed
      * @see getAttributes()
      */
-    public function getAttribute($name, $default = null)
+    public function getAttribute(string $name, $default = null)
     {
         if (!array_key_exists($name, $this->attributes)) {
             return $default;
@@ -382,7 +382,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return static
      * @see getAttributes()
      */
-    public function withAttribute($name, $value): ServerRequestInterface
+    public function withAttribute(string $name, $value): ServerRequestInterface
     {
         $this->attributes[$name] = $value;
 
@@ -403,7 +403,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return ServerRequest
      * @see getAttributes()
      */
-    public function withoutAttribute($name): ServerRequestInterface
+    public function withoutAttribute(string $name): ServerRequestInterface
     {
         if (!isset($this->attributes[$name])) {
             return $this;
@@ -523,7 +523,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public static function createServerRequestFromGlobals(): ServerRequest
     {
-        $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
 
         foreach ($headers as $name => $value) {

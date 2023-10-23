@@ -270,7 +270,7 @@ class Stream implements StreamInterface
      * @return int Returns the number of bytes written to the stream.
      * @throws RuntimeException on failure.
      */
-    public function write($string): int
+    public function write(string $string): int
     {
         if (!$this->resource) {
             throw new RuntimeException('No resource available; cannot write');
