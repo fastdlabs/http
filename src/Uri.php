@@ -214,6 +214,14 @@ class Uri implements UriInterface
     }
 
     /**
+     * @return array
+     */
+    public function getQueryParams()
+    {
+        return $this->queryParams;
+    }
+
+    /**
      * @return string
      */
     public function getFragment(): string

@@ -71,7 +71,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         parent::__construct($method, $uri, $headers, $body);
 
         $this
-            ->withQueryParams($this->uri->getQuery())
+            ->withQueryParams($this->uri->getQueryParams())
             ->withServerParams($serverParams)
             ->withParsedBody($_POST)
             ->withCookieParams($_COOKIE)
