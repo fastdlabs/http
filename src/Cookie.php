@@ -68,10 +68,10 @@ class Cookie
      */
     public function __construct(
         string $name,
-        ?string $value = null,
-        ?int $expire = null,
-        ?string $path = '/',
-        ?string $domain = null,
+        string $value = '',
+        int $expire = -1,
+        string $path = '/',
+        string $domain = '',
         bool $secure = false,
         bool $httpOnly = false
     ) {
@@ -194,16 +194,8 @@ class Cookie
      * @param bool $httpOnly
      * @return Cookie
      */
-    public static function normalizer(
-        string $name,
-        ?string $value = null,
-        ?int $expire = null,
-        ?string $path = '/',
-        ?string $domain = null,
-        bool $secure = false,
-        bool $httpOnly = false
-    ): Cookie
+    public static function normalizer(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false): Cookie
     {
-        return new static($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        return new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
     }
 }
