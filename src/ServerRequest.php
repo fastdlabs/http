@@ -60,13 +60,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param StreamInterface|null $body
      * @param array $serverParams
      */
-    public function __construct(
-        string          $method,
-        string          $uri,
-        array           $headers = [],
-        StreamInterface $body = null,
-        array           $serverParams = []
-    )
+    public function __construct(string $method, string $uri, array $headers = [], StreamInterface $body = null, array $serverParams = [])
     {
         parent::__construct($method, $uri, $headers, $body);
 
@@ -77,7 +71,7 @@ class ServerRequest extends Request implements ServerRequestInterface
             ->withCookieParams($_COOKIE)
             ->withUploadedFiles($_FILES);
 
-        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
+        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS']) && null !== $body) {
             parse_str((string)$body, $data);
             if (empty($data)) {
                 $data = json_decode((string)$body);
@@ -190,10 +184,10 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     /**
      * @param string $key
-     * @param string $default
+     * @param mixed $default
      * @return mixed
      */
-    public function getParam(string $key, ?string $default = null)
+    public function getParam(string $key, $default = null)
     {
         if (isset($this->queryParams[$key])) {
             return $this->queryParams[$key];
@@ -450,7 +444,6 @@ class ServerRequest extends Request implements ServerRequestInterface
     public static function normalizer(array $files): array
     {
         $normalized = [];
-
         foreach ($files as $key => $value) {
             if ($value instanceof UploadedFileInterface) {
                 $normalized[$key] = $value;
@@ -471,7 +464,6 @@ class ServerRequest extends Request implements ServerRequestInterface
                     ]);
                 }
                 $normalized[$key] = $array;
-                continue;
             } else {
                 throw new InvalidArgumentException('Invalid value in files specification');
             }

@@ -38,7 +38,7 @@ class MessageTest extends \PHPUnit\Framework\TestCase
             ->withAddedHeader('name', 'janhuang')
         ;
         $this->assertEquals(['jan', 'janhuang'], $this->message->getHeader('name'));
-        $this->assertEquals('jan,janhuang', $this->message->getHeaderLine('name'));
+        $this->assertEquals('jan, janhuang', $this->message->getHeaderLine('name'));
     }
 
     public function testCapitalAndSmallLetterHeaderKey()
@@ -50,7 +50,7 @@ class MessageTest extends \PHPUnit\Framework\TestCase
 
     public function testHasHeader()
     {
-        $this->assertNull($this->message->getHeaderLine('age'));
+        $this->assertEmpty($this->message->getHeaderLine('age'));
         $this->assertFalse($this->message->hasHeader('age'));
         $this->message->withHeader('age', 11);
         $this->assertTrue($this->message->hasHeader('age'));

@@ -25,6 +25,11 @@
       "FastD\\Http\\": "src"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Swoole\\Http\\": "tests/swoole/http"
+    }
+  },
   "config": {
     "bin-dir": "bin"
   },

@@ -12,6 +12,7 @@ namespace FastD\Http;
 
 use DateTime;
 use DateTimeZone;
+use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 
@@ -83,37 +84,6 @@ class Response extends Message implements ResponseInterface
     const HTTP_LOOP_DETECTED = 508;                                               // RFC5842
     const HTTP_NOT_EXTENDED = 510;                                                // RFC2774
     const HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;                             // RFC6585
-
-    /**
-     * Http response status code.
-     *
-     * @var int
-     */
-    protected int $statusCode;
-
-    /**
-     * Http response status code reason phrase.
-     *
-     * @var string
-     */
-    protected string $reasonPhrase;
-
-    /**
-     * Http response charset.
-     *
-     * @var string
-     */
-    protected string $charset = 'utf-8';
-
-    /**
-     * @var Cookie[]
-     */
-    protected array $cookie = [];
-
-    /**
-     * @var int
-     */
-    protected int $fileDescriptor;
 
     /**
      * Status codes translation table.
@@ -190,18 +160,54 @@ class Response extends Message implements ResponseInterface
     );
 
     /**
+     * Http response status code.
+     *
+     * @var int
+     */
+    protected int $statusCode = Response::HTTP_OK;
+
+    /**
+     * Http response status code reason phrase.
+     *
+     * @var string
+     */
+    protected string $reasonPhrase;
+
+    /**
+     * Http response charset.
+     *
+     * @var string
+     */
+    protected string $charset = 'utf-8';
+
+    /**
+     * @var DateTime|null
+     */
+    protected DateTime $maxAge;
+
+    /**
+     * @var Cookie[]
+     */
+    protected array $cookies = [];
+
+    /**
+     * @var int
+     */
+    protected int $fileDescriptor;
+
+    /**
      * Response constructor.
      *
      * @param string $content
      * @param int $statusCode
      * @param array $headers
      */
-    public function __construct(string $content = '', int $statusCode = 200, array $headers = [])
+    public function __construct(string $content = '', int $statusCode = Response::HTTP_OK, array $headers = [])
     {
         parent::__construct(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
-        $this->withContent($content);
         $this->withHeaders($headers);
+        $this->withContent($content);
     }
 
     /**
@@ -259,29 +265,29 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * @param string $key
+     * @param string $name
      * @param string $value
-     * @param int|null $expire
-     * @param null|string $path
-     * @param null|string $domain
+     * @param int $expire
+     * @param string $path
+     * @param string $domain
      * @param bool $secure
      * @param bool $httpOnly
      * @return Response
      */
     public function withCookie(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false): Response
     {
-        $this->cookie[$name] = new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        $this->cookies[$name] = new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
 
         return $this;
     }
 
     /**
-     * @param Cookie[] $cookie
+     * @param Cookie[] $cookies
      * @return Response
      */
-    public function withCookieParams(array $cookie): Response
+    public function withCookies(array $cookies): Response
     {
-        $this->cookie = $cookie;
+        $this->cookies = $cookies;
 
         return $this;
     }
@@ -289,9 +295,9 @@ class Response extends Message implements ResponseInterface
     /**
      * @return Cookie[]
      */
-    public function getCookieParams(): array
+    public function getCookies(): array
     {
-        return $this->cookie;
+        return $this->cookies;
     }
 
     /**
@@ -334,6 +340,19 @@ class Response extends Message implements ResponseInterface
         return $this->getBody()->getContents();
     }
 
+    public function withContentType(string $contentType): Response
+    {
+        $this->withoutHeader('Content-Type');
+        $this->withHeader('Content-Type', $contentType);
+
+        return $this;
+    }
+
+    public function getContentType(): string
+    {
+        return $this->getHeaderLine('Content-Type');
+    }
+
     /**
      * @param string $cacheControl
      * @return Response
@@ -355,24 +374,14 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * Returns the literal value of the ETag HTTP header.
-     *
-     * @return string|null The ETag HTTP header or null if it does not exist
-     */
-    public function getETag(): ?string
-    {
-        return $this->getHeaderLine('ETag');
-    }
-
-    /**
      * Sets the ETag value.
      *
-     * @param string|null $eTag The ETag unique identifier or null to remove the header
+     * @param string $eTag The ETag unique identifier or null to remove the header
      * @param bool $weak Whether you want a weak ETag or not
      *
      * @return Response
      */
-    public function withETag(?string $eTag = null, bool $weak = false): Response
+    public function withETag(string $eTag = '', bool $weak = false): Response
     {
         $this->withoutHeader('ETag');
         $this->withHeader('ETag', (true === $weak ? 'W/' : '') . $eTag);
@@ -381,28 +390,19 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * Returns the value of the Expires header as a DateTime instance.
+     * Returns the literal value of the ETag HTTP header.
      *
-     * @return DateTime A DateTime instance or null if the header does not exist
+     * @return string The ETag HTTP header or null if it does not exist
      */
-    public function getExpires(): DateTime
+    public function getETag(): string
     {
-        try {
-            return new DateTime($this->getHeaderLine('Expires'));
-        } catch (InvalidArgumentException $e) {
-            // according to RFC 2616 invalid date formats (e.g. "0" and "-1") must be treated as in the past
-            return DateTime::createFromFormat(DATE_RFC2822, 'Sat, 01 Jan 00 00:00:00 +0000');
-        }
+        return $this->getHeaderLine('ETag');
     }
 
     /**
-     * Sets the Expires HTTP header with a DateTime instance.
-     *
-     * Passing null as value will remove the header.
-     *
-     * @param DateTime $date A \DateTime instance or null to remove the header
-     *
+     * @param DateTime $date
      * @return $this
+     * @throws Exception
      */
     public function withExpires(DateTime $date): Response
     {
@@ -419,21 +419,18 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
-     * Returns the number of seconds after the time specified in the response's Date
-     * header when the response should no longer be considered fresh.
+     * Returns the value of the Expires header as a DateTime instance.
      *
-     * First, it checks for a s-maxage directive, then a max-age directive, and then it falls
-     * back on an expires header. It returns null when no maximum age can be established.
-     *
-     * @return int|null|DateTime Number of seconds
+     * @return DateTime A DateTime instance or null if the header does not exist
      */
-    public function getMaxAge()
+    public function getExpires(): DateTime
     {
-        if ($this->hasHeader('Cache-Control')) {
-            return $this->getHeaderLine('Cache-Control');
+        try {
+            return new DateTime($this->getHeaderLine('Expires'));
+        } catch (Exception $e) {
+            // according to RFC 2616 invalid date formats (e.g. "0" and "-1") must be treated as in the past
+            return DateTime::createFromFormat(DATE_RFC2822, 'Sat, 01 Jan 00 00:00:00 +0000');
         }
-
-        return $this->getExpires();
     }
 
     /**
@@ -447,9 +444,25 @@ class Response extends Message implements ResponseInterface
      */
     public function withMaxAge(int $value): Response
     {
+        $this->maxAge = new DateTime("+$value seconds");
+
         $this->withAddedHeader('Cache-Control', 'max-age=' . $value);
 
         return $this;
+    }
+
+    /**
+     * Returns the number of seconds after the time specified in the response's Date
+     * header when the response should no longer be considered fresh.
+     *
+     * First, it checks for a s-maxage directive, then a max-age directive, and then it falls
+     * back on an expires header. It returns null when no maximum age can be established.
+     *
+     * @return int Number of seconds
+     */
+    public function getMaxAge(): int
+    {
+        return ($this->hasHeader('Cache-Control') ? $this->maxAge->getTimestamp() : $this->getExpires()->getTimestamp()) - time();
     }
 
     /**
@@ -465,7 +478,7 @@ class Response extends Message implements ResponseInterface
     {
         $this->withCacheControl('public');
 
-        $this->withHeader('Cache-Control', 's-maxage=' . $value);
+        $this->withAddedHeader('Cache-Control', 's-maxage=' . $value);
 
         return $this;
     }
@@ -484,6 +497,14 @@ class Response extends Message implements ResponseInterface
         $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastModified(): string
+    {
+        return $this->getHeaderLine('Last-Modified');
     }
 
     /**
@@ -515,6 +536,73 @@ class Response extends Message implements ResponseInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Gets the response reason phrase associated with the status code.
+     *
+     * Because a reason phrase is not a required element in a response
+     * status line, the reason phrase value MAY be null. Implementations MAY
+     * choose to return the default RFC 7231 recommended reason phrase (or those
+     * listed in the IANA HTTP Status Code Registry) for the response's
+     * status code.
+     *
+     * @link http://tools.ietf.org/html/rfc7231#section-6
+     * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+     * @return string Reason phrase; must return an empty string if none present.
+     */
+    public function getReasonPhrase(): string
+    {
+        return $this->reasonPhrase;
+    }
+
+    /**
+     * Return an instance with the specified status code and, optionally, reason phrase.
+     *
+     * If no reason phrase is specified, implementations MAY choose to default
+     * to the RFC 7231 or IANA recommended reason phrase for the response's
+     * status code.
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return an instance that has the
+     * updated status and reason phrase.
+     *
+     * @link http://tools.ietf.org/html/rfc7231#section-6
+     * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+     * @param int $code The 3-digit integer result code to set.
+     * @param string|null $reasonPhrase The reason phrase to use with the
+     *                             provided status code; if none is provided, implementations MAY
+     *                             use the defaults as suggested in the HTTP specification.
+     * @return Response
+     * @throws InvalidArgumentException For invalid status code arguments.
+     */
+    public function withStatus(int $code, string $reasonPhrase = null): ResponseInterface
+    {
+        $this->statusCode = $code;
+
+        if ($this->isInvalidStatusCode()) {
+            throw new InvalidArgumentException(sprintf('Invalid status code "%s"; must be an integer between 100 and 599, inclusive',
+                $code));
+        }
+
+        if (null === $reasonPhrase) {
+            $this->reasonPhrase = static::$statusTexts[$this->statusCode] ?? 'Unknown phrase';
+        }
+
+        return $this;
+    }
+
+    /**
+     * Gets the response status code.
+     *
+     * The status code is a 3-digit integer result code of the server's attempt
+     * to understand and satisfy the request.
+     *
+     * @return int Status code.
+     */
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
     }
 
     /**
@@ -618,7 +706,7 @@ class Response extends Message implements ResponseInterface
             $headerLine .= $name . ': ' . $this->getHeaderLine($name) . "\r\n";
         }
 
-        foreach ($this->cookie as $cookie) {
+        foreach ($this->cookies as $cookie) {
             $headerLine .= sprintf('Set-Cookie: %s', $cookie->asString()) . "\r\n";
         }
 
@@ -631,72 +719,5 @@ class Response extends Message implements ResponseInterface
             ) . "\r\n" .
             $headerLine . "\r\n" .
             $this->getContents();
-    }
-
-    /**
-     * Return an instance with the specified status code and, optionally, reason phrase.
-     *
-     * If no reason phrase is specified, implementations MAY choose to default
-     * to the RFC 7231 or IANA recommended reason phrase for the response's
-     * status code.
-     *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return an instance that has the
-     * updated status and reason phrase.
-     *
-     * @link http://tools.ietf.org/html/rfc7231#section-6
-     * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
-     * @param int $code The 3-digit integer result code to set.
-     * @param string|null $reasonPhrase The reason phrase to use with the
-     *                             provided status code; if none is provided, implementations MAY
-     *                             use the defaults as suggested in the HTTP specification.
-     * @return Response
-     * @throws InvalidArgumentException For invalid status code arguments.
-     */
-    public function withStatus(int $code, string $reasonPhrase = null): ResponseInterface
-    {
-        $this->statusCode = $code;
-
-        if ($this->isInvalidStatusCode()) {
-            throw new InvalidArgumentException(sprintf('Invalid status code "%s"; must be an integer between 100 and 599, inclusive',
-                $code));
-        }
-
-        if (null === $reasonPhrase) {
-            $this->reasonPhrase = static::$statusTexts[$this->statusCode] ?? 'Unknown phrase';
-        }
-
-        return $this;
-    }
-
-    /**
-     * Gets the response reason phrase associated with the status code.
-     *
-     * Because a reason phrase is not a required element in a response
-     * status line, the reason phrase value MAY be null. Implementations MAY
-     * choose to return the default RFC 7231 recommended reason phrase (or those
-     * listed in the IANA HTTP Status Code Registry) for the response's
-     * status code.
-     *
-     * @link http://tools.ietf.org/html/rfc7231#section-6
-     * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
-     * @return string Reason phrase; must return an empty string if none present.
-     */
-    public function getReasonPhrase(): string
-    {
-        return $this->reasonPhrase;
-    }
-
-    /**
-     * Gets the response status code.
-     *
-     * The status code is a 3-digit integer result code of the server's attempt
-     * to understand and satisfy the request.
-     *
-     * @return int Status code.
-     */
-    public function getStatusCode(): int
-    {
-        return $this->statusCode;
     }
 }

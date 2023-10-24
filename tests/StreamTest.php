@@ -59,7 +59,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
         $this->stream->write($message);
         $this->assertFalse($this->stream->eof());
         $this->assertEquals(7, $this->stream->tell());
-        $this->assertTrue($this->stream->seek(4));
+        $this->stream->seek(4);
         $this->assertEquals('ba', $this->stream->read(2));
         $this->assertEquals('r', $this->stream->read(1));
     }
@@ -82,6 +82,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
         $message = 'foo bar';
         $this->stream->write($message);
         $this->assertEquals(7, $this->stream->getSize());
+        $this->expectException(RuntimeException::class);
         $this->stream->close();
         $this->stream->write($message);
     }

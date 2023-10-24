@@ -172,7 +172,7 @@ class Message implements MessageInterface
             return '';
         }
 
-        return implode(',', $value);
+        return implode(', ', $value);
     }
 
     /**

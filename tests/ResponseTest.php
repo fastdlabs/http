@@ -31,69 +31,82 @@ class ResponseTest extends \PHPUnit\Framework\TestCase
         $this->response = new Response();
     }
 
+    public function testVersion()
+    {
+        $this->assertEquals('1.1', $this->response->getProtocolVersion());
+    }
+
     public function testResponseContent()
     {
         $this->response->withContent('hello world');
-        echo $this->response->getBody();
-        $this->expectOutputString('hello world');
+        $this->assertEquals('hello world', $this->response->getBody());
+        $this->assertTrue($this->response->isOk());
     }
 
     public function testResponseHeaders()
     {
-        $this->response->withHeader('age', 11);
-        $this->assertEquals(11, $this->response->getHeaderLine('age'));
-    }
-
-    public function outputResponse(Response $response)
-    {
-        echo PHP_EOL;
-        echo $response;
+        $this->response->withHeader('foo', 'bar');
+        $this->assertEquals('bar', $this->response->getHeaderLine('foo'));
     }
 
     public function testResponseContentType()
     {
         $this->response->withContentType('text/png');
-        $this->outputResponse($this->response);
+        $this->assertEquals('text/png', $this->response->getContentType());
+        $this->response->withContentType('text/jpeg');
+        $this->assertEquals('text/jpeg', $this->response->getContentType());
     }
 
     public function testResponseCacheControl()
     {
         $this->response->withCacheControl('public');
-        $this->outputResponse($this->response);
+        $this->assertEquals('public', $this->response->getCacheControl());
         $this->response->withCacheControl('no-cache');
-        $this->outputResponse($this->response);
+        $this->assertEquals('no-cache', $this->response->getCacheControl());
+        $this->response->withMaxAge(3600);
+        $this->assertEquals('no-cache, max-age=3600', $this->response->getCacheControl());
+        $this->response->withSharedMaxAge(100);
+        $this->assertEquals('public, s-maxage=100', $this->response->getCacheControl());
     }
 
     public function testResponseExpire()
     {
-        $this->response->withExpires(new DateTime('2018-12-31'));
-        $this->outputResponse($this->response);
+        $this->response->withExpires(new DateTime('2024-12-31'));
         $this->response->withCacheControl('public');
         $this->response->withMaxAge(0);
-        $this->outputResponse($this->response);
+        $this->assertEquals(0, $this->response->getMaxAge());
     }
 
-    public function testResponseMofify()
+    public function testETag()
+    {
+        $this->assertEmpty($this->response->getETag());
+        $this->response->withETag(md5('foo'));
+        $this->assertNotEmpty($this->response->getETag());
+        $this->assertEquals(md5('foo'), $this->response->getETag());
+    }
+
+    public function testResponseModify()
     {
         $this->response->withLastModified(new DateTime());
-        $this->outputResponse($this->response);
+        $this->assertEquals((new DateTime())->format('D, d M Y H:i:s') . ' GMT', $this->response->getLastModified());
         $this->response->withNotModified();
-        $this->outputResponse($this->response);
         $this->assertEquals(304, $this->response->getStatusCode());
+        $this->assertEquals(Response::$statusTexts[304], $this->response->getReasonPhrase());
     }
 
     public function testInvalidStatusCode()
     {
         $this->assertFalse($this->response->isInvalidStatusCode());
-        echo $this->response->getReasonPhrase();
+        $this->assertEquals('OK', $this->response->getReasonPhrase());
     }
 
     public function testResponseCookie()
     {
-        $this->response->withCookieParams([
+        $this->response->withCookies([
             'foo' => Cookie::normalizer('foo', 'bar')
         ]);
+        $this->assertCount(1, $this->response->getCookies());
         $this->response->withCookie('age', 11);
-        $this->outputResponse($this->response);
+        $this->assertCount(2, $this->response->getCookies());
     }
 }

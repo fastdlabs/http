@@ -62,9 +62,10 @@ class Request extends Message implements RequestInterface
      * @param string $method
      * @param string $uri
      * @param array $headers
-     * @param StreamInterface $body
+     * @param ?StreamInterface $body
      */
-    public function __construct(string $method, string $uri, array $headers = [], ?StreamInterface $body = null) {
+    public function __construct(string $method, string $uri, array $headers = [], ?StreamInterface $body = null)
+    {
         $this->withMethod($method);
         $this->withUri(new Uri($uri));
         $this->withHeaders($headers);
@@ -107,10 +108,10 @@ class Request extends Message implements RequestInterface
      *
      * @link http://tools.ietf.org/html/rfc7230#section-5.3 (for the various
      *     request-target forms allowed in request messages)
-     * @param mixed $requestTarget
+     * @param string $requestTarget
      * @return Request
      */
-    public function withRequestTarget($requestTarget): Request
+    public function withRequestTarget(string $requestTarget): Request
     {
         $this->uri->withPath($requestTarget);
 
@@ -142,11 +143,11 @@ class Request extends Message implements RequestInterface
      * @return Request
      * @throws InvalidArgumentException for invalid HTTP methods.
      */
-    public function withMethod($method): Request
+    public function withMethod(string $method): Request
     {
         $method = strtoupper($method);
 
-        if ( ! in_array($method, $this->validMethods, true)) {
+        if (!in_array($method, $this->validMethods, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method "%s" provided',
                 $method
@@ -241,27 +242,26 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * @param array|string $data
+     * @param ?Payload $payload
      * @param array $headers
      * @return Response
      */
-    public function send(array $data = [], array $headers = []): Response
+    public function send(?Payload $payload = null, array $headers = []): Response
     {
         $ch = curl_init();
         $url = (string)$this->uri;
-
-        is_array($data) && $data = http_build_query($data);
+        $data = (string)$payload;
 
         // DELETE request may has body
         if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH'])) {
             $this->withOption(CURLOPT_POSTFIELDS, $data);
         } else {
-            if ( ! empty($data)) {
-                $url .= (false === strpos($url, '?') ? '?' : '&').$data;
+            if (!empty($data)) {
+                $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
             }
         }
 
-        if ( ! array_key_exists(CURLOPT_USERAGENT, $this->options)) {
+        if (!array_key_exists(CURLOPT_USERAGENT, $this->options)) {
             $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
         }
 
@@ -291,7 +291,7 @@ class Request extends Message implements RequestInterface
         $errorCode = curl_errno($ch);
         $errorMsg = curl_error($ch);
 
-        if ((strpos($response, "\r\n\r\n") === false) || ! ($errorCode === 0)) {
+        if ((strpos($response, "\r\n\r\n") === false) || !($errorCode === 0)) {
             throw new HttpException($errorMsg);
         }
 
