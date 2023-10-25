@@ -256,7 +256,6 @@ class Response extends Message implements ResponseInterface
     public function send(): void
     {
         $this->sendHeaders();
-
         $this->sendBody();
 
         if (function_exists('fastcgi_finish_request')) {
