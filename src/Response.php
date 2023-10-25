@@ -234,7 +234,7 @@ class Response extends Message implements ResponseInterface
                 header(sprintf('%s: %s', $name, implode(',', $value)), false, $this->statusCode);
             }
 
-            foreach ($this->cookie as $cookie) {
+            foreach ($this->cookies as $cookie) {
                 header(sprintf('Set-Cookie: %s', $cookie->asString()), false, $this->getStatusCode());
             }
         }
