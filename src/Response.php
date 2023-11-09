@@ -461,6 +461,12 @@ class Response extends Message implements ResponseInterface
      */
     public function getMaxAge(): int
     {
+        if (empty($this->maxAge) && $this->hasHeader('Cache-Control')) {
+            $cacheControl = $this->getHeaderLine('Cache-Control');
+            [, $value] = explode('=', $cacheControl[0]);
+            $this->withMaxAge($value);
+        }
+
         return ($this->hasHeader('Cache-Control') ? $this->maxAge->getTimestamp() : $this->getExpires()->getTimestamp()) - time();
     }
 
