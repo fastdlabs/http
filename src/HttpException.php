@@ -34,6 +34,8 @@ class HttpException extends RuntimeException
         parent::__construct($message);
 
         $this->statusCode = $statusCode;
+
+        $this->code = $statusCode;
     }
 
     /**
