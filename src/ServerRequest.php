@@ -1,15 +1,7 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
 namespace FastD\Http;
-
 
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -60,7 +52,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param StreamInterface|null $body
      * @param array $serverParams
      */
-    public function __construct(string $method, string $uri, array $headers = [], StreamInterface $body = null, array $serverParams = [])
+    public function __construct(string $method, string $uri, array $headers = [], ?StreamInterface $body = null, array $serverParams = [])
     {
         parent::__construct($method, $uri, $headers, $body);
 
@@ -134,7 +126,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param $default
      * @return bool|mixed
      */
-    public function getCookie(string $key, bool $default = null): ?Cookie
+    public function getCookie(string $key, ?bool $default = null): ?Cookie
     {
         return $this->cookieParams[$key] ?? $default;
     }

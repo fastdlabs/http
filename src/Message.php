@@ -1,12 +1,5 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
 namespace FastD\Http;
 
@@ -42,7 +35,7 @@ class Message implements MessageInterface
      * Message constructor.
      * @param StreamInterface|null $stream
      */
-    public function __construct(StreamInterface $stream = null)
+    public function __construct(?StreamInterface $stream = null)
     {
         if (null === $stream) {
             $stream = new Stream('php://memory', 'wb+');

@@ -1,12 +1,5 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
 namespace FastD\Http;
 
@@ -581,7 +574,7 @@ class Response extends Message implements ResponseInterface
      * @return Response
      * @throws InvalidArgumentException For invalid status code arguments.
      */
-    public function withStatus(int $code, string $reasonPhrase = null): ResponseInterface
+    public function withStatus(int $code, ?string $reasonPhrase = null): ResponseInterface
     {
         $this->statusCode = $code;
 

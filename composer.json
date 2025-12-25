@@ -30,9 +30,6 @@
       "Swoole\\Http\\": "tests/swoole/http"
     }
   },
-  "config": {
-    "bin-dir": "bin"
-  },
   "require-dev": {
     "phpunit/phpunit": "^9.6"
   }
