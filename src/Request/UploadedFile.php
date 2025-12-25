@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
 use CURLFile;
+use FastD\Http\Stream\Stream;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;

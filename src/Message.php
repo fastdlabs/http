@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace FastD\Http;
 
+use FastD\Http\Stream\Stream;
 use InvalidArgumentException;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -27,20 +28,11 @@ class Message implements MessageInterface
     protected string $protocolVersion = '1.1';
 
     /**
-     * @var StreamInterface
-     */
-    protected StreamInterface $stream;
-
-    /**
      * Message constructor.
-     * @param StreamInterface|null $stream
+     * @param StreamInterface $stream
      */
-    public function __construct(?StreamInterface $stream = null)
+    public function __construct(protected StreamInterface $stream = new Stream('php://memory', 'r+'))
     {
-        if (null === $stream) {
-            $stream = new Stream('php://memory', 'wb+');
-        }
-
         $this->withBody($stream);
     }
 
@@ -276,13 +268,13 @@ class Message implements MessageInterface
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param StreamInterface $stream Body.
+     * @param StreamInterface $body Body.
      * @return MessageInterface
      * @throws InvalidArgumentException When the body is not valid.
      */
-    public function withBody(StreamInterface $stream): MessageInterface
+    public function withBody(StreamInterface $body): MessageInterface
     {
-        $this->stream = $stream;
+        $this->stream = $body;
 
         return $this;
     }

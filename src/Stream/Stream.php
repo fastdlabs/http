@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Stream;
 
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
@@ -13,16 +13,6 @@ use RuntimeException;
  */
 class Stream implements StreamInterface
 {
-    /**
-     * @var string
-     */
-    protected string $stream;
-
-    /**
-     * @var string
-     */
-    protected string $mode;
-
     /**
      * @var resource
      */
@@ -68,12 +58,8 @@ class Stream implements StreamInterface
      * @param $stream
      * @param string $mode
      */
-    public function __construct(string $stream, string $mode = 'r')
+    public function __construct(protected string $stream, protected string $mode = 'r')
     {
-        $this->stream = $stream;
-
-        $this->mode = $mode;
-
         $this->resource = fopen($stream, $this->mode);
 
         $meta = $this->getMetadata();
@@ -107,12 +93,8 @@ class Stream implements StreamInterface
      */
     public function __toString(): string
     {
-        try {
-            $this->rewind();
-            return $this->getContents();
-        } catch (RuntimeException $e) {
-            return '';
-        }
+        $this->rewind();
+        return $this->getContents();
     }
 
     /**
@@ -308,7 +290,7 @@ class Stream implements StreamInterface
             throw new RuntimeException('Stream is not readable');
         }
 
-        $string = fread($this->resource, (int)$length);
+        $string = fread($this->resource, $length);
 
         if (false === $string) {
             throw new \RuntimeException('Unable to read from stream');
@@ -342,7 +324,7 @@ class Stream implements StreamInterface
     /**
      * @return string
      */
-    public function getMode()
+    public function getMode(): string
     {
         return $this->mode;
     }
@@ -359,7 +341,7 @@ class Stream implements StreamInterface
      *                    provided. Returns a specific key value if a key is provided and the
      *                    value is found, or null if the key is not found.
      */
-    public function getMetadata($key = null)
+    public function getMetadata($key = null): mixed
     {
         if (!$this->resource) {
             throw new RuntimeException('No resource available; cannot write');

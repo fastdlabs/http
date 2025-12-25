@@ -1,8 +1,10 @@
 <?php
 
-use FastD\Http\Payload;
-use FastD\Http\Request;
-use FastD\Http\Uri;
+namespace request;
+
+use FastD\Http\Request\Payload;
+use FastD\Http\Request\Request;
+use FastD\Http\Request\Uri;
 
 /**
  * @author    jan huang <bboyjanhuang@gmail.com>
@@ -48,7 +50,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     {
         $uri = new Uri('https://www.baidu.com/');
 
-        return new Request('GET', (string) $uri);
+        return new Request('GET', (string)$uri);
     }
 
     public function testRequestTarget()

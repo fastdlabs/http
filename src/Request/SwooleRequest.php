@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
 use Swoole\Http\Request;
 

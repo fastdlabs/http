@@ -12,12 +12,11 @@
  * WebSite: http://www.janhuang.me
  */
 
-namespace Tests;
+namespace response;
 
 use DateTime;
 use FastD\Http\Cookie;
-use FastD\Http\Response;
-use Psr\Http\Message\ResponseInterface;
+use FastD\Http\Response\Response;
 
 class ResponseTest extends \PHPUnit\Framework\TestCase
 {

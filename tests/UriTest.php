@@ -1,5 +1,6 @@
 <?php
-use FastD\Http\Uri;
+
+use FastD\Http\Request\Uri;
 
 /**
  *

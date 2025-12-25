@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
+use FastD\Http\Cookie;
+use FastD\Http\Stream\PhpInputStream;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;

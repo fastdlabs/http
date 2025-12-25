@@ -8,7 +8,9 @@
  */
 
 
-use FastD\Http\JsonResponse;
+namespace response;
+
+use FastD\Http\Response\JsonResponse;
 
 class JsonResponseTest extends \PHPUnit\Framework\TestCase
 {

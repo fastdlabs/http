@@ -1,8 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
+use FastD\Http\Exception\HttpException;
+use FastD\Http\Message;
+use FastD\Http\Response\Response;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;

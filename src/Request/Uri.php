@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
-use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Class Uri

@@ -1,5 +1,8 @@
 <?php
-use FastD\Http\PhpInputStream;
+
+namespace stream;
+
+use FastD\Http\Stream\PhpInputStream;
 
 /**
  *

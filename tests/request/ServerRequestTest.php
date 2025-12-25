@@ -1,6 +1,9 @@
 <?php
-use FastD\Http\PhpInputStream;
-use FastD\Http\ServerRequest;
+
+namespace request;
+
+use FastD\Http\Request\ServerRequest;
+use FastD\Http\Stream\PhpInputStream;
 
 /**
  *
@@ -62,7 +65,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
     public function dataBodyFromGlobals()
     {
-        return  [
+        return [
             'name' => 'Pesho',
             'email' => 'pesho@example.com',
         ];
@@ -77,7 +80,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
     public function dataServerFromGlobals()
     {
-        return  [
+        return [
             'PHP_SELF' => '/blog/article.php',
             'GATEWAY_INTERFACE' => 'CGI/1.1',
             'SERVER_ADDR' => 'Server IP: 217.112.82.20',
@@ -141,7 +144,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
     public function dataPUTServerFromGlobals()
     {
-        return  [
+        return [
             'PHP_SELF' => '/blog/article.php',
             'GATEWAY_INTERFACE' => 'CGI/1.1',
             'SERVER_ADDR' => 'Server IP: 217.112.82.20',
@@ -211,7 +214,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals($serverRequest->getUri()->getPath(), '/blog/article.php');
         $this->assertEquals('POST', $serverRequest->getMethod());
-        $this->assertEquals($this->dataQueryFromGlobals() , $serverRequest->getQueryParams());
+        $this->assertEquals($this->dataQueryFromGlobals(), $serverRequest->getQueryParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataBodyFromGlobals(), $serverRequest->getParsedBody());

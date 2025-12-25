@@ -8,8 +8,10 @@
  */
 
 
-use FastD\Http\RedirectResponse;
-use FastD\Http\Response;
+namespace response;
+
+use FastD\Http\Response\RedirectResponse;
+use FastD\Http\Response\Response;
 
 
 class RedirectResponseTest extends \PHPUnit\Framework\TestCase

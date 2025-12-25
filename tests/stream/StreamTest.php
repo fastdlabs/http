@@ -1,5 +1,8 @@
 <?php
-use FastD\Http\Stream;
+
+namespace stream;
+
+use FastD\Http\Stream\Stream;
 
 /**
  *
@@ -31,7 +34,7 @@ class StreamTest extends \PHPUnit\Framework\TestCase
     {
         $message = 'foo bar';
         $this->stream->write($message);
-        $this->assertEquals($message, (string) $this->stream);
+        $this->assertEquals($message, (string)$this->stream);
     }
 
     public function testGetContentsOfStream()
@@ -40,9 +43,9 @@ class StreamTest extends \PHPUnit\Framework\TestCase
         $this->stream->write($message);
         $this->assertEmpty($this->stream->getContents());
         $this->stream->rewind();
-        $this->assertEquals($message, (string) $this->stream);
+        $this->assertEquals($message, (string)$this->stream);
         $this->stream->rewind();
-        $this->assertEquals($this->stream->getContents(), (string) $this->stream);
+        $this->assertEquals($this->stream->getContents(), (string)$this->stream);
         $this->assertTrue($this->stream->eof());
     }
 

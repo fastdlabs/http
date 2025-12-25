@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Response;
 
 /**
  * Class JsonResponse
@@ -19,7 +19,7 @@ class JsonResponse extends Response
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      */
-    public function __construct(array $data, int $status = Response::HTTP_OK, array $headers = [])
+    public function __construct(array $data, int $status = StatusCodeInterface::HTTP_OK, array $headers = [])
     {
         $json = json_encode($data, static::JSON_OPTIONS);
 
@@ -31,7 +31,7 @@ class JsonResponse extends Response
     /**
      * @return array
      */
-    public function asArray(): array
+    public function toArray(): array
     {
         return json_decode($this->getContents(), true);
     }

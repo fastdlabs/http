@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Response;
 
 /**
  * Class RedirectResponse
@@ -17,7 +17,7 @@ class RedirectResponse extends Response
      * @param int $status
      * @param array $headers
      */
-    public function __construct(string $uri, int $status = 302, array $headers = [])
+    public function __construct(string $uri, int $status = StatusCodeInterface::HTTP_FOUND, array $headers = [])
     {
         parent::__construct('', $status, $headers);
 
