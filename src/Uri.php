@@ -595,7 +595,7 @@ class Uri implements UriInterface
     protected function filterQueryOrFragment(string $value): string
     {
         return preg_replace_callback(
-            '/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMITERS . '%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
+            '/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMITERS . 'Z0-9_\-.~%name!\$&\'(\)\*\+,/',
             [$this, 'urlEncodeChar'],
             $value
         );
