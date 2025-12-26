@@ -95,7 +95,7 @@ class Stream implements StreamInterface, Stringable
     {
         if (null !== $this->resource) {
             $resource = $this->detach();
-            fclose($resource);;
+            fclose($resource);
         }
     }
 
@@ -190,13 +190,15 @@ class Stream implements StreamInterface, Stringable
      */
     public function seek(int $offset, int $whence = SEEK_SET): void
     {
+        if (!$this->resource) {  // 修复：添加资源检查
+            throw new RuntimeException('No resource available; cannot seek position');
+        }
+
         if (!$this->isSeekable()) {
             throw new RuntimeException('Stream is not seekable');
         }
 
-        $result = fseek($this->resource, $offset, $whence);
-
-        if ($result === -1) {
+        if (fseek($this->resource, $offset, $whence) === -1) {
             throw new RuntimeException('Error seeking within stream');
         }
     }
@@ -235,6 +237,10 @@ class Stream implements StreamInterface, Stringable
      */
     public function write(string $string): int
     {
+        if (!$this->resource) {  // 修复：添加资源检查
+            throw new RuntimeException('No resource available; cannot write');
+        }
+
         if (!$this->isWritable()) {
             throw new RuntimeException('Stream is not writable');
         }
@@ -278,6 +284,15 @@ class Stream implements StreamInterface, Stringable
             throw new RuntimeException('Stream is not readable');
         }
 
+        // 修复：添加对负数和零长度的验证
+        if ($length < 0) {
+            throw new RuntimeException('Length must be non-negative');
+        }
+
+        if ($length === 0) {
+            return '';
+        }
+
         $string = fread($this->resource, $length);
 
         if (false === $string) {
@@ -296,17 +311,21 @@ class Stream implements StreamInterface, Stringable
      */
     public function getContents(): string
     {
+        if (!$this->resource) {  // 修复：添加资源检查
+            throw new RuntimeException('No resource available; cannot get contents');
+        }
+
         if (!$this->isReadable()) {
             throw new RuntimeException('Stream is not readable');
         }
 
-        $result = stream_get_contents($this->resource);
+        $contents = stream_get_contents($this->resource);
 
-        if (false === $result) {
+        if (false === $contents) {
             throw new RuntimeException('Error reading from stream');
         }
 
-        return $result;
+        return $contents;
     }
 
     /**

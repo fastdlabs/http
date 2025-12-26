@@ -3,22 +3,20 @@ declare(strict_types=1);
 
 namespace FastD\Http\Stream;
 
-/**
- * Class PhpInputStream
- *
- * @package FastD\Http
- */
+
+use RuntimeException;
+
 class PhpInputStream extends Stream
 {
     /**
      * @var string
      */
-    private string $cache = '';
+    protected string $cache = '';
 
     /**
      * @var bool
      */
-    private bool $reachedEof = false;
+    protected bool $reachedEof = false;
 
     /**
      * PhpInputStream constructor.
@@ -31,12 +29,18 @@ class PhpInputStream extends Stream
         parent::__construct($stream, $mode);
     }
 
+    public function rewind(): void
+    {
+        parent::rewind();
+        $this->cache = '';
+    }
+
     /**
      * @return string
      */
     public function __toString(): string
     {
-        if ($this->reachedEof) {
+        if ($this->reachedEof || !$this->resource) {
             return $this->cache;
         }
 
@@ -61,7 +65,8 @@ class PhpInputStream extends Stream
     public function read(int $length): string
     {
         $content = parent::read($length);
-        if ($content && ! $this->reachedEof) {
+
+        if ($content && !$this->reachedEof) {
             $this->cache .= $content;
         }
 
@@ -73,16 +78,29 @@ class PhpInputStream extends Stream
     }
 
     /**
-     * @param int $maxLength
+     * @param ?int $maxLength
      * @return string
      */
-    public function getContents(int $maxLength = -1): string
+    public function getContents(?int $maxLength = -1): string
     {
         if ($this->reachedEof) {
             return $this->cache;
         }
 
+        if (!$this->resource) {  // 修复：添加资源检查
+            throw new RuntimeException('No resource available; cannot get contents');
+        }
+
+        if (!$this->isReadable()) {
+            throw new RuntimeException('Stream is not readable');
+        }
+
         $contents = stream_get_contents($this->resource, $maxLength);
+
+        if (false === $contents) {
+            throw new RuntimeException('Error reading from stream');
+        }
+
         $this->cache .= $contents;
 
         if ($maxLength === -1 || $this->eof()) {
