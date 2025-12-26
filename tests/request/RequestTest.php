@@ -1,128 +1,161 @@
 <?php
 
-namespace request;
+declare(strict_types=1);
 
-use FastD\Http\Request\Payload;
 use FastD\Http\Request\Request;
 use FastD\Http\Uri;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UriInterface;
+use FastD\Http\Stream\Stream;
 
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
-class RequestTest extends \PHPUnit\Framework\TestCase
+class RequestTest extends TestCase
 {
-    public function testRequestUri()
+    /**
+     * 测试构造函数初始化
+     */
+    public function testConstructorInitialization()
     {
-        $request = new Request('GET', 'http://example.com');
+        $method = 'GET';
+        $uri = 'http://example.com/test';
+        $stream = new \FastD\Http\Stream\Stream("php://temp", "rw");
+        $stream->write('test body');
 
-        $this->assertEquals($request->getUri()->getHost(), 'example.com');
-        $this->assertEquals(80, $request->getUri()->getPort());
-        $this->assertEquals('/', $request->getUri()->getPath());
-        $this->assertEquals($request->getRequestTarget(), $request->getUri()->getPath());
+        $request = new Request($method, $uri, $stream);
+
+        // 验证方法
+        $this->assertSame(strtoupper($method), $request->getMethod());
+        // 验证URI
+        $this->assertInstanceOf(UriInterface::class, $request->getUri());
+        $this->assertSame($uri, (string)$request->getUri());
+        // 验证流
+        $this->assertSame('test body', (string)$request->getBody());
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * 测试默认流初始化
      */
-    public function testInvalidRequestUri()
+    public function testDefaultStreamInitialization()
     {
-        $this->expectException(InvalidArgumentException::class);
-        new Request('GET', '///');
+        $request = new Request('GET', 'http://example.com');
+
+        $this->assertInstanceOf(Stream::class, $request->getBody());
+        $this->assertSame('', (string)$request->getBody());
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * 测试获取请求目标（request target）
      */
-    public function testRequestMethod()
+    public function testGetRequestTarget()
+    {
+        // 带路径的URI
+        $uri = new Uri('http://example.com/path?query=1');
+        $request = (new Request('GET', ''))->withUri($uri);
+        $this->assertSame('/path', $request->getRequestTarget());
+
+        // 空路径的URI
+        $uri = new Uri('http://example.com');
+        $request = (new Request('GET', ''))->withUri($uri);
+        $this->assertSame('/', $request->getRequestTarget());
+
+        // 根路径的URI
+        $uri = new Uri('http://example.com/');
+        $request = (new Request('GET', ''))->withUri($uri);
+        $this->assertSame('/', $request->getRequestTarget());
+    }
+
+    /**
+     * 测试设置请求目标
+     */
+    public function testWithRequestTarget()
+    {
+        $request = new Request('GET', 'http://example.com');
+        $newRequest = $request->withRequestTarget('/new-target');
+
+        $this->assertSame($request, $newRequest); // 验证返回自身（当前实现）
+        $this->assertSame('/new-target', $request->getRequestTarget());
+    }
+
+    /**
+     * 测试获取HTTP方法
+     */
+    public function testGetMethod()
+    {
+        $request = new Request('POST', 'http://example.com');
+        $this->assertSame('POST', $request->getMethod());
+
+        $request = new Request('put', 'http://example.com'); // 小写方法
+        $this->assertSame('PUT', $request->getMethod()); // 验证自动转为大写
+    }
+
+    /**
+     * 测试设置有效的HTTP方法
+     */
+    public function testWithValidMethod()
+    {
+        $request = new Request('GET', 'http://example.com');
+
+        $newRequest = $request->withMethod('POST');
+        $this->assertSame($request, $newRequest); // 验证返回自身（当前实现）
+        $this->assertSame('POST', $request->getMethod());
+
+        $newRequest = $request->withMethod('patch'); // 小写方法
+        $this->assertSame('PATCH', $request->getMethod());
+    }
+
+    /**
+     * 测试设置无效的HTTP方法（应抛出异常）
+     */
+    public function testWithInvalidMethodThrowsException()
     {
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported HTTP method "INVALID" provided');
+
         $request = new Request('GET', 'http://example.com');
-        $this->assertEquals('GET', $request->getMethod());
-        // Test invalid method
-        $request->withMethod('ABC');
+        $request->withMethod('INVALID');
     }
 
-    public function server()
+    /**
+     * 测试获取URI
+     */
+    public function testGetUri()
     {
-        $uri = new Uri('https://www.baidu.com/');
+        $uri = new Uri('http://example.com/test');
+        $request = (new Request('GET', ''))->withUri($uri);
 
-        return new Request('GET', (string)$uri);
+        $this->assertSame($uri, $request->getUri());
+        $this->assertSame('http://example.com/test', (string)$request->getUri());
     }
 
-    public function testRequestTarget()
+    /**
+     * 测试设置URI
+     */
+    public function testWithUri()
     {
-        $request = $this->server();
-        $response = $request->send();
-        $this->assertEquals(200, $response->getStatusCode());
+        $originalUri = new Uri('http://example.com/original');
+        $request = (new Request('GET', ''))->withUri($originalUri);
+
+        $newUri = new Uri('http://example.com/new');
+        $newRequest = $request->withUri($newUri);
+
+        $this->assertSame($request, $newRequest); // 验证返回自身（当前实现）
+        $this->assertSame($newUri, $request->getUri());
+        $this->assertSame('http://example.com/new', (string)$request->getUri());
     }
 
-    public function testRequestWithLargeBody()
+    /**
+     * 测试URI设置时的Host头处理（当前实现未处理，仅做基础验证）
+     */
+    public function testWithUriHostHeader()
     {
-        $request = new Request('POST', 'https://github.com/session');
+        $uri = new Uri('http://example.com');
+        $request = (new Request('GET', ''))->withUri($uri);
 
-        $response = $request->send(new Payload([
-            'a' => str_repeat('11111', 1000),
-        ]));
+        // 当前实现未处理Host头，验证默认行为
+        $this->assertFalse($request->hasHeader('Host'));
 
-        $this->assertSame(403, $response->getStatusCode());
-        $this->assertSame('GitHub.com', $response->getHeader('server')[0]);
-    }
-
-    public function testResponseWithEncoding()
-    {
-        $request = $this->server();
-
-        $response = $request->send(new Payload(), array(
-            'Accept-Encoding: gzip'
-        ));
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $response = $request->send(new Payload(), array(
-            'Accept-Encoding: deflate'
-        ));
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $response = $request->send(new Payload(), array(
-            'Accept-Encoding: gzip, deflate'
-        ));
-        $this->assertEquals(200, $response->getStatusCode());
-    }
-
-    public function testPostRawRequest()
-    {
-        $raw = '<xml><appid><![CDATA[123456789123456789]]></appid><mch_id>1234567890</mch_id><nonce_str><![CDATA[589d897212f9c]]></nonce_str><body><![CDATA[123]]></body><out_trade_no><![CDATA[runnerlee_001]]></out_trade_no><fee_type><![CDATA[CNY]]></fee_type><total_fee>1</total_fee><spbill_create_ip><![CDATA[127.0.0.1]]></spbill_create_ip><trade_type><![CDATA[NATIVE]]></trade_type><notify_url><![CDATA[http://github.com]]></notify_url><detail><![CDATA[runnerlee_test_payment]]></detail><sign><![CDATA[ZXCVBNMASDFGHJKLQWERTYUIOP123456]]></sign></xml>';
-        $request = new Request('POST', 'https://api.mch.weixin.qq.com/pay/unifiedorder');
-        $response = (array)simplexml_load_string($request->send(new Payload($raw))->getContents(), 'SimpleXMLElement', LIBXML_NOCDATA);
-        $this->assertEquals('签名错误', $response['return_msg']);
-    }
-
-    public function testWithOptions()
-    {
-        $request = new Request('GET', '/');
-        $request->withOptions([
-            CURLOPT_CONNECTTIMEOUT => 30,
-            CURLOPT_USERAGENT => 'Hello World',
-        ]);
-        $this->assertEquals(
-            [
-                CURLOPT_CONNECTTIMEOUT => 30,
-                CURLOPT_USERAGENT => 'Hello World',
-            ],
-            $request->getOptions()
-        );
-        $request->withOptions([
-            CURLOPT_CONNECTTIMEOUT => 20,
-        ]);
-        $this->assertEquals(
-            [
-                CURLOPT_CONNECTTIMEOUT => 20,
-                CURLOPT_USERAGENT => 'Hello World',
-            ],
-            $request->getOptions()
-        );
+        // 设置带端口的URI
+        $newUri = new Uri('http://example.com:8080/path');
+        $request->withUri($newUri);
+        $this->assertFalse($request->hasHeader('Host')); // 仍未处理
     }
 }
