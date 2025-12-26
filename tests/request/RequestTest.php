@@ -4,7 +4,7 @@ namespace request;
 
 use FastD\Http\Request\Payload;
 use FastD\Http\Request\Request;
-use FastD\Http\Request\Uri;
+use FastD\Http\Uri;
 
 /**
  * @author    jan huang <bboyjanhuang@gmail.com>

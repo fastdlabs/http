@@ -9,7 +9,7 @@
 
 include __DIR__ . '/vendor/autoload.php';
 
-$request = new \FastD\Http\Request\Request('POST', new \FastD\Http\Request\Uri('http://api.linghit.com/'));
+$request = new \FastD\Http\Request\Request('POST', new \FastD\Http\Uri('http://api.linghit.com/'));
 
 $response = $request->send();
 echo $response;

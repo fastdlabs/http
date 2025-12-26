@@ -3,14 +3,10 @@ declare(strict_types=1);
 
 namespace FastD\Http\Stream;
 
-
 use RuntimeException;
 
 class PhpInputStream extends Stream
 {
-    /**
-     * @var string
-     */
     protected string $cache = '';
 
     /**
@@ -18,12 +14,6 @@ class PhpInputStream extends Stream
      */
     protected bool $reachedEof = false;
 
-    /**
-     * PhpInputStream constructor.
-     *
-     * @param string $stream
-     * @param string $mode
-     */
     public function __construct(string $stream = 'php://input', string $mode = 'r')
     {
         parent::__construct($stream, $mode);
@@ -35,9 +25,6 @@ class PhpInputStream extends Stream
         $this->cache = '';
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         if ($this->reachedEof || !$this->resource) {
@@ -50,18 +37,11 @@ class PhpInputStream extends Stream
         return $this->cache;
     }
 
-    /**
-     * @return bool false
-     */
     public function isWritable(): bool
     {
         return false;
     }
 
-    /**
-     * @param int $length
-     * @return string
-     */
     public function read(int $length): string
     {
         $content = parent::read($length);
@@ -77,10 +57,6 @@ class PhpInputStream extends Stream
         return $content;
     }
 
-    /**
-     * @param ?int $maxLength
-     * @return string
-     */
     public function getContents(?int $maxLength = -1): string
     {
         if ($this->reachedEof) {
