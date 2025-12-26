@@ -6,20 +6,16 @@ namespace FastD\Http\Exception;
 use FastD\Http\Response\StatusCodeInterface;
 use RuntimeException;
 
-/**
- * Class HttpException
- * @package FastD\Http\Exception
- */
 class HttpException extends RuntimeException
 {
     /**
      * HttpException constructor.
-     * @param string $message
+     * @param string $reasonPhrase
      * @param int $statusCode
      */
-    public function __construct(string $message = "Server Interval Error", protected int $statusCode = StatusCodeInterface::HTTP_INTERNAL_SERVER_ERROR)
+    public function __construct(protected int $statusCode = StatusCodeInterface::HTTP_INTERNAL_SERVER_ERROR, string $reasonPhrase = "Server Interval Error", )
     {
-        parent::__construct($message);
+        parent::__construct($reasonPhrase);
     }
 
     /**

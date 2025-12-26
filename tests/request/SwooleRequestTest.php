@@ -1,19 +1,11 @@
 <?php
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
-
 
 namespace request;
 
 use FastD\Http\Request\SwooleRequest;
 
 if (!defined('SWOOLE_VERSION')) {
-    define('SWOOLE_VERSION', '1.8.0');
+    define('SWOOLE_VERSION', '5.1.0');
 }
 
 class SwooleRequestTest extends \PHPUnit\Framework\TestCase

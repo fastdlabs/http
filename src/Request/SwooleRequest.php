@@ -5,18 +5,8 @@ namespace FastD\Http\Request;
 
 use Swoole\Http\Request;
 
-
-/**
- * Class SwooleServerRequest
- *
- * @package FastD\Http
- */
 class SwooleRequest extends ServerRequest
 {
-    /**
-     * @param \Swoole\Http\Request $request
-     * @return SwooleRequest
-     */
     public static function createServerRequestFromSwoole(Request $request): SwooleRequest
     {
         $get = $request->get ?? [];

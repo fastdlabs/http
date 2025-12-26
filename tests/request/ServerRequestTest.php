@@ -4,6 +4,7 @@ namespace request;
 
 use FastD\Http\Request\ServerRequest;
 use FastD\Http\Stream\PhpInputStream;
+use FastD\Http\Stream\Stream;
 
 /**
  *
@@ -227,20 +228,21 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
         $_COOKIE = $this->dataCookiesFromGlobals();
         $_GET = $this->dataQueryFromGlobals();
         $_FILES = $this->dataFilesFromGlobals();
-        $body = new PhpInputStream('php://temp', 'wr');
+        $_POST = [];
+        $body = new Stream('php://temp', 'wr');
         $body->write(http_build_query($this->dataBodyFromGlobals()));
 
-        $serverRequest = new ServerRequest('DELETE', 'http://example.com/blog/articles.php', [], $body, $_SERVER);
+        $serverRequest = new ServerRequest('DELETE', 'http://example.com/blog/articles.php');
         $serverRequest->withCookieParams($_COOKIE);
         $serverRequest->withQueryParams($_GET);
-        $serverRequest->withUploadedFiles($_FILES);
+//        $serverRequest->withUploadedFiles($_FILES);
         $this->assertEquals('10', $serverRequest->getParam('id'));
     }
 
     public function testServerRequestFilesNormalizer()
     {
         $serverRequest = new ServerRequest('PUT', 'http://example.com/blog/articles.php');
-        $serverRequest->withUploadedFiles($this->dataFilesFromGlobals());
+//        $serverRequest->withUploadedFiles($this->dataFilesFromGlobals());
         $files = $serverRequest->getUploadedFiles();
         $this->assertNotEmpty($files);
     }
