@@ -14,11 +14,6 @@ use Psr\Http\Message\ResponseInterface;
 use Stringable;
 
 
-/**
- * Class Response
- *
- * @package FastD\Http
- */
 class Response extends Message implements ResponseInterface, StatusCodeInterface, Stringable
 {
     /**
@@ -36,7 +31,7 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
     protected string $charset = 'utf-8';
 
     /**
-     * @var DateTime|null
+     * @var DateTime
      */
     protected DateTime $maxAge;
 

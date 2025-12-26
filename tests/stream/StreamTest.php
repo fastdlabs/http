@@ -1,92 +1,577 @@
 <?php
 
-namespace stream;
+declare(strict_types=1);
+
+namespace FastD\Http\Tests\Stream;
 
 use FastD\Http\Stream\Stream;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
- *
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
+ * Stream 类完整测试用例
  */
-class StreamTest extends \PHPUnit\Framework\TestCase
+class StreamTest extends TestCase
 {
-    /**
-     * @var Stream
-     */
-    protected $stream;
+    private string $tempFile;
+    private string $tempDir;
 
     protected function setUp(): void
     {
-        $this->stream = new Stream('php://memory', 'wb+');
+        $this->tempDir = sys_get_temp_dir();
+        $this->tempFile = tempnam($this->tempDir, 'stream_test_');
+        file_put_contents($this->tempFile, 'Hello, World! This is a test stream.');
     }
 
-    public function testStreamStatus()
+    protected function tearDown(): void
     {
-        $this->assertTrue($this->stream->isReadable());
-        $this->assertTrue($this->stream->isWritable());
+        if (file_exists($this->tempFile)) {
+            unlink($this->tempFile);
+        }
     }
 
-    public function testToStringRetrievesFullContentsOfStream()
+    // ===== 基础构造函数测试 =====
+
+    public function testConstructorCreatesStream(): void
     {
-        $message = 'foo bar';
-        $this->stream->write($message);
-        $this->assertEquals($message, (string)$this->stream);
+        $stream = new Stream($this->tempFile, 'r');
+
+        $this->assertInstanceOf(Stream::class, $stream);
+        $this->assertTrue($stream->isReadable());
+        $this->assertFalse($stream->isWritable());
+        $this->assertTrue($stream->isSeekable());
     }
 
-    public function testGetContentsOfStream()
+    public function testConstructorWithWritableMode(): void
     {
-        $message = 'foo bar';
-        $this->stream->write($message);
-        $this->assertEmpty($this->stream->getContents());
-        $this->stream->rewind();
-        $this->assertEquals($message, (string)$this->stream);
-        $this->stream->rewind();
-        $this->assertEquals($this->stream->getContents(), (string)$this->stream);
-        $this->assertTrue($this->stream->eof());
+        $stream = new Stream($this->tempFile, 'r+');
+
+        $this->assertTrue($stream->isReadable());
+        $this->assertTrue($stream->isWritable());
+        $this->assertTrue($stream->isSeekable());
     }
 
-    public function testStreamSize()
+    public function testConstructorWithWriteOnlyMode(): void
     {
-        $message = 'foo bar';
-        $this->stream->write($message);
-        $this->assertEquals(7, $this->stream->getSize());
+        $stream = new Stream($this->tempFile, 'w');
+
+        $this->assertFalse($stream->isReadable());
+        $this->assertTrue($stream->isWritable());
+        $this->assertTrue($stream->isSeekable());
     }
 
-    public function testStreamReadAndWrite()
+    public function testConstructorWithAppendMode(): void
     {
-        $message = 'foo bar';
-        $this->stream->write($message);
-        $this->assertFalse($this->stream->eof());
-        $this->assertEquals(7, $this->stream->tell());
-        $this->stream->seek(4);
-        $this->assertEquals('ba', $this->stream->read(2));
-        $this->assertEquals('r', $this->stream->read(1));
+        $stream = new Stream($this->tempFile, 'a');
+
+        $this->assertFalse($stream->isReadable());
+        $this->assertTrue($stream->isWritable());
+        $this->assertTrue($stream->isSeekable());
     }
 
-    public function testStreamEOF()
+    public function testConstructorWithReadAppendMode(): void
     {
-        $message = 'foo bar';
-        $this->stream->write($message);
-        $this->stream->seek(0);
-        $this->assertFalse($this->stream->eof());
-        $this->stream->getContents();
-        $this->assertTrue($this->stream->eof());
+        $stream = new Stream($this->tempFile, 'a+');
+
+        $this->assertTrue($stream->isReadable());
+        $this->assertTrue($stream->isWritable());
+        $this->assertTrue($stream->isSeekable());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testStreamClose()
+
+    // ===== 转换为字符串测试 =====
+
+    public function testToString(): void
     {
-        $message = 'foo bar';
-        $this->stream->write($message);
-        $this->assertEquals(7, $this->stream->getSize());
+        $stream = new Stream($this->tempFile, 'r');
+        $content = (string)$stream;
+
+        $this->assertSame('Hello, World! This is a test stream.', $content);
+    }
+
+    public function testToStringReturnsEmptyStringWhenResourceDetached(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $stream->detach();
+
+        $this->assertSame('', (string)$stream);
+    }
+
+    public function testToStringHandlesLargeContent(): void
+    {
+        $largeContent = str_repeat('A', 1024 * 10); // 10KB of content
+        file_put_contents($this->tempFile, $largeContent);
+
+        $stream = new Stream($this->tempFile, 'r');
+        $content = (string)$stream;
+
+        $this->assertSame($largeContent, $content);
+    }
+
+    // ===== 尺寸相关测试 =====
+
+    public function testGetSize(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $size = $stream->getSize();
+
+        $this->assertIsInt($size);
+        $this->assertSame(strlen('Hello, World! This is a test stream.'), $size);
+    }
+
+    public function testGetSizeReturnsNullWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->assertNull($stream->getSize());
+    }
+
+    // ===== 位置相关测试 =====
+
+    public function testTell(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $this->assertSame(0, $stream->tell());
+
+        $stream->read(5);
+        $this->assertSame(5, $stream->tell());
+    }
+
+    public function testTellThrowsExceptionWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+        fclose($resource);
+
         $this->expectException(RuntimeException::class);
-        $this->stream->close();
-        $this->stream->write($message);
+        $this->expectExceptionMessage('No resource available');
+        $stream->tell();
+    }
+
+    // ===== EOF 测试 =====
+
+    public function testEof(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $this->assertFalse($stream->eof());
+
+        $stream->getContents();
+        $this->assertTrue($stream->eof());
+    }
+
+    public function testEofReturnsTrueWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->assertTrue($stream->eof());
+    }
+
+    // ===== Seek 和 Rewind 测试 =====
+
+    public function testSeek(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+
+        $stream->seek(5);
+        $this->assertSame(5, $stream->tell());
+
+        $content = $stream->read(5);
+        $this->assertSame('World', $content);
+    }
+
+    public function testSeekWithWhence(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+
+        $stream->seek(-6, SEEK_END); // 从末尾向前6个字节
+        $content = $stream->read(6);
+        $this->assertSame('stream', $content);
+    }
+
+    public function testSeekThrowsExceptionWhenNotSeekable(): void
+    {
+        $stream = new Stream('php://memory', 'r');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not seekable');
+        $stream->seek(10);
+    }
+
+    public function testSeekThrowsExceptionWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No resource available');
+        $stream->seek(10);
+    }
+
+    public function testRewind(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $stream->read(10); // Move position to 10
+        $this->assertSame(10, $stream->tell());
+
+        $stream->rewind();
+        $this->assertSame(0, $stream->tell());
+    }
+
+    public function testRewindThrowsExceptionWhenNotSeekable(): void
+    {
+        $stream = new Stream('php://memory', 'r');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not seekable');
+        $stream->rewind();
+    }
+
+    // ===== 可读性测试 =====
+
+    public function testIsReadable(): void
+    {
+        $readStream = new Stream($this->tempFile, 'r');
+        $writeStream = new Stream($this->tempFile, 'w');
+
+        $this->assertTrue($readStream->isReadable());
+        $this->assertFalse($writeStream->isReadable());
+    }
+
+    public function testRead(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $content = $stream->read(5);
+
+        $this->assertSame('Hello', $content);
+    }
+
+    public function testReadThrowsExceptionWhenNotReadable(): void
+    {
+        $stream = new Stream($this->tempFile, 'w');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not readable');
+        $stream->read(5);
+    }
+
+    public function testReadThrowsExceptionWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No resource available');
+        $stream->read(5);
+    }
+
+    public function testGetContents(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $content = $stream->getContents();
+
+        $this->assertSame('Hello, World! This is a test stream.', $content);
+    }
+
+    public function testGetContentsThrowsExceptionWhenNotReadable(): void
+    {
+        $stream = new Stream($this->tempFile, 'w');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not readable');
+        $stream->getContents();
+    }
+
+    public function testGetContentsThrowsExceptionWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No resource available');
+        $stream->getContents();
+    }
+
+    // ===== 可写性测试 =====
+
+    public function testIsWritable(): void
+    {
+        $readStream = new Stream($this->tempFile, 'r');
+        $writeStream = new Stream($this->tempFile, 'w');
+
+        $this->assertFalse($readStream->isWritable());
+        $this->assertTrue($writeStream->isWritable());
+    }
+
+    public function testWrite(): void
+    {
+        $stream = new Stream($this->tempFile, 'r+');
+        $bytesWritten = $stream->write(' New');
+
+        $this->assertSame(4, $bytesWritten);
+
+        $stream->rewind();
+        $content = $stream->getContents();
+        $this->assertStringStartsWith('Hello New', $content);
+    }
+
+    public function testWriteThrowsExceptionWhenNotWritable(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not writable');
+        $stream->write('test');
+    }
+
+    public function testWriteThrowsExceptionWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r+');
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No resource available');
+        $stream->write('test');
+    }
+
+    // ===== 分离和关闭测试 =====
+
+    public function testDetach(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+
+        $this->assertIsResource($resource);
+        $this->assertNull($stream->detach()); // Second detach should return null
+        $this->assertTrue($stream->isDetached());
+    }
+
+    public function testClose(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $stream->close();
+
+        $this->assertTrue($stream->isDetached());
+    }
+
+    public function testCloseMultipleTimes(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $stream->close();
+        $stream->close(); // Should not throw exception
+
+        $this->assertTrue($stream->isDetached());
+    }
+
+    public function testIsDetached(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $this->assertFalse($stream->isDetached());
+
+        $stream->detach();
+        $this->assertTrue($stream->isDetached());
+    }
+
+    // ===== 元数据测试 =====
+
+    public function testGetMetadata(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $metadata = $stream->getMetadata();
+
+        $this->assertIsArray($metadata);
+        $this->assertArrayHasKey('mode', $metadata);
+        $this->assertArrayHasKey('seekable', $metadata);
+        $this->assertSame('r', $metadata['mode']);
+    }
+
+    public function testGetSpecificMetadata(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $mode = $stream->getMetadata('mode');
+
+        $this->assertSame('r', $mode);
+    }
+
+    public function testGetNonExistentMetadata(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $nonExistent = $stream->getMetadata('non_existent_key');
+
+        $this->assertNull($nonExistent);
+    }
+
+    public function testGetMetadataReturnsEmptyArrayWhenNoResource(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->assertSame([], $stream->getMetadata());
+        $this->assertNull($stream->getMetadata('any_key'));
+    }
+
+    // ===== 模式测试 =====
+
+    public function testGetMode(): void
+    {
+        $stream = new Stream($this->tempFile, 'r+');
+        $this->assertSame('r+', $stream->getMode());
+    }
+
+    // ===== 边界情况测试 =====
+
+    public function testReadZeroBytes(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $content = $stream->read(0);
+
+        $this->assertSame('', $content);
+    }
+
+    public function testWriteEmptyString(): void
+    {
+        $stream = new Stream($this->tempFile, 'r+');
+        $bytesWritten = $stream->write('');
+
+        $this->assertSame(0, $bytesWritten);
+    }
+
+    public function testSeekBeyondEndOfFile(): void
+    {
+        $stream = new Stream($this->tempFile, 'r+');
+
+        // This should work - seeking beyond end in append mode
+        $stream->seek(1000, SEEK_SET);
+        $this->assertSame(1000, $stream->tell());
+    }
+
+    public function testOperationsAfterDetach(): void
+    {
+        $stream = new Stream($this->tempFile, 'r+');
+        $stream->detach();
+
+        // All operations should throw RuntimeException
+        $this->expectException(RuntimeException::class);
+        $stream->read(1);
+    }
+
+    public function testMultipleDetachCalls(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+        $firstDetach = $stream->detach();
+        $secondDetach = $stream->detach();
+
+        $this->assertIsResource($firstDetach);
+        $this->assertNull($secondDetach);
+    }
+
+    // ===== 不同流类型测试 =====
+
+    public function testMemoryStream(): void
+    {
+        $stream = new Stream('php://memory', 'r+');
+        $stream->write('Hello Memory');
+
+        $stream->rewind();
+        $content = $stream->getContents();
+
+        $this->assertSame('Hello Memory', $content);
+    }
+
+    public function testTempStream(): void
+    {
+        $stream = new Stream('php://temp', 'r+');
+        $stream->write('Hello Temp');
+
+        $stream->rewind();
+        $content = $stream->getContents();
+
+        $this->assertSame('Hello Temp', $content);
+    }
+
+    public function testTempStreamBecomesFile(): void
+    {
+        $stream = new Stream('php://temp/maxmemory:1', 'r+');
+
+        // Write more than 1 byte to force it to become a file
+        $stream->write(str_repeat('A', 100));
+
+        $stream->rewind();
+        $content = $stream->getContents();
+
+        $this->assertSame(str_repeat('A', 100), $content);
+    }
+
+    // ===== 性能和压力测试 =====
+
+    public function testLargeWriteAndRead(): void
+    {
+        $largeData = str_repeat('A', 1024 * 100); // 100KB
+        $stream = new Stream('php://memory', 'r+');
+
+        $bytesWritten = $stream->write($largeData);
+        $this->assertSame(strlen($largeData), $bytesWritten);
+
+        $stream->rewind();
+        $readData = $stream->getContents();
+        $this->assertSame($largeData, $readData);
+    }
+
+    public function testSequentialReads(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+
+        $chunk1 = $stream->read(5); // 'Hello'
+        $chunk2 = $stream->read(2); // ', '
+        $chunk3 = $stream->read(5); // 'World'
+
+        $this->assertSame('Hello', $chunk1);
+        $this->assertSame(', ', $chunk2);
+        $this->assertSame('World', $chunk3);
+    }
+
+    // ===== 错误处理测试 =====
+
+    public function testErrorInReadOperation(): void
+    {
+        // Create a read-only stream and try to write to it
+        $stream = new Stream($this->tempFile, 'r');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not writable');
+        $stream->write('should fail');
+    }
+
+    public function testErrorInWriteOperation(): void
+    {
+        // Create a write-only stream and try to read from it
+        $stream = new Stream($this->tempFile, 'w');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not readable');
+        $stream->read(1);
+    }
+
+    public function testSeekErrorHandling(): void
+    {
+        $stream = new Stream($this->tempFile, 'r');
+
+        // Test invalid whence parameter (though PHP will handle this)
+        $this->expectException(RuntimeException::class);
+        // We can't actually pass an invalid whence to fseek, so we'll test other error cases
+        $resource = $stream->detach();
+        fclose($resource);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No resource available');
+        $stream->seek(10);
     }
 }
