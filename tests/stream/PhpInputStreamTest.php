@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace FastD\Http\Tests\Stream;
-
 use FastD\Http\Stream\PhpInputStream;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;

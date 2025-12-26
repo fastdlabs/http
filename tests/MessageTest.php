@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace FastD\Http\Tests;
-
 use FastD\Http\Message;
 use FastD\Http\Stream\Stream;
 use PHPUnit\Framework\TestCase;

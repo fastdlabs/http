@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace FastD\Http\Tests;
-
 use FastD\Http\Uri;
 use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
