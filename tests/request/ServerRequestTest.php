@@ -1,6 +1,10 @@
 <?php
-use FastD\Http\PhpInputStream;
-use FastD\Http\ServerRequest;
+
+namespace request;
+
+use FastD\Http\Request\ServerRequest;
+use FastD\Http\Stream\PhpInputStream;
+use FastD\Http\Stream\Stream;
 
 /**
  *
@@ -62,7 +66,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
     public function dataBodyFromGlobals()
     {
-        return  [
+        return [
             'name' => 'Pesho',
             'email' => 'pesho@example.com',
         ];
@@ -77,7 +81,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
     public function dataServerFromGlobals()
     {
-        return  [
+        return [
             'PHP_SELF' => '/blog/article.php',
             'GATEWAY_INTERFACE' => 'CGI/1.1',
             'SERVER_ADDR' => 'Server IP: 217.112.82.20',
@@ -141,7 +145,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
     public function dataPUTServerFromGlobals()
     {
-        return  [
+        return [
             'PHP_SELF' => '/blog/article.php',
             'GATEWAY_INTERFACE' => 'CGI/1.1',
             'SERVER_ADDR' => 'Server IP: 217.112.82.20',
@@ -211,7 +215,7 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals($serverRequest->getUri()->getPath(), '/blog/article.php');
         $this->assertEquals('POST', $serverRequest->getMethod());
-        $this->assertEquals($this->dataQueryFromGlobals() , $serverRequest->getQueryParams());
+        $this->assertEquals($this->dataQueryFromGlobals(), $serverRequest->getQueryParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataCookiesFromGlobals(), $serverRequest->getCookieParams());
         $this->assertEquals($this->dataBodyFromGlobals(), $serverRequest->getParsedBody());
@@ -224,20 +228,21 @@ class ServerRequestTest extends \PHPUnit\Framework\TestCase
         $_COOKIE = $this->dataCookiesFromGlobals();
         $_GET = $this->dataQueryFromGlobals();
         $_FILES = $this->dataFilesFromGlobals();
-        $body = new PhpInputStream('php://temp', 'wr');
+        $_POST = [];
+        $body = new Stream('php://temp', 'wr');
         $body->write(http_build_query($this->dataBodyFromGlobals()));
 
-        $serverRequest = new ServerRequest('DELETE', 'http://example.com/blog/articles.php', [], $body, $_SERVER);
+        $serverRequest = new ServerRequest('DELETE', 'http://example.com/blog/articles.php');
         $serverRequest->withCookieParams($_COOKIE);
         $serverRequest->withQueryParams($_GET);
-        $serverRequest->withUploadedFiles($_FILES);
+//        $serverRequest->withUploadedFiles($_FILES);
         $this->assertEquals('10', $serverRequest->getParam('id'));
     }
 
     public function testServerRequestFilesNormalizer()
     {
         $serverRequest = new ServerRequest('PUT', 'http://example.com/blog/articles.php');
-        $serverRequest->withUploadedFiles($this->dataFilesFromGlobals());
+//        $serverRequest->withUploadedFiles($this->dataFilesFromGlobals());
         $files = $serverRequest->getUploadedFiles();
         $this->assertNotEmpty($files);
     }

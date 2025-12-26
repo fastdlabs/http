@@ -1,15 +1,13 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
+use FastD\Http\Exception\HttpException;
+use FastD\Http\Message;
+use FastD\Http\Response\Response;
+use FastD\Http\Stream\Stream;
+use FastD\Http\Uri;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -24,13 +22,6 @@ use Psr\Http\Message\UriInterface;
  */
 class Request extends Message implements RequestInterface
 {
-    const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/fastdlabs/http)';
-
-    /**
-     * @var array
-     */
-    protected array $options = [];
-
     /**
      * @var string
      */
@@ -61,16 +52,14 @@ class Request extends Message implements RequestInterface
      *
      * @param string $method
      * @param string $uri
-     * @param array $headers
-     * @param ?StreamInterface $body
+     * @param ?StreamInterface $stream
      */
-    public function __construct(string $method, string $uri, array $headers = [], ?StreamInterface $body = null)
+    public function __construct(string $method, string $uri, ?StreamInterface $stream = new Stream('php://memory', 'r+'))
     {
         $this->withMethod($method);
         $this->withUri(new Uri($uri));
-        $this->withHeaders($headers);
 
-        parent::__construct($body);
+        parent::__construct($stream);
     }
 
     /**
@@ -148,10 +137,7 @@ class Request extends Message implements RequestInterface
         $method = strtoupper($method);
 
         if (!in_array($method, $this->validMethods, true)) {
-            throw new InvalidArgumentException(sprintf(
-                'Unsupported HTTP method "%s" provided',
-                $method
-            ));
+            throw new InvalidArgumentException(sprintf('Unsupported HTTP method "%s" provided', $method));
         }
 
         $this->method = $method;
@@ -208,111 +194,5 @@ class Request extends Message implements RequestInterface
         $this->uri = $uri;
 
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
-    }
-
-    /**
-     * @param string $key
-     * @param mixed $value
-     * @return Request
-     */
-    public function withOption(int $key, $value): Request
-    {
-        $this->options[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param array $options
-     * @return Request
-     */
-    public function withOptions(array $options): Request
-    {
-        $this->options = $options + $this->options;
-
-        return $this;
-    }
-
-    /**
-     * @param ?Payload $payload
-     * @param array $headers
-     * @return Response
-     */
-    public function send(?Payload $payload = null, array $headers = []): Response
-    {
-        $ch = curl_init();
-        $url = (string)$this->uri;
-        $data = (string)$payload;
-
-        // DELETE request may has body
-        if (in_array($this->getMethod(), ['PUT', 'POST', 'DELETE', 'PATCH'])) {
-            $this->withOption(CURLOPT_POSTFIELDS, $data);
-        } else {
-            if (!empty($data)) {
-                $url .= (false === strpos($url, '?') ? '?' : '&') . $data;
-            }
-        }
-
-        if (!array_key_exists(CURLOPT_USERAGENT, $this->options)) {
-            $this->withOption(CURLOPT_USERAGENT, static::USER_AGENT);
-        }
-
-        // forces only empty Expect
-        // see: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Expect
-        // see: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/100
-        foreach ($headers as $index => $header) {
-            if (0 === strpos(strtolower($header), 'expect:')) {
-                unset($headers[$index]);
-                break;
-            }
-        }
-        $headers[] = 'Expect:';
-
-        $this->withOption(CURLOPT_HTTPHEADER, $headers);
-        $this->withOption(CURLOPT_URL, $url);
-        $this->withOption(CURLOPT_CUSTOMREQUEST, $this->getMethod());
-        $this->withOption(CURLINFO_HEADER_OUT, true);
-        $this->withOption(CURLOPT_HEADER, true);
-        $this->withOption(CURLOPT_RETURNTRANSFER, true);
-
-        foreach ($this->options as $key => $option) {
-            curl_setopt($ch, $key, $option);
-        }
-
-        $response = curl_exec($ch);
-        $errorCode = curl_errno($ch);
-        $errorMsg = curl_error($ch);
-
-        if ((strpos($response, "\r\n\r\n") === false) || !($errorCode === 0)) {
-            throw new HttpException($errorMsg);
-        }
-
-        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        unset($ch);
-        list($responseHeaders, $response) = explode("\r\n\r\n", $response, 2);
-        $responseHeaders = preg_split('/\r\n/', $responseHeaders, -1, PREG_SPLIT_NO_EMPTY);
-
-        array_shift($responseHeaders);
-        $headers = [];
-        array_map(function ($headerLine) use (&$headers) {
-            list($key, $value) = explode(':', $headerLine, 2);
-            $headers[$key] = trim($value);
-            unset($headerLine, $key, $value);
-        }, $responseHeaders);
-
-        if (isset($headers['Content-Encoding'])) {
-            $response = zlib_decode($response);
-        }
-
-        return new Response($response, $statusCode, $headers);
     }
 }

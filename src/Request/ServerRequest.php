@@ -1,16 +1,10 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
-
+use FastD\Http\Cookie;
+use FastD\Http\Stream\PhpInputStream;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -25,58 +19,51 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @var array
      */
-    public array $attributes = [];
+    protected array $attributes = [];
 
     /**
      * @var array
      */
-    public array $cookieParams = [];
+    protected array $cookieParams = [];
 
     /**
      * @var array
      */
-    public array $queryParams = [];
+    protected array $queryParams = [];
 
     /**
      * @var array
      */
-    public array $bodyParams = [];
+    protected array $bodyParams = [];
 
     /**
      * @var array
      */
-    public array $serverParams = [];
+    protected array $serverParams = [];
 
     /**
      * @var UploadedFile[]
      */
-    public array $uploadFile = [];
+    protected array $uploadFile = [];
 
-    /**
-     * ServerRequest constructor.
-     * @param string $method
-     * @param string $uri
-     * @param array $headers
-     * @param StreamInterface|null $body
-     * @param array $serverParams
-     */
-    public function __construct(string $method, string $uri, array $headers = [], StreamInterface $body = null, array $serverParams = [])
+    public function __construct(string $method, string $uri, array $headers = [], array $serverParams = [], ?StreamInterface $body = new PhpInputStream())
     {
-        parent::__construct($method, $uri, $headers, $body);
+        parent::__construct($method, $uri, $body);
 
-        $this
-            ->withQueryParams($this->uri->getQueryParams())
-            ->withServerParams($serverParams)
+        $this->withQueryParams($this->uri->getQueryParams())
             ->withParsedBody($_POST)
+            ->withServerParams($serverParams)
             ->withCookieParams($_COOKIE)
             ->withUploadedFiles($_FILES);
 
-        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS']) && null !== $body) {
+        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
             parse_str((string)$body, $data);
             if (empty($data)) {
                 $data = json_decode((string)$body);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $data = [];
+                }
             }
-
             $this->withParsedBody($data);
         }
     }
@@ -101,9 +88,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withServerParams(array $server): ServerRequest
     {
-        if (empty($this->header)) {
+        if (empty($this->headers)) {
             array_walk($server, function ($value, $key) {
-                if (0 === strpos($key, 'HTTP_')) {
+                if (str_starts_with($key, 'HTTP_')) {
                     $this->withAddedHeader(str_replace('HTTP_', '', $key), $value);
                 }
             });
@@ -132,11 +119,11 @@ class ServerRequest extends Request implements ServerRequestInterface
     /**
      * @param $key
      * @param $default
-     * @return bool|mixed
+     * @return Cookie|mixed
      */
-    public function getCookie(string $key, bool $default = null): ?Cookie
+    public function getCookie(string $key): ?Cookie
     {
-        return $this->cookieParams[$key] ?? $default;
+        return $this->cookieParams[$key] ?? null;
     }
 
     /**
@@ -187,7 +174,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param mixed $default
      * @return mixed
      */
-    public function getParam(string $key, $default = null)
+    public function getParam(string $key, mixed $default = null): mixed
     {
         if (isset($this->queryParams[$key])) {
             return $this->queryParams[$key];
@@ -261,7 +248,25 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles): ServerRequest
     {
-        $this->uploadFile = static::normalizer($uploadedFiles);
+        foreach ($uploadedFiles as $key => $value) {
+            if (is_string($value['name'])) {
+                $this->uploadFile[$key] = ($value instanceof UploadedFileInterface) ? $value : new UploadedFile($value['name'], $value['type'], $value['tmp_name'], $value['size'], $value['error']);
+            } elseif (is_array($value['name'])) {
+                $uploadedFiles = array_map(
+                    fn($index) => empty($value['name'][$index]) ? null : new UploadedFile(
+                        $value['name'][$index],
+                        $value['type'][$index],
+                        $value['tmp_name'][$index],
+                        $value['size'][$index],
+                        $value['error'][$index]
+                    ),
+                    array_keys($value['name'])
+                );
+                $this->uploadFile[$key] = array_filter($uploadedFiles);
+            } else {
+                throw new InvalidArgumentException('Invalid value in files specification');
+            }
+        }
 
         return $this;
     }
@@ -314,7 +319,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @throws InvalidArgumentException if an unsupported argument type is
      *                                provided.
      */
-    public function withParsedBody($data): ServerRequest
+    public function withParsedBody(mixed $data): ServerRequest
     {
         $this->bodyParams = $data;
 
@@ -352,7 +357,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return mixed
      * @see getAttributes()
      */
-    public function getAttribute(string $name, $default = null)
+    public function getAttribute(string $name, mixed $default = null): mixed
     {
         if (!array_key_exists($name, $this->attributes)) {
             return $default;
@@ -376,7 +381,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return static
      * @see getAttributes()
      */
-    public function withAttribute(string $name, $value): ServerRequestInterface
+    public function withAttribute(string $name, mixed $value): ServerRequestInterface
     {
         $this->attributes[$name] = $value;
 
@@ -409,70 +414,6 @@ class ServerRequest extends Request implements ServerRequestInterface
     }
 
     /**
-     * @return string
-     */
-    public function getClientIP(): string
-    {
-        $unknown = 'unknown';
-        $ip = 'unknown';
-        if (
-            isset($this->serverParams['HTTP_X_FORWARDED_FOR'])
-            && $this->serverParams['HTTP_X_FORWARDED_FOR']
-            && strcasecmp($this->serverParams['HTTP_X_FORWARDED_FOR'], $unknown)
-        ) {
-            $ip = $this->serverParams['HTTP_X_FORWARDED_FOR'];
-        } else if (
-            isset($this->serverParams['REMOTE_ADDR'])
-            && $this->serverParams['REMOTE_ADDR']
-            && strcasecmp($this->serverParams['REMOTE_ADDR'], $unknown)
-        ) {
-            $ip = $this->serverParams['REMOTE_ADDR'];
-        }
-
-        if (false !== strpos($ip, ',')) {
-            $ip = explode(',', $ip);
-            reset($ip);
-        }
-
-        return $ip;
-    }
-
-    /**
-     * @param $files
-     * @return array
-     */
-    public static function normalizer(array $files): array
-    {
-        $normalized = [];
-        foreach ($files as $key => $value) {
-            if ($value instanceof UploadedFileInterface) {
-                $normalized[$key] = $value;
-            } elseif (!is_array($value['name'])) {
-                $normalized[$key] = UploadedFile::normalizer($value);
-            } elseif (is_array($value['name'])) {
-                $array = [];
-                foreach ($value['name'] as $index => $item) {
-                    if (empty($item)) {
-                        continue;
-                    }
-                    $array[] = UploadedFile::normalizer([
-                        'name' => $value['name'][$index],
-                        'type' => $value['type'][$index],
-                        'tmp_name' => $value['tmp_name'][$index],
-                        'error' => $value['error'][$index],
-                        'size' => $value['size'][$index],
-                    ]);
-                }
-                $normalized[$key] = $array;
-            } else {
-                throw new InvalidArgumentException('Invalid value in files specification');
-            }
-        }
-
-        return $normalized;
-    }
-
-    /**
      * @param array $serverParams
      * @return string
      */
@@ -491,7 +432,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         } elseif (isset($serverParams['HTTP_HOST'])) {
             $uri .= $serverParams['HTTP_HOST'];
         }
-        if (isset($serverParams['SERVER_PORT']) && !empty($serverParams['SERVER_PORT'])) {
+        if (!empty($serverParams['SERVER_PORT'])) {
             if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
                 $uri .= ':' . $serverParams['SERVER_PORT'];
             }
@@ -501,7 +442,7 @@ class ServerRequest extends Request implements ServerRequestInterface
             $uri .= $requestUriParts[0];
             unset($requestUriParts);
         }
-        if (isset($serverParams['QUERY_STRING']) && !empty($serverParams['QUERY_STRING'])) {
+        if (!empty($serverParams['QUERY_STRING'])) {
             $uri .= '?' . $serverParams['QUERY_STRING'];
         }
 
@@ -524,6 +465,6 @@ class ServerRequest extends Request implements ServerRequestInterface
             $headers[$name] = $value;
         }
 
-        return new static($method, static::createUriFromGlobal($_SERVER), $headers, new PhpInputStream(), $_SERVER);
+        return new static($method, static::createUriFromGlobal($_SERVER), $headers, $_SERVER, new PhpInputStream());
     }
 }

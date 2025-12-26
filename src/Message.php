@@ -1,15 +1,9 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
 namespace FastD\Http;
 
+use FastD\Http\Stream\Stream;
 use InvalidArgumentException;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -26,29 +20,15 @@ class Message implements MessageInterface
     /**
      * @var array
      */
-    public array $header = [];
-
-    /**
-     * @var string
-     */
-    protected string $protocolVersion = '1.1';
-
-    /**
-     * @var StreamInterface
-     */
-    protected StreamInterface $stream;
+    public array $headers = [];
 
     /**
      * Message constructor.
-     * @param StreamInterface|null $stream
+     * @param ?StreamInterface $stream
+     * @param string $protocolVersion
      */
-    public function __construct(StreamInterface $stream = null)
+    public function __construct(protected ?StreamInterface $stream = new Stream('php://memory', 'r+'), protected string $protocolVersion = '1.1')
     {
-        if (null === $stream) {
-            $stream = new Stream('php://memory', 'wb+');
-        }
-
-        $this->withBody($stream);
     }
 
     /**
@@ -110,7 +90,7 @@ class Message implements MessageInterface
      */
     public function getHeaders(): array
     {
-        return $this->header;
+        return $this->headers;
     }
 
     /**
@@ -123,7 +103,7 @@ class Message implements MessageInterface
      */
     public function hasHeader(string $name): bool
     {
-        return isset($this->header[strtolower($name)]);
+        return isset($this->headers[strtolower($name)]);
     }
 
     /**
@@ -142,7 +122,8 @@ class Message implements MessageInterface
      */
     public function getHeader(string $name): array
     {
-        return $this->hasHeader($name) ? $this->header[strtolower($name)] : [];
+        $lowerName = strtolower($name);
+        return $this->headers[$lowerName] ?? [];
     }
 
     /**
@@ -166,13 +147,7 @@ class Message implements MessageInterface
      */
     public function getHeaderLine(string $name): string
     {
-        $value = $this->getHeader($name);
-
-        if (empty($value)) {
-            return '';
-        }
-
-        return implode(', ', $value);
+        return implode(', ', $this->getHeader($name));
     }
 
     /**
@@ -190,31 +165,19 @@ class Message implements MessageInterface
      * @return MessageInterface
      * @throws InvalidArgumentException for invalid header names or values.
      */
-    public function withHeader(string $name, $value): MessageInterface
+    public function withHeader(string $name, mixed $value): MessageInterface
     {
-        $this->header[strtolower($name)] = [$value];
+        $lowerName = strtolower($name);
 
-        return $this;
-    }
-
-    /**
-     * @param array $headers
-     * @return MessageInterface
-     */
-    public function withHeaders(array $headers): MessageInterface
-    {
-        foreach ($headers as $key => $header) {
-            if (is_array($header)) {
-                foreach ($header as $item) {
-                    $this->withAddedHeader($key, $item);
-                }
-            } else {
-                $this->withHeader($key, $header);
-            }
+        if (is_array($value)) {
+            $this->headers[$lowerName] = $value;
+        } else {
+            $this->headers[$lowerName] = [$value];
         }
 
         return $this;
     }
+
 
     /**
      * Return an instance with the specified header appended with the given value.
@@ -232,9 +195,15 @@ class Message implements MessageInterface
      * @return MessageInterface
      * @throws InvalidArgumentException for invalid header names or values.
      */
-    public function withAddedHeader(string $name, $value): MessageInterface
+    public function withAddedHeader(string $name, mixed $value): MessageInterface
     {
-        $this->header[strtolower($name)][] = $value;
+        $lowerName = strtolower($name);
+
+        if (is_array($value)) {
+            $this->headers[$lowerName] = array_merge($this->headers[$lowerName] ?? [], $value);
+        } else {
+            $this->headers[$lowerName][] = $value;
+        }
 
         return $this;
     }
@@ -255,11 +224,9 @@ class Message implements MessageInterface
     {
         $name = strtolower($name);
 
-        if (!$this->hasHeader($name)) {
-            return $this;
+        if ($this->hasHeader($name)) {
+            unset($this->headers[$name]);
         }
-
-        unset($this->header[$name]);
 
         return $this;
     }
@@ -283,13 +250,13 @@ class Message implements MessageInterface
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param StreamInterface $stream Body.
+     * @param StreamInterface $body Body.
      * @return MessageInterface
      * @throws InvalidArgumentException When the body is not valid.
      */
-    public function withBody(StreamInterface $stream): MessageInterface
+    public function withBody(StreamInterface $body): MessageInterface
     {
-        $this->stream = $stream;
+        $this->stream = $body;
 
         return $this;
     }

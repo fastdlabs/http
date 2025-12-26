@@ -6,3 +6,4 @@ examples/uploaded
 /.vscode
 /bin/
 .phpunit.result.cache
+.DS_Store

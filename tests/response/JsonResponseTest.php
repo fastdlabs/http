@@ -8,7 +8,9 @@
  */
 
 
-use FastD\Http\JsonResponse;
+namespace response;
+
+use FastD\Http\Response\JsonResponse;
 
 class JsonResponseTest extends \PHPUnit\Framework\TestCase
 {
@@ -34,8 +36,6 @@ class JsonResponseTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals([
             'foo' => 'bar'
         ], json_decode($body, true));
-        $this->assertEquals([
-            'foo' => 'bar'
-        ], $response->toArray());
+        $this->assertEquals('bar', $response['foo']);
     }
 }

@@ -1,29 +1,12 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
 use Swoole\Http\Request;
 
-
-/**
- * Class SwooleServerRequest
- *
- * @package FastD\Http
- */
 class SwooleRequest extends ServerRequest
 {
-    /**
-     * @param \Swoole\Http\Request $request
-     * @return SwooleRequest
-     */
     public static function createServerRequestFromSwoole(Request $request): SwooleRequest
     {
         $get = $request->get ?? [];

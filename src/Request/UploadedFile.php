@@ -1,68 +1,36 @@
 <?php
 declare(strict_types=1);
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
 use CURLFile;
+use FastD\Http\Stream\Stream;
+use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 
-/**
- * Class File
- *
- * @package FastD\Http\Bag
- */
 class UploadedFile extends CURLFile implements UploadedFileInterface
 {
     /**
-     * @var string
+     * @var bool Whether file has been moved
      */
-    protected string $tmpName;
+    private bool $moved = false;
 
     /**
-     * @var int
+     * @var StreamInterface|null File stream
      */
-    protected int $error;
+    private ?StreamInterface $stream = null;
 
-    /**
-     * @var int
-     */
-    protected int $size = 0;
-
-    /**
-     * @var bool
-     */
-    protected bool $moved = false;
-
-    /**
-     * @var StreamInterface
-     */
-    protected StreamInterface $stream;
-
-    /**
-     * File constructor.
-     *
-     * @param $name
-     * @param $type
-     * @param $tmpName
-     * @param $error
-     * @param $size
-     */
-    public function __construct(string $name, string $type, string $tmpName, int $error, int $size)
-    {
-        $this->tmpName = $tmpName;
-        $this->error = $error;
-        $this->size = $size;
-
-        parent::__construct($tmpName, $type, $name);
+    public function __construct(
+        protected string $clientFilename,
+        protected string $clientMediaType,
+        protected string $tmpName,
+        protected int $size,
+        protected int $error,
+    ) {
+        // Initialize parent CURLFile
+        parent::__construct($tmpName, $this->clientMediaType, $this->clientFilename);
     }
 
     /**
@@ -78,22 +46,25 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * an exception.
      *
      * @return StreamInterface Stream representation of the uploaded file.
-     * @throws \RuntimeException in cases when no stream is available or can be
+     * @throws RuntimeException in cases when no stream is available or can be
      *     created.
      */
     public function getStream(): StreamInterface
     {
         if ($this->moved) {
-            throw new RuntimeException('Cannot retrieve stream after it has already been moved');
+            throw new RuntimeException('Cannot retrieve stream after file has been moved');
         }
 
-        if ($this->stream instanceof StreamInterface) {
+        if ($this->stream !== null) {
             return $this->stream;
         }
 
-        $this->stream = new Stream($this->tmpName);
-
-        return $this->stream;
+        try {
+            $this->stream = new Stream($this->tmpName, 'r');
+            return $this->stream;
+        } catch (\Exception $e) {
+            throw new RuntimeException('Cannot create file stream: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -125,39 +96,47 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @see http://php.net/move_uploaded_file
      * @param string $targetPath Path to which to move the uploaded file.
      * @return string
-     * @throws \InvalidArgumentException if the $targetPath specified is invalid.
-     * @throws \RuntimeException on any error during the move operation, or on
+     * @throws InvalidArgumentException if the $targetPath specified is invalid.
+     * @throws RuntimeException on any error during the move operation, or on
      *                           the second or subsequent call to the method.
      */
     public function moveTo(string $targetPath): void
     {
-        $targetFile = $targetPath
-            . DIRECTORY_SEPARATOR
-            . hash_file('md5', $this->tmpName)
-            . '.'
-            . pathinfo($this->postname, PATHINFO_EXTENSION);
+        if ($this->moved) {
+            throw new RuntimeException('File has already been moved');
+        }
 
+        if ($targetPath === '') {
+            throw new InvalidArgumentException('Target path cannot be empty');
+        }
+
+        if (str_contains($targetPath, '..')) {
+            throw new InvalidArgumentException('Target path cannot contain parent directory references (..)');
+        }
+
+        $targetDir = dirname($targetPath);
+        if (!is_dir($targetDir)) {
+            if (!mkdir($targetDir, 0755, true)) {
+                throw new RuntimeException('Cannot create target directory: ' . $targetDir);
+            }
+        }
+
+        $realPath = realpath($targetDir);
+        if ($realPath === false || !str_starts_with($targetDir, $realPath)) {
+            throw new InvalidArgumentException('Target path is not within allowed directory scope');
+        }
 
         if ('cli' === PHP_SAPI) {
-            if (!rename($this->tmpName, $targetFile)) {
-                throw new \RuntimeException('Failed to move uploaded file.');
+            $success = rename($this->tmpName, $targetPath);
+        } else {
+            if (!is_uploaded_file($this->tmpName)) {
+                throw new RuntimeException('File is not a valid uploaded file');
             }
-
-            $this->moved = true;
-
-            return;
+            $success = move_uploaded_file($this->tmpName, $targetPath);
         }
 
-        if (!is_uploaded_file($this->tmpName)) {
-            throw new \InvalidArgumentException(sprintf('Upload file is invalid.'));
-        }
-
-        if (!is_dir($targetPath)) {
-            mkdir($targetPath, 0755, true);
-        }
-
-        if (!move_uploaded_file($this->tmpName, $targetFile)) {
-            throw new \RuntimeException('Failed to move uploaded file.');
+        if (!$success) {
+            throw new RuntimeException('Failed to move uploaded file');
         }
 
         $this->moved = true;
@@ -172,7 +151,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      *
      * @return int|null The file size in bytes or null if unknown.
      */
-    public function getSize(): int
+    public function getSize(): ?int
     {
         return $this->size;
     }
@@ -209,9 +188,9 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * @return string|null The filename sent by the client or null if none
      *     was provided.
      */
-    public function getClientFilename(): string
+    public function getClientFilename(): ?string
     {
-        return $this->name;
+        return $this->clientFilename !== '' ? $this->clientFilename : null;
     }
 
     /**
@@ -224,25 +203,21 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
      * Implementations SHOULD return the value stored in the "type" key of
      * the file in the $_FILES array.
      *
-     * @return string|null The media type sent by the client or null if none
+     * @return string The media type sent by the client or null if none
      *     was provided.
      */
-    public function getClientMediaType(): string
+    public function getClientMediaType(): ?string
     {
-        return $this->mime;
+        return $this->clientMediaType !== '' ? $this->clientMediaType : null;
     }
 
     /**
-     * @param array $file
-     * @return UploadedFile
+     * Check if file has been moved
+     *
+     * @return bool True if file has been moved, false otherwise
      */
-    public static function normalizer(array $file): UploadedFile
+    public function isMoved(): bool
     {
-        return new UploadedFile($file['name'],
-            $file['type'],
-            $file['tmp_name'],
-            (int) $file['error'],
-            (int) $file['size']
-        );
+        return $this->moved;
     }
 }
