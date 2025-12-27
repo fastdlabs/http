@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use FastD\Http\Stream\Stream;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 /**
  * Stream 类完整测试用例

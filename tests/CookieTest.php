@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use FastD\Http\Cookie;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**

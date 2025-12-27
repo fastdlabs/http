@@ -5,8 +5,6 @@ declare(strict_types=1);
 use FastD\Http\Request\UploadedFile;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
-use RuntimeException;
-use InvalidArgumentException;
 
 /**
  * UploadedFile类完整单元测试

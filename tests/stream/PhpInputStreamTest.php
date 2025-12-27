@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use FastD\Http\Stream\PhpInputStream;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 /**
  * PhpInputStream 类完整单元测试

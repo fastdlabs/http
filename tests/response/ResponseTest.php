@@ -2,14 +2,10 @@
 
 declare(strict_types=1);
 
-namespace FastD\Http\Tests\Response;
-
-use DateTime;
 use FastD\Http\Response\Response;
 use FastD\Http\Response\StatusCodeInterface;
 use FastD\Http\Cookie;
 use FastD\Http\Stream\Stream;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**

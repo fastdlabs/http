@@ -4,6 +4,7 @@ namespace FastD\Http;
 
 use FastD\Http\Exception\HttpException;
 use FastD\Http\Request\Request;
+use FastD\Http\Response\JsonResponse;
 use FastD\Http\Response\Response;
 
 class Client
@@ -12,9 +13,9 @@ class Client
 
     protected array $options = [];
 
-    public function withoutOption(int $key): Client
+    public function withOptions(array $options): Client
     {
-        unset($this->options[$key]);
+        $this->options = $options;
 
         return $this;
     }
@@ -26,16 +27,15 @@ class Client
         return $this;
     }
 
-    public function withOptions(array $options): Client
+    public function withoutOption(int $key): Client
     {
-        $this->options = $options;
+        unset($this->options[$key]);
 
         return $this;
     }
 
     public function request(Request $request, array $payload = []): Response
     {
-        $ch = curl_init();
         $url = (string) $request->getUri();
 
         // Handle query parameters for GET and other methods that support query strings
@@ -51,32 +51,29 @@ class Client
             }
         }
 
-        if (!array_key_exists(CURLOPT_USERAGENT, $this->options)) {
-            $this->withAddedOption(CURLOPT_USERAGENT, static::USER_AGENT);
-        }
-
         // Handle headers, removing any Expect header and adding a blank one to disable 100-continue behavior
         $headers = $payload['headers'] ?? [];
         $filteredHeaders = [];
         foreach ($headers as $header) {
-            if (!str_starts_with(strtolower(trim($header)), 'expect:')) {
+            if (!str_starts_with(strtolower($header), 'expect:')) {
                 $filteredHeaders[] = $header;
             }
         }
         // Add blank Expect header to disable 100-continue behavior
         $filteredHeaders[] = 'Expect:';
 
-        $this->withAddedOption(CURLOPT_HTTPHEADER, $filteredHeaders);
+        if (!array_key_exists(CURLOPT_USERAGENT, $filteredHeaders)) {
+            $this->withAddedOption(CURLOPT_USERAGENT, static::USER_AGENT);
+        }
         $this->withAddedOption(CURLOPT_URL, $url);
+        $this->withAddedOption(CURLOPT_HTTPHEADER, $filteredHeaders);
         $this->withAddedOption(CURLOPT_CUSTOMREQUEST, $request->getMethod());
         $this->withAddedOption(CURLINFO_HEADER_OUT, true);
         $this->withAddedOption(CURLOPT_HEADER, true);
         $this->withAddedOption(CURLOPT_RETURNTRANSFER, true);
 
-        // Apply all user-defined options
-        foreach ($this->options as $key => $option) {
-            curl_setopt($ch, $key, $option);
-        }
+        $ch = curl_init();
+        curl_setopt_array($ch, $this->options);
 
         $response = curl_exec($ch);
         $errorCode = curl_errno($ch);
@@ -103,9 +100,9 @@ class Client
 
         list($responseHeaders, $responseBody) = $responseParts;
         $responseHeaders = preg_split('/\r\n/', $responseHeaders, -1, PREG_SPLIT_NO_EMPTY);
-
         // Skip the first line (HTTP status line)
         array_shift($responseHeaders);
+
         $headers = [];
         foreach ($responseHeaders as $headerLine) {
             if (str_contains($headerLine, ':')) {
@@ -122,10 +119,64 @@ class Client
             }
         }
 
-        $response = new Response($responseBody, $statusCode);
+        $response = Response::class;
+        if (isset($headers['Content-Type']) && str_contains($headers['Content-Type'], 'application/json')) {
+            $response = JsonResponse::class;
+        }
+
+        $response = new $response($responseBody, $statusCode);
 
         $response->withHeaders($headers);
 
         return $response;
+    }
+
+    public function get(string $url, array $query = [], array $headers = []): Response
+    {
+        $request = new Request($url, 'GET');
+        return $this->request($request, [
+            'query' => $query,
+            'headers' => $headers
+        ]);
+    }
+
+    public function post(string $url, array $body = [], array $query = [], array $headers = []): Response
+    {
+        $request = new Request($url, 'POST');
+        return $this->request($request, [
+            'body' => $body,
+            'query' => $query,
+            'headers' => $headers
+        ]);
+    }
+
+    public function put(string $url, array $body = [], array $query = [], array $headers = []): Response
+    {
+        $request = new Request($url, 'PUT');
+        return $this->request($request, [
+            'body' => $body,
+            'query' => $query,
+            'headers' => $headers
+        ]);
+    }
+
+    public function delete(string $url, array $body = [], array $query = [], array $headers = []): Response
+    {
+        $request = new Request($url, 'DELETE');
+        return $this->request($request, [
+            'body' => $body,
+            'query' => $query,
+            'headers' => $headers
+        ]);
+    }
+
+    public function patch(string $url, array $body = [], array $query = [], array $headers = []): Response
+    {
+        $request = new Request($url, 'PATCH');
+        return $this->request($request, [
+            'body' => $body,
+            'query' => $query,
+            'headers' => $headers
+        ]);
     }
 }

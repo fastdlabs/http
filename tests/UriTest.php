@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use FastD\Http\Uri;
 use PHPUnit\Framework\TestCase;
-use InvalidArgumentException;
 
 /**
  * Uri 类完整单元测试
