@@ -8,13 +8,6 @@ use InvalidArgumentException;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * Psr7 Http Message
- *
- * Class Message
- *
- * @package FastD\Http
- */
 class Message implements MessageInterface
 {
     /**

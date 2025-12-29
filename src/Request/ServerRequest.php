@@ -52,9 +52,10 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         $this->withQueryParams($this->uri->getQueryParams())
             ->withParsedBody($_POST)
-            ->withServerParams($serverParams)
             ->withCookieParams($_COOKIE)
-            ->withUploadedFiles($_FILES);
+            ->withUploadedFiles($_FILES)
+            ->withHeaders($headers)
+            ->withServerParams($serverParams);
 
         if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
             parse_str((string)$body, $data);

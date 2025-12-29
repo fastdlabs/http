@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FastD\Http;
 
 use FastD\Http\Exception\HttpException;

@@ -25,6 +25,12 @@
       "FastD\\Http\\": "src"
     }
   },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "/Users/janhuang/PhpstormProjects/fastd/swoole"
+    }
+  ],
   "autoload-dev": {
     "psr-4": {
       "Swoole\\Http\\": "tests/swoole/http"
