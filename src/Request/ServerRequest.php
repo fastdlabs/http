@@ -5,6 +5,7 @@ namespace FastD\Http\Request;
 
 use FastD\Http\Cookie;
 use FastD\Http\Stream\PhpInputStream;
+use FastD\Http\Stream\Stream;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -46,7 +47,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     protected array $uploadFile = [];
 
-    public function __construct(string $method, string $uri, array $headers = [], array $serverParams = [], ?StreamInterface $body = new PhpInputStream())
+    public function __construct(string $method, string $uri, array $headers = [], array $serverParams = [], ?StreamInterface $body = new Stream('php://memory', 'wb+'))
     {
         parent::__construct($method, $uri, $body);
 
