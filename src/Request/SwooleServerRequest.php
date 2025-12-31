@@ -6,10 +6,11 @@ namespace FastD\Http\Request;
 use FastD\Http\Stream\PhpInputStream;
 use Psr\Http\Message\StreamInterface;
 use Swoole\Http\Request;
+use Swoole\Http\Response;
 
-class SwooleRequest extends ServerRequest
+class SwooleServerRequest extends ServerRequest
 {
-    public static function createServerRequestFromSwoole(Request $request): SwooleRequest
+    public static function createServerRequestFromSwoole(Request $request): SwooleServerRequest
     {
         $get = $request->get ?? [];
         $post = $request->post ?? [];
@@ -21,6 +22,12 @@ class SwooleRequest extends ServerRequest
             if (!empty($request->header[$name])) {
                 $host = parse_url($request->header[$name], PHP_URL_HOST) ?: $request->header[$name];
             }
+        }
+
+        $headers = [];
+        foreach ($request->header as $name => $value) {
+            $name = str_replace('-', '_', $name);
+            $headers[$name] = $value;
         }
 
         $server = [
@@ -48,8 +55,8 @@ class SwooleRequest extends ServerRequest
             'HTTP_CACHE_CONTROL'=> $request->header['cache-control'] ?? '',
         ];
 
-        $serverRequest = new static($server['REQUEST_METHOD'], static::createUriFromGlobal($server), $request->header, $server);
-        unset($headers);
+        $serverRequest = new static($server['REQUEST_METHOD'], static::createUriFromGlobal($server), $headers, $server);
+        unset($headers, $server);
 
         $serverRequest->getBody()->write($request->getContent());
 

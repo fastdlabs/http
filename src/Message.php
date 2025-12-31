@@ -10,10 +10,7 @@ use Psr\Http\Message\StreamInterface;
 
 class Message implements MessageInterface
 {
-    /**
-     * @var array
-     */
-    public array $headers = [];
+    protected array $headers = [];
 
     /**
      * Message constructor.

@@ -54,7 +54,7 @@ class ServerRequest extends Request implements ServerRequestInterface
             ->withParsedBody($_POST)
             ->withCookieParams($_COOKIE)
             ->withUploadedFiles($_FILES)
-            ->withHeaders($headers)
+            ->withHeaderParams($headers)
             ->withServerParams($serverParams);
 
         if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
@@ -102,6 +102,20 @@ class ServerRequest extends Request implements ServerRequestInterface
         return $this;
     }
 
+    public function withHeaderParams(array $headers): ServerRequest
+    {
+        foreach ($headers as $name => $value) {
+            $this->withHeader($name, $value);
+        }
+
+        return $this;
+    }
+
+    public function getHeaderParams(): array
+    {
+        return $this->headers;
+    }
+
     /**
      * Retrieve cookies.
      *
@@ -118,8 +132,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     }
 
     /**
-     * @param $key
-     * @param $default
+     * @param string $key
      * @return Cookie|mixed
      */
     public function getCookie(string $key): ?Cookie
