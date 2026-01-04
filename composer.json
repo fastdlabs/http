@@ -33,6 +33,5 @@
     "psr-4": {
       "Swoole\\Http\\": "tests/swoole/http"
     }
-  },
-
+  }
 }
