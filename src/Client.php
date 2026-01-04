@@ -83,12 +83,12 @@ class Client
 
         if ($errorCode !== 0) {
             curl_close($ch);
-            throw new HttpException($errorMsg, $errorCode);
+            throw new HttpException(500, $errorMsg);
         }
 
         if ($response === false) {
             curl_close($ch);
-            throw new HttpException('cURL request failed');
+            throw new HttpException(500, 'cURL request failed');
         }
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -97,7 +97,7 @@ class Client
         // Split response headers and body
         $responseParts = explode("\r\n\r\n", $response, 2);
         if (count($responseParts) !== 2) {
-            throw new HttpException('Invalid response format');
+            throw new HttpException(500, 'Invalid response format');
         }
 
         list($responseHeaders, $responseBody) = $responseParts;
