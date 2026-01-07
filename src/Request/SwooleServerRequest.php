@@ -25,11 +25,7 @@ class SwooleServerRequest extends ServerRequest
             }
         }
 
-        $headers = [];
-        foreach ($request->header as $name => $value) {
-            $name = str_replace('-', '_', $name);
-            $headers[$name] = $value;
-        }
+        $headers = $request->header;
 
         $server = [
             'REQUEST_METHOD'    => $request->server['request_method'],

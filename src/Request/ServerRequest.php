@@ -470,10 +470,10 @@ class ServerRequest extends Request implements ServerRequestInterface
     {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
-
+        
         foreach ($headers as $name => $value) {
             unset($headers[$name]);
-            $name = str_replace('-', '_', $name);
+            $name;
             $headers[$name] = $value;
         }
 
