@@ -2,13 +2,13 @@
 
 namespace response;
 
-use FastD\Http\Response\JsonResponse;
+use FastD\Http\Response\Json;
 
 class JsonResponseTest extends \PHPUnit\Framework\TestCase
 {
     public function testResponseJson()
     {
-        $response = new JsonResponse([
+        $response = new Json([
             'foo' => 'bar',
         ]);
 
@@ -20,7 +20,7 @@ class JsonResponseTest extends \PHPUnit\Framework\TestCase
 
     public function testJsonResponsePrint()
     {
-        $response = new JsonResponse([
+        $response = new Json([
             'foo' => 'bar',
         ]);
 

@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace FastD\Http\Tests;
 
-use FastD\Http\Client;
+use FastD\Http\Request\Client;
 use FastD\Http\Request\Request;
-use FastD\Http\Response\Response;
-use FastD\Http\Exception\HttpException;
 use FastD\Http\Response\StatusCodeInterface;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Client类完整单元测试

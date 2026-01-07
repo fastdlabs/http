@@ -5,7 +5,7 @@ namespace FastD\Http\Request;
 
 use FastD\Http\Exception\HttpException;
 use FastD\Http\Message;
-use FastD\Http\Response\Response;
+use FastD\Http\Response\Text;
 use FastD\Http\Stream\Stream;
 use FastD\Http\Uri;
 use InvalidArgumentException;
@@ -13,13 +13,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
-/**
- * Http Request Client
- *
- * Class Request
- *
- * @package FastD\Http
- */
+
 class Request extends Message implements RequestInterface
 {
     /**

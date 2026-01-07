@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace FastD\Http;
+namespace FastD\Http\Request;
 
 use FastD\Http\Exception\HttpException;
-use FastD\Http\Request\Request;
-use FastD\Http\Response\JsonResponse;
-use FastD\Http\Response\Response;
+use FastD\Http\Response\Json;
+use FastD\Http\Response\Text;
 
 class Client
 {
@@ -36,7 +35,7 @@ class Client
         return $this;
     }
 
-    public function request(Request $request, array $payload = []): Response
+    public function request(Request $request, array $payload = []): Text
     {
         $url = (string) $request->getUri();
 
@@ -121,9 +120,9 @@ class Client
             }
         }
 
-        $response = Response::class;
+        $response = Text::class;
         if (isset($headers['Content-Type']) && str_contains($headers['Content-Type'], 'application/json')) {
-            $response = JsonResponse::class;
+            $response = Json::class;
         }
 
         $response = new $response($responseBody, $statusCode);
@@ -133,7 +132,7 @@ class Client
         return $response;
     }
 
-    public function get(string $url, array $query = [], array $headers = []): Response
+    public function get(string $url, array $query = [], array $headers = []): Text
     {
         $request = new Request($url, 'GET');
         return $this->request($request, [
@@ -142,7 +141,7 @@ class Client
         ]);
     }
 
-    public function post(string $url, array $body = [], array $query = [], array $headers = []): Response
+    public function post(string $url, array $body = [], array $query = [], array $headers = []): Text
     {
         $request = new Request($url, 'POST');
         return $this->request($request, [
@@ -152,7 +151,7 @@ class Client
         ]);
     }
 
-    public function put(string $url, array $body = [], array $query = [], array $headers = []): Response
+    public function put(string $url, array $body = [], array $query = [], array $headers = []): Text
     {
         $request = new Request($url, 'PUT');
         return $this->request($request, [
@@ -162,7 +161,7 @@ class Client
         ]);
     }
 
-    public function delete(string $url, array $body = [], array $query = [], array $headers = []): Response
+    public function delete(string $url, array $body = [], array $query = [], array $headers = []): Text
     {
         $request = new Request($url, 'DELETE');
         return $this->request($request, [
@@ -172,7 +171,7 @@ class Client
         ]);
     }
 
-    public function patch(string $url, array $body = [], array $query = [], array $headers = []): Response
+    public function patch(string $url, array $body = [], array $query = [], array $headers = []): Text
     {
         $request = new Request($url, 'PATCH');
         return $this->request($request, [

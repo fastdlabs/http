@@ -5,7 +5,7 @@ namespace FastD\Http\Response;
 
 use ArrayAccess;
 
-class JsonResponse extends Response implements ArrayAccess
+class Json extends Text implements ArrayAccess
 {
     public function __construct(protected array $parsedBody = [], int $status = StatusCodeInterface::HTTP_OK, array $headers = [])
     {

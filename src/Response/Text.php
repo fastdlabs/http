@@ -14,7 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Stringable;
 
 
-class Response extends Message implements ResponseInterface, StatusCodeInterface, Stringable
+class Text extends Message implements ResponseInterface, StatusCodeInterface, Stringable
 {
     /**
      * Http response status code reason phrase.
@@ -92,9 +92,9 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      * @param string $domain
      * @param bool $secure
      * @param bool $httpOnly
-     * @return Response
+     * @return Text
      */
-    public function withCookie(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false): Response
+    public function withCookie(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false): Text
     {
         $this->cookies[$name] = new Cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
 
@@ -111,9 +111,9 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
 
     /**
      * @param $fd
-     * @return Response
+     * @return Text
      */
-    public function withFileDescriptor(int $fd): Response
+    public function withFileDescriptor(int $fd): Text
     {
         $this->fileDescriptor = $fd;
 
@@ -128,7 +128,7 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
         return $this->fileDescriptor;
     }
 
-    public function withHeaders(array $headers): Response
+    public function withHeaders(array $headers): Text
     {
         foreach ($headers as $key => $header) {
             if (is_array($header)) {
@@ -143,7 +143,7 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
         return $this;
     }
 
-    public function withContents(string $content): Response
+    public function withContents(string $content): Text
     {
         $this->getBody()->write($content);
 
@@ -160,7 +160,7 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
         return $this->getBody()->getContents();
     }
 
-    public function withContentType(string $contentType): Response
+    public function withContentType(string $contentType): Text
     {
         $this->withoutHeader('Content-Type');
         $this->withHeader('Content-Type', $contentType);
@@ -175,9 +175,9 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
 
     /**
      * @param string $cacheControl
-     * @return Response
+     * @return Text
      */
-    public function withCacheControl(string $cacheControl): Response
+    public function withCacheControl(string $cacheControl): Text
     {
         $this->withoutHeader('Cache-Control');
         $this->withHeader('Cache-Control', $cacheControl);
@@ -199,9 +199,9 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      * @param string $eTag The ETag unique identifier or null to remove the header
      * @param bool $weak Whether you want a weak ETag or not
      *
-     * @return Response
+     * @return Text
      */
-    public function withETag(string $eTag = '', bool $weak = false): Response
+    public function withETag(string $eTag = '', bool $weak = false): Text
     {
         $this->withoutHeader('ETag');
         $this->withHeader('ETag', (true === $weak ? 'W/' : '') . $eTag);
@@ -224,7 +224,7 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      * @return $this
      * @throws Exception
      */
-    public function withExpires(DateTime $date): Response
+    public function withExpires(DateTime $date): Text
     {
         $timezone = new DateTimeZone("GMT");
 
@@ -260,9 +260,9 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      *
      * @param int $value Number of seconds
      *
-     * @return Response
+     * @return Text
      */
-    public function withMaxAge(int $value): Response
+    public function withMaxAge(int $value): Text
     {
         $this->maxAge = new DateTime("+$value seconds");
 
@@ -302,9 +302,9 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      *
      * @param int $value Number of seconds
      *
-     * @return Response
+     * @return Text
      */
-    public function withSharedMaxAge(int $value): Response
+    public function withSharedMaxAge(int $value): Text
     {
         $this->withCacheControl('public');
         $this->withAddedHeader('Cache-Control', 's-maxage=' . max(0, $value));
@@ -320,7 +320,7 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      * @param DateTime|null $date A \DateTime instance or null to remove the header
      * @return $this
      */
-    public function withLastModified(DateTime $date): Response
+    public function withLastModified(DateTime $date): Text
     {
         $this->withoutHeader('Last-Modified');
         $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
@@ -342,11 +342,11 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      * This sets the status, removes the body, and discards any headers
      * that MUST NOT be included in 304 responses.
      *
-     * @return Response
+     * @return Text
      *
      * @see http://tools.ietf.org/html/rfc2616#section-10.3.5
      */
-    public function withNotModified(): Response
+    public function withNotModified(): Text
     {
         $this->withStatus(static::HTTP_NOT_MODIFIED);
         $this->getBody()->rewind();
@@ -403,7 +403,7 @@ class Response extends Message implements ResponseInterface, StatusCodeInterface
      * @param string|null $reasonPhrase The reason phrase to use with the
      *                             provided status code; if none is provided, implementations MAY
      *                             use the defaults as suggested in the HTTP specification.
-     * @return Response
+     * @return Text
      * @throws InvalidArgumentException For invalid status code arguments.
      */
     public function withStatus(int $code, ?string $reasonPhrase = null): ResponseInterface

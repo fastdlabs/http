@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use FastD\Http\Response\Response;
+use FastD\Http\Response\Text;
 use FastD\Http\Response\StatusCodeInterface;
 use FastD\Http\Cookie;
 use FastD\Http\Stream\Stream;
@@ -13,19 +13,19 @@ use PHPUnit\Framework\TestCase;
  */
 class ResponseTest extends TestCase
 {
-    private Response $response;
+    private Text $response;
 
     protected function setUp(): void
     {
-        $this->response = new Response();
+        $this->response = new Text();
     }
 
     // ===== 构造函数测试 =====
 
     public function testConstructorCreatesInstance(): void
     {
-        $response = new Response();
-        $this->assertInstanceOf(Response::class, $response);
+        $response = new Text();
+        $this->assertInstanceOf(Text::class, $response);
         $this->assertInstanceOf(StatusCodeInterface::class, $response);
     }
 
@@ -35,7 +35,7 @@ class ResponseTest extends TestCase
         $statusCode = 201;
         $headers = ['Content-Type' => 'application/json'];
 
-        $response = new Response($content, $statusCode, $headers);
+        $response = new Text($content, $statusCode, $headers);
 
         $this->assertSame($content, $response->getContents());
         $this->assertSame($statusCode, $response->getStatusCode());
@@ -45,7 +45,7 @@ class ResponseTest extends TestCase
 
     public function testConstructorDefaults(): void
     {
-        $response = new Response();
+        $response = new Text();
         $this->assertSame('', $response->getContents());
         $this->assertSame(StatusCodeInterface::HTTP_OK, $response->getStatusCode());
         $this->assertSame('OK', $response->getReasonPhrase());
@@ -55,7 +55,7 @@ class ResponseTest extends TestCase
 
     public function testGetStatusCode(): void
     {
-        $response = new Response('', 404);
+        $response = new Text('', 404);
         $this->assertSame(404, $response->getStatusCode());
     }
 
@@ -86,7 +86,7 @@ class ResponseTest extends TestCase
         $validCodes = [100, 200, 300, 400, 500, 599];
 
         foreach ($validCodes as $code) {
-            $response = new Response();
+            $response = new Text();
             $newResponse = $response->withStatus($code);
             $this->assertSame($code, $newResponse->getStatusCode());
         }
@@ -105,13 +105,13 @@ class ResponseTest extends TestCase
 
     public function testGetReasonPhrase(): void
     {
-        $response = new Response('', 201);
+        $response = new Text('', 201);
         $this->assertSame('Created', $response->getReasonPhrase());
     }
 
     public function testIsInvalidStatusCode(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertFalse($response->isInvalidStatusCode());
 
@@ -130,7 +130,7 @@ class ResponseTest extends TestCase
 
     public function testIsSuccessful(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertTrue($response->isSuccessful());
 
@@ -143,7 +143,7 @@ class ResponseTest extends TestCase
 
     public function testIsServerError(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertFalse($response->isServerError());
 
@@ -156,7 +156,7 @@ class ResponseTest extends TestCase
 
     public function testIsOk(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertTrue($response->isOk());
 
@@ -166,7 +166,7 @@ class ResponseTest extends TestCase
 
     public function testIsForbidden(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertFalse($response->isForbidden());
 
@@ -176,7 +176,7 @@ class ResponseTest extends TestCase
 
     public function testIsNotFound(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertFalse($response->isNotFound());
 
@@ -186,7 +186,7 @@ class ResponseTest extends TestCase
 
     public function testIsRedirection(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertFalse($response->isRedirection());
 
@@ -395,7 +395,7 @@ class ResponseTest extends TestCase
 
     public function testToString(): void
     {
-        $response = new Response('Hello World', 200, ['Content-Type' => 'text/plain']);
+        $response = new Text('Hello World', 200, ['Content-Type' => 'text/plain']);
 
         $string = (string)$response;
 
@@ -406,7 +406,7 @@ class ResponseTest extends TestCase
 
     public function testToStringWithCookies(): void
     {
-        $response = (new Response('Hello World', 200))
+        $response = (new Text('Hello World', 200))
             ->withCookie('session', 'abc123');
 
         $string = (string)$response;
@@ -433,7 +433,7 @@ class ResponseTest extends TestCase
         ];
 
         foreach ($codes as $code => $phrase) {
-            $response = new Response('', $code);
+            $response = new Text('', $code);
             $this->assertSame($code, $response->getStatusCode(), "Status code $code failed");
             $this->assertSame($phrase, $response->getReasonPhrase(), "Reason phrase for code $code failed");
         }
@@ -469,7 +469,7 @@ class ResponseTest extends TestCase
 
     public function testGetMaxAgeWhenNoCacheControl(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         // Should return 0 when no max-age or expires is set
         $this->assertGreaterThanOrEqual(0, $response->getMaxAge());
@@ -492,23 +492,23 @@ class ResponseTest extends TestCase
     public function testStatusCodeRanges(): void
     {
         // 信息响应 (1xx)
-        $response = new Response('', 100);
+        $response = new Text('', 100);
         $this->assertTrue($response->getStatusCode() >= 100 && $response->getStatusCode() < 200);
 
         // 成功响应 (2xx)
-        $response = new Response('', 200);
+        $response = new Text('', 200);
         $this->assertTrue($response->getStatusCode() >= 200 && $response->getStatusCode() < 300);
 
         // 重定向 (3xx)
-        $response = new Response('', 300);
+        $response = new Text('', 300);
         $this->assertTrue($response->getStatusCode() >= 300 && $response->getStatusCode() < 400);
 
         // 客户端错误 (4xx)
-        $response = new Response('', 400);
+        $response = new Text('', 400);
         $this->assertTrue($response->getStatusCode() >= 400 && $response->getStatusCode() < 500);
 
         // 服务器错误 (5xx)
-        $response = new Response('', 500);
+        $response = new Text('', 500);
         $this->assertTrue($response->getStatusCode() >= 500 && $response->getStatusCode() < 600);
     }
 
@@ -516,7 +516,7 @@ class ResponseTest extends TestCase
 
     public function testBodyStreamOperations(): void
     {
-        $response = new Response('initial content');
+        $response = new Text('initial content');
         // 验证初始内容
         $this->assertSame('initial content', $response->getContents());
 
@@ -529,7 +529,7 @@ class ResponseTest extends TestCase
 
     public function testComplexHeaderOperations(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         // 添加多个相同名称的头
         $response = $response
@@ -550,7 +550,7 @@ class ResponseTest extends TestCase
 
     public function testEmptyResponse(): void
     {
-        $response = new Response();
+        $response = new Text();
 
         $this->assertSame('', $response->getContents());
         $this->assertSame(200, $response->getStatusCode());
@@ -563,12 +563,12 @@ class ResponseTest extends TestCase
     public function testConstructorWithInvalidStatusCode(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        new Response('', 999);
+        new Text('', 999);
     }
 
     public function testConstructorWithValidStatusCode(): void
     {
-        $response = new Response('', 201);
+        $response = new Text('', 201);
         $this->assertSame(201, $response->getStatusCode());
         $this->assertSame('Created', $response->getReasonPhrase());
     }

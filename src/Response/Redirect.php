@@ -5,7 +5,7 @@ namespace FastD\Http\Response;
 
 use FastD\Http\Uri;
 
-class RedirectResponse extends Response
+class Redirect extends Text
 {
     public function __construct(string $uri, int $status = StatusCodeInterface::HTTP_FOUND, array $headers = [])
     {

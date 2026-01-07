@@ -3,19 +3,17 @@
   "description": "FastD Http",
   "license": "MIT",
   "type": "library",
-  "keywords": [
-    "Http",
-    "FastD"
-  ],
+  "minimum-stability": "dev",
+  "keywords": ["FastD", "swoole", "psr7", "http-message", "http"],
   "authors": [
     {
       "name": "janhuang",
-      "email": "bboyjanhuang@gmail.com"
+      "email": "384099566@qq.com"
     }
   ],
   "require": {
     "php": ">=8.2",
-    "psr/http-message": "*",
+    "psr/http-message": "^2.0",
     "ext-curl": "*",
     "ext-json": "*",
     "ext-zlib": "*"
