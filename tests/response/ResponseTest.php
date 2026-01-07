@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use FastD\Http\Response\Text;
-use FastD\Http\Response\StatusCodeInterface;
+use FastD\Http\Response\StatusCode;
 use FastD\Http\Cookie;
 use FastD\Http\Stream\Stream;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +26,7 @@ class ResponseTest extends TestCase
     {
         $response = new Text();
         $this->assertInstanceOf(Text::class, $response);
-        $this->assertInstanceOf(StatusCodeInterface::class, $response);
+        $this->assertInstanceOf(StatusCode::class, $response);
     }
 
     public function testConstructorWithParameters(): void
@@ -47,7 +47,7 @@ class ResponseTest extends TestCase
     {
         $response = new Text();
         $this->assertSame('', $response->getContents());
-        $this->assertSame(StatusCodeInterface::HTTP_OK, $response->getStatusCode());
+        $this->assertSame(StatusCode::HTTP_OK, $response->getStatusCode());
         $this->assertSame('OK', $response->getReasonPhrase());
     }
 
@@ -368,7 +368,7 @@ class ResponseTest extends TestCase
             ->withContents('some content')
             ->withNotModified();
 
-        $this->assertSame(StatusCodeInterface::HTTP_NOT_MODIFIED, $response->getStatusCode());
+        $this->assertSame(StatusCode::HTTP_NOT_MODIFIED, $response->getStatusCode());
         $this->assertSame('some content', $response->getContents());
         $this->assertFalse($response->hasHeader('Content-Type'));
         $this->assertFalse($response->hasHeader('Content-Length'));

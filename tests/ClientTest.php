@@ -6,7 +6,7 @@ namespace FastD\Http\Tests;
 
 use FastD\Http\Request\Client;
 use FastD\Http\Request\Request;
-use FastD\Http\Response\StatusCodeInterface;
+use FastD\Http\Response\StatusCode;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -42,6 +42,6 @@ class ClientTest extends TestCase
         ];
 
         $response = $this->client->request($request, $payload);
-        $this->assertEquals(StatusCodeInterface::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
+        $this->assertEquals(StatusCode::HTTP_MOVED_PERMANENTLY, $response->getStatusCode());
     }
 }

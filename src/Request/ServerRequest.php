@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace FastD\Http\Request;
@@ -11,10 +12,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
-/**
- * Class ServerRequest
- * @package FastD\Http
- */
 class ServerRequest extends Request implements ServerRequestInterface
 {
     /**

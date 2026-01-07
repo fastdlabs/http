@@ -7,7 +7,6 @@ namespace FastD\Http;
 use InvalidArgumentException;
 use Stringable;
 
-
 class Cookie implements Stringable
 {
     public function __construct(

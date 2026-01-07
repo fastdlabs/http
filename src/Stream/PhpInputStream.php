@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace FastD\Http\Stream;
@@ -9,9 +10,6 @@ class PhpInputStream extends Stream
 {
     protected string $cache = '';
 
-    /**
-     * @var bool
-     */
     protected bool $reachedEof = false;
 
     public function __construct(string $stream = 'php://input', string $mode = 'r')

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace FastD\Http\Response;
@@ -7,7 +8,7 @@ use ArrayAccess;
 
 class Json extends Text implements ArrayAccess
 {
-    public function __construct(protected array $parsedBody = [], int $status = StatusCodeInterface::HTTP_OK, array $headers = [])
+    public function __construct(protected array $parsedBody = [], int $status = StatusCode::HTTP_OK, array $headers = [])
     {
         $json = json_encode($this->parsedBody, JSON_UNESCAPED_UNICODE);
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace FastD\Http;
@@ -12,11 +13,6 @@ class Message implements MessageInterface
 {
     protected array $headers = [];
 
-    /**
-     * Message constructor.
-     * @param ?StreamInterface $stream
-     * @param string $protocolVersion
-     */
     public function __construct(protected ?StreamInterface $stream = new Stream('php://memory', 'r+'), protected string $protocolVersion = '1.1')
     {
     }

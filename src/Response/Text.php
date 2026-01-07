@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace FastD\Http\Response;
@@ -13,8 +14,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Stringable;
 
-
-class Text extends Message implements ResponseInterface, StatusCodeInterface, Stringable
+class Text extends Message implements ResponseInterface, StatusCode, Stringable
 {
     /**
      * Http response status code reason phrase.
@@ -45,7 +45,7 @@ class Text extends Message implements ResponseInterface, StatusCodeInterface, St
      * @param int $statusCode
      * @param array $headers
      */
-    public function __construct(string $content = '', protected int $statusCode = StatusCodeInterface::HTTP_OK, array $headers = [])
+    public function __construct(string $content = '', protected int $statusCode = StatusCode::HTTP_OK, array $headers = [])
     {
         parent::__construct(new Stream('php://memory', 'wb+'));
         $this->withStatus($statusCode);
@@ -414,7 +414,7 @@ class Text extends Message implements ResponseInterface, StatusCodeInterface, St
 
         $this->statusCode = $code;
 
-        $this->reasonPhrase = null === $reasonPhrase ? StatusCodeInterface::STATUS_TEXT[$this->statusCode] ?? 'Unknown phrase' : $reasonPhrase;
+        $this->reasonPhrase = null === $reasonPhrase ? StatusCode::STATUS_TEXT[$this->statusCode] ?? 'Unknown phrase' : $reasonPhrase;
 
         return $this;
     }
