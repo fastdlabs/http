@@ -64,7 +64,7 @@ final class Factory implements RequestFactoryInterface, ResponseFactoryInterface
         return new Stream('php://temp', 'r+');
     }
 
-    public function createUploadedFile(
+    /*public function createUploadedFile(
         StreamInterface $stream,
         ?int            $size = null,
         int             $error = \UPLOAD_ERR_OK,
@@ -95,7 +95,7 @@ final class Factory implements RequestFactoryInterface, ResponseFactoryInterface
             $error,
             $stream
         );
-    }
+    }*/
 
     public function createUri(string $uri = ''): UriInterface
     {

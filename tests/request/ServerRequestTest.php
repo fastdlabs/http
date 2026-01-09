@@ -410,7 +410,7 @@ class ServerRequestTest extends TestCase
             'POST', 
             'http://api.example.com/users', 
             ['Content-Type' => ['application/json']],
-            new Stream(json_encode($parsedBody)),
+            Stream::create(json_encode($parsedBody)),
             '1.1',
             $serverParams
         );

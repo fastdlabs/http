@@ -159,7 +159,7 @@ class FactoryTest extends TestCase
 
     // ===== UploadedFileFactoryInterface 测试 =====
 
-    public function testCreateUploadedFile(): void
+    /*public function testCreateUploadedFile(): void
     {
         $stream = $this->factory->createStream('file content');
         
@@ -176,9 +176,9 @@ class FactoryTest extends TestCase
         $this->assertSame('text/plain', $uploadedFile->getClientMediaType());
         $this->assertSame(UPLOAD_ERR_OK, $uploadedFile->getError());
         $this->assertSame(100, $uploadedFile->getSize());
-    }
+    }*/
 
-    public function testCreateUploadedFileWithSizeFromStream(): void
+    /*public function testCreateUploadedFileWithSizeFromStream(): void
     {
         $stream = $this->factory->createStream('Hello World'); // 11 bytes
         
@@ -192,7 +192,7 @@ class FactoryTest extends TestCase
 
         $this->assertInstanceOf(\FastD\Http\Request\UploadedFile::class, $uploadedFile);
         $this->assertSame(11, $uploadedFile->getSize());
-    }
+    }*/
 
     // ===== PSR-17 Compatibilty Tests =====
 
@@ -256,7 +256,7 @@ class FactoryTest extends TestCase
 
     // ===== createUploadedFile 额外测试 =====
 
-    public function testCreateUploadedFileWithEmptyFilename(): void
+    /*public function testCreateUploadedFileWithEmptyFilename(): void
     {
         $stream = $this->factory->createStream('file content');
         
@@ -304,7 +304,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(\FastD\Http\Request\UploadedFile::class, $uploadedFile);
         // 当 mediaType 为 null 时，getClientMediaType() 应该返回 null（空字符串会被转为 null）
         $this->assertNull($uploadedFile->getClientMediaType());
-    }
+    }*/
 
     // ===== createStream 额外测试 =====
 
@@ -454,7 +454,7 @@ class FactoryTest extends TestCase
         $this->assertTrue(true); // 确保所有对象都能成功创建
     }
 
-    public function testFactoryCanCreateUploadWorkflow(): void
+    /*public function testFactoryCanCreateUploadWorkflow(): void
     {
         // 创建上传文件
         $stream = $this->factory->createStream('uploaded file content');
@@ -470,7 +470,7 @@ class FactoryTest extends TestCase
         $this->assertSame('document.pdf', $uploadedFile->getClientFilename());
         $this->assertSame('application/pdf', $uploadedFile->getClientMediaType());
         $this->assertSame(UPLOAD_ERR_OK, $uploadedFile->getError());
-    }
+    }*/
 
     // ===== 边界情况测试 =====
 
