@@ -41,7 +41,7 @@ class Uri implements UriInterface, Stringable
 
     public function __construct(string $uri = '')
     {
-        if (!empty($uri)) $this->parseUri($uri);
+        if ('' !== $uri) $this->parseUri($uri);
     }
 
     /**
@@ -73,11 +73,9 @@ class Uri implements UriInterface, Stringable
         $this->uriString .= $this->getAuthority();
 
         $path = $this->path;
-
         if ($path !== '' && !str_starts_with($path, '/')) {
             $path = '/' . $path;
         }
-
         $this->uriString .= $path;
 
         if ($this->query !== '') {
@@ -91,17 +89,11 @@ class Uri implements UriInterface, Stringable
         return $this->uriString;
     }
 
-    /**
-     * @return string
-     */
     public function getScheme(): string
     {
         return $this->scheme;
     }
 
-    /**
-     * @return string
-     */
     public function getAuthority(): string
     {
         if (empty($this->host)) {
@@ -109,7 +101,7 @@ class Uri implements UriInterface, Stringable
         }
 
         $authority = $this->host;
-        if (!empty($this->userInfo)) {
+        if ('' !== $this->userInfo) {
             $authority = $this->userInfo . '@' . $authority;
         }
 
@@ -120,33 +112,21 @@ class Uri implements UriInterface, Stringable
         return $authority;
     }
 
-    /**
-     * @return string
-     */
     public function getUserInfo(): string
     {
         return $this->userInfo;
     }
 
-    /**
-     * @return string
-     */
     public function getHost(): string
     {
         return $this->host;
     }
 
-    /**
-     * @return int
-     */
     public function getPort(): ?int
     {
         return $this->port;
     }
 
-    /**
-     * @return string
-     */
     public function getPath(): string
     {
         return $this->path;
@@ -174,9 +154,14 @@ class Uri implements UriInterface, Stringable
 
     public function withScheme(string $scheme): UriInterface
     {
-        $this->scheme = $this->filterScheme($scheme);
+        if ($scheme === $this->scheme) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->scheme = $new->filterScheme($scheme);
+
+        return $new;
     }
 
     public function withUserInfo(string $user, ?string $password = ''): UriInterface
@@ -186,16 +171,26 @@ class Uri implements UriInterface, Stringable
             $info .= ':' . $password;
         }
 
-        $this->userInfo = $info;
+        if ($info === $this->userInfo) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->userInfo = $info;
+
+        return $new;
     }
 
     public function withHost(string $host): UriInterface
     {
-        $this->host = $host;
+        if ($host === $this->host) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->host = $host;
+
+        return $new;
     }
 
     public function withPort(?int $port): UriInterface
@@ -207,9 +202,14 @@ class Uri implements UriInterface, Stringable
             ));
         }
 
-        $this->port = $port;
+        if ($port === $this->port) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->port = $port;
+
+        return $new;
     }
 
     public function withPath(string $path): UriInterface
@@ -222,9 +222,14 @@ class Uri implements UriInterface, Stringable
             throw new InvalidArgumentException('Invalid path provided; must not contain a URI fragment');
         }
 
-        $this->path = $this->filterPath($path);
+        if ($path === $this->path) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->path = $new->filterPath($path);
+
+        return $new;
     }
 
     public function withQuery(string $query): UriInterface
@@ -233,20 +238,28 @@ class Uri implements UriInterface, Stringable
             throw new InvalidArgumentException('Query string must not include a URI fragment');
         }
 
-        $this->query = $this->filterQuery($query);
+        if ($query === $this->query) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->query = $new->filterQuery($query);
+        $new->queryParams = [];
+        parse_str($new->query, $new->queryParams);
+
+        return $new;
     }
 
-    /**
-     * @param string $fragment
-     * @return Uri
-     */
     public function withFragment(string $fragment): UriInterface
     {
-        $this->fragment = $this->filterFragment($fragment);
+        if ($fragment === $this->fragment) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->fragment = $new->filterFragment($fragment);
+
+        return $new;
     }
 
     /**
@@ -289,7 +302,6 @@ class Uri implements UriInterface, Stringable
     protected function isNonStandardPort(): bool
     {
         return !in_array($this->port, $this->allowedSchemes);
-
     }
 
     /**

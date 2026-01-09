@@ -4,180 +4,288 @@ declare(strict_types=1);
 
 namespace FastD\Http\Request;
 
-use FastD\Http\Exception\HttpException;
+use FastD\Http\Cookie;
+use FastD\Http\Exception\ClientException;
+use FastD\Http\Exception\NetworkException;
+use FastD\Http\Exception\RequestException;
 use FastD\Http\Response\Json;
 use FastD\Http\Response\Text;
+use FastD\Http\Stream\Stream;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 
-class Client
+/**
+ * PSR-18 implemented
+ */
+class Client implements ClientInterface
 {
     const USER_AGENT = 'PHP Curl/1.1 (+https://github.com/fastdlabs/http)';
 
-    protected array $options = [];
+    protected array $cookies = [];
 
-    public function withOptions(array $options): Client
+    public function __construct(protected array $options = [
+        CURLOPT_HEADER => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_USERAGENT => Client::USER_AGENT,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 3,
+    ])
     {
-        $this->options = $options;
-
-        return $this;
     }
 
-    public function withAddedOption(int $key, mixed $value): Client
+    public function withCookie(Cookie $cookie): self
     {
-        $this->options[$key] = $value;
+        $new = clone $this;
+        $new->cookies[$cookie->getName()] = $cookie;
 
-        return $this;
+        return $new;
     }
 
-    public function withoutOption(int $key): Client
+    public function getCookies(): array
     {
-        unset($this->options[$key]);
-
-        return $this;
+        return $this->cookies;
     }
 
-    public function request(Request $request, array $payload = []): Text
+    public function withOption(int $curlOpt, mixed $value): self
     {
-        $url = (string) $request->getUri();
+        $new = clone $this;
+        $new->options[$curlOpt] = $value;
+        return $new;
+    }
 
-        // Handle query parameters for GET and other methods that support query strings
-        if (!empty($payload['query'])) {
-            $separator = str_contains($url, '?') ? '&' : '?';
-            $url .= $separator . http_build_query($payload['query']);
-        }
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
 
-        // Handle request body for methods that support it
-        if (in_array(strtoupper($request->getMethod()), ['PUT', 'POST', 'DELETE', 'PATCH'])) {
-            if (isset($payload['body'])) {
-                $this->withAddedOption(CURLOPT_POSTFIELDS, $payload['body']);
-            }
-        }
+    public function send(RequestInterface $request, array $options = []): ResponseInterface
+    {
+        $request = $this->requestBefore($request, $options);
 
-        // Handle headers, removing any Expect header and adding a blank one to disable 100-continue behavior
-        $headers = $payload['headers'] ?? [];
-        $filteredHeaders = [];
-        foreach ($headers as $header) {
-            if (!str_starts_with(strtolower($header), 'expect:')) {
-                $filteredHeaders[] = $header;
-            }
-        }
-        // Add blank Expect header to disable 100-continue behavior
-        $filteredHeaders[] = 'Expect:';
+        return $this->sendRequest($request);
+    }
 
-        if (!array_key_exists(CURLOPT_USERAGENT, $filteredHeaders)) {
-            $this->withAddedOption(CURLOPT_USERAGENT, static::USER_AGENT);
-        }
-        $this->withAddedOption(CURLOPT_URL, $url);
-        $this->withAddedOption(CURLOPT_HTTPHEADER, $filteredHeaders);
-        $this->withAddedOption(CURLOPT_CUSTOMREQUEST, $request->getMethod());
-        $this->withAddedOption(CURLINFO_HEADER_OUT, true);
-        $this->withAddedOption(CURLOPT_HEADER, true);
-        $this->withAddedOption(CURLOPT_RETURNTRANSFER, true);
+    public function sendRequest(RequestInterface $request): ResponseInterface
+    {
+        $options = $this->options + [
+            CURLOPT_URL => (string) $request->getUri(),
+            CURLOPT_POSTFIELDS => $request->getBody()->getContents(),
+            CURLOPT_CUSTOMREQUEST => $request->getMethod(),
+            CURLOPT_HTTPHEADER => $this->formatRequestHeaders($request),
+        ];
 
         $ch = curl_init();
-        curl_setopt_array($ch, $this->options);
-
+        curl_setopt_array($ch, $options);
         $response = curl_exec($ch);
         $errorCode = curl_errno($ch);
         $errorMsg = curl_error($ch);
-
-        if ($errorCode !== 0) {
-            curl_close($ch);
-            throw new HttpException(500, $errorMsg);
-        }
-
-        if ($response === false) {
-            curl_close($ch);
-            throw new HttpException(500, 'cURL request failed');
-        }
-
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        // Split response headers and body
+        // 处理错误
+        if ($errorCode !== 0) {
+            throw match ($errorCode) {
+                CURLE_OPERATION_TIMEDOUT => new NetworkException("Request timeout: " . $errorMsg, 408, null, $request),
+                CURLE_COULDNT_RESOLVE_HOST, CURLE_COULDNT_CONNECT => new RequestException("Connection error: " . $errorMsg, 502, null, $request),
+                CURLE_GOT_NOTHING => new RequestException("Gateway timeout: No response received", 504, null, $request),
+                default => new ClientException("CURL error [{$errorCode}]: " . $errorMsg, 500),
+            };
+        }
+
+        if ($response === false || $statusCode === 0) {
+            throw new ClientException("No HTTP response code received", 500, null, $request);
+        }
+
+        // 拆解响应信息
         $responseParts = explode("\r\n\r\n", $response, 2);
         if (count($responseParts) !== 2) {
-            throw new HttpException(500, 'Invalid response format');
+            throw new ClientException('Invalid response format', 500, null, $request);
         }
 
         list($responseHeaders, $responseBody) = $responseParts;
-        $responseHeaders = preg_split('/\r\n/', $responseHeaders, -1, PREG_SPLIT_NO_EMPTY);
-        // Skip the first line (HTTP status line)
-        array_shift($responseHeaders);
+        $responseHeaders = $this->parseResponseHeaders($responseHeaders);
 
-        $headers = [];
-        foreach ($responseHeaders as $headerLine) {
-            if (str_contains($headerLine, ':')) {
-                list($key, $value) = explode(':', $headerLine, 2);
-                $headers[trim($key)] = trim($value);
-            }
-        }
-
-        // Handle content encoding if needed
-        if (isset($headers['Content-Encoding']) && in_array(strtolower($headers['Content-Encoding']), ['gzip', 'deflate'])) {
+        if (isset($responseHeaders['content-encoding']) && in_array($responseHeaders['content-encoding'], ['gzip', 'deflate'])) {
             $decoded = zlib_decode($responseBody);
             if ($decoded !== false) {
                 $responseBody = $decoded;
             }
         }
 
-        $response = Text::class;
-        if (isset($headers['Content-Type']) && str_contains($headers['Content-Type'], 'application/json')) {
-            $response = Json::class;
+        $response = (isset($responseHeaders['content-type']) && str_contains($responseHeaders['content-type'], 'application/json')) ? Json::class : Text::class;
+
+        $response = new $response($statusCode, json_decode($responseBody, true), $responseHeaders);
+
+        // 设置可能存在的 cookie 信息
+        foreach ($this->cookies as $cookie) {
+            $response = $response->withCookie($cookie);
         }
-
-        $response = new $response($responseBody, $statusCode);
-
-        $response->withHeaders($headers);
 
         return $response;
     }
 
-    public function get(string $url, array $query = [], array $headers = []): Text
+    public function requestBefore(RequestInterface $request, array $options = []): RequestInterface
     {
-        $request = new Request($url, 'GET');
-        return $this->request($request, [
-            'query' => $query,
-            'headers' => $headers
-        ]);
+        // 处理头部
+        if (!empty($options['headers'])) {
+            foreach ($options['headers'] as $header => $value) {
+                $request = $request->withHeader($header, $value);
+            }
+        }
+
+        // 处理查询参数
+        if (!empty($options['query'])) {
+            $uri = $request->getUri()->withQuery(http_build_query($options['query']));
+            $request = $request->withUri($uri);
+        }
+
+        // 处理请求体
+        if (!empty($options['body'])) {
+            $request->getBody()->close();
+            $request = $request->withBody($this->buildRequestBody($options['body'], $request));
+        }
+
+        return $request;
     }
 
-    public function post(string $url, array $body = [], array $query = [], array $headers = []): Text
+    private function buildRequestBody(mixed $rawData, RequestInterface $request): StreamInterface
     {
-        $request = new Request($url, 'POST');
-        return $this->request($request, [
-            'body' => $body,
-            'query' => $query,
-            'headers' => $headers
-        ]);
+        $contentTypeLine = $request->hasHeader('content-type') ? $request->getHeaderLine('content-type') : 'application/x-www-form-urlencoded';
+        $contentType = trim(explode(';', $contentTypeLine)[0]);
+
+        $formattedData = match (strtolower($contentType)) {
+            // 表单格式：application/x-www-form-urlencoded
+            'application/x-www-form-urlencoded' => is_array($rawData) ? http_build_query($rawData) : $rawData,
+            // JSON 格式：application/json
+            'application/json' => json_encode($rawData, JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION),
+            // 表单上传格式：multipart/form-data（仅支持数组，返回原始数组序列化流，cURL 自动处理）
+            'multipart/form-data' => serialize($rawData),
+            // 纯文本格式：text/plain
+            'text/plain' => (string)$rawData,
+            // 不支持的 Content-Type
+            default => throw new RuntimeException("Cannot support Content-Type：{$contentType}"),
+        };
+
+        return Stream::create($formattedData);
     }
 
-    public function put(string $url, array $body = [], array $query = [], array $headers = []): Text
+    private function formatRequestHeaders(RequestInterface $request): array
     {
-        $request = new Request($url, 'PUT');
-        return $this->request($request, [
-            'body' => $body,
-            'query' => $query,
-            'headers' => $headers
-        ]);
+        $headers = $request->getHeaders();
+        $cookieStr = '';
+        foreach ($this->cookies as $cookie) {
+            $encodedKey = urlencode((string)$cookie->getName());
+            $encodedValue = urlencode((string)$cookie->getValue());
+            $cookieStr .= "{$encodedKey}={$encodedValue}; ";
+        }
+        $headers['Cookie'] = rtrim($cookieStr, '; ');
+
+        $formatted = [];
+        foreach ($headers as $name => $values) {
+            foreach ((array)$values as $value) {
+                $formatted[] = "{$name}: {$value}";
+            }
+        }
+
+        return $formatted;
     }
 
-    public function delete(string $url, array $body = [], array $query = [], array $headers = []): Text
+    /**
+     * 返回 key 名全小写的 headers 键对值
+     *
+     * @param string $headers
+     * @return array
+     */
+    private function parseResponseHeaders(string $headers): array
     {
-        $request = new Request($url, 'DELETE');
-        return $this->request($request, [
-            'body' => $body,
-            'query' => $query,
-            'headers' => $headers
-        ]);
+        $responseHeaders = preg_split('/\r\n/', $headers, -1, PREG_SPLIT_NO_EMPTY);
+        array_shift($responseHeaders);
+
+        $parsedHeaders = [];
+        foreach ($responseHeaders as $line) {
+            if (($pos = strpos($line, ':')) === false) {
+                continue;
+            }
+
+            [$name, $value] = explode(':', $line, 2);
+
+            $name = strtolower($name);
+            $value = trim($value);
+
+            if ('set-cookie' === $name) {
+                $cookie = $this->parseResponseCookie($value);
+                $this->cookies[$cookie->getName()] = $cookie;
+            } else {
+                $parsedHeaders[$name] = str_contains($value, ';') ? explode(';', $value) : $value;
+            }
+        }
+
+        return $parsedHeaders;
     }
 
-    public function patch(string $url, array $body = [], array $query = [], array $headers = []): Text
+    private function parseResponseCookie(string $cookieLine): Cookie
     {
-        $request = new Request($url, 'PATCH');
-        return $this->request($request, [
-            'body' => $body,
-            'query' => $query,
-            'headers' => $headers
-        ]);
+        $cookie = [
+            'value' => '', 'expires' => null, 'max-age' => null,
+            'domain' => '', 'path' => '/', 'secure' => false, 'httponly' => false, 'samesite' => 'Lax'
+        ];
+
+        // 分离 name=value 和属性部分
+        [$nameValue, $attributes] = array_pad(explode(';', $cookieLine, 2), 2, '');
+        // 解析 name=value
+        if (($equalPos = strpos($nameValue, '=')) !== false) {
+            [$name, $value] = explode('=', $nameValue, 2);
+            $cookie['name'] = trim($name);
+            $cookie['value'] = urldecode(trim($value));
+        } else {
+            $cookie['name'] = $nameValue;
+        }
+
+        $attrMap = [
+            'expires' => 'expires',
+            'max-age' => 'max-age',
+            'domain' => 'domain',
+            'path' => 'path',
+            'samesite' => 'samesite'
+        ];
+
+        // 解析属性
+        foreach (explode(';', $attributes) as $attr) {
+            $attr = trim($attr);
+            if (empty($attr)) continue;
+
+            if (($attrPos = strpos($attr, '=')) !== false) {
+                [$attrName, $attrValue] = explode('=', $attr, 2);
+                $attrName = strtolower($attrName);
+
+                // 仅处理已知属性
+                if (isset($attrMap[$attrName])) {
+                    $cookie[$attrName] = $attrName === 'max-age' ? (int)$attrValue : $attrValue;
+                }
+            } else {
+                $attrName = strtolower($attr);
+                if ($attrName === 'secure') $cookie['secure'] = true;
+                elseif ($attrName === 'httponly') $cookie['httponly'] = true;
+            }
+        }
+
+        return new Cookie(
+            $cookie['name'],
+            $cookie['value'],
+            $cookie['expires'],
+            $cookie['path'],
+            $cookie['domain'],
+            $cookie['secure'],
+            $cookie['httponly'],
+            $cookie['samesite']
+        );
     }
 }

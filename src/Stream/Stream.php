@@ -40,7 +40,7 @@ class Stream implements StreamInterface, Stringable
      * @param string $stream
      * @param string $mode
      */
-    public function __construct(protected string $stream, protected string $mode = 'r')
+    public function __construct(protected string $stream = 'php://memory', protected string $mode = 'w+b')
     {
         $this->resource = fopen($stream, $this->mode);
 
@@ -367,5 +367,12 @@ class Stream implements StreamInterface, Stringable
     public function isDetached(): bool
     {
         return $this->resource === null;
+    }
+
+    public static function create(string $content, string $stream = 'php://memory', $mode = 'w+b'): self
+    {
+        $stream = new self($stream, $mode);
+        $stream->write($content);
+        return $stream;
     }
 }

@@ -44,9 +44,10 @@ class Message implements MessageInterface
      */
     public function withProtocolVersion(string $version): MessageInterface
     {
-        $this->protocolVersion = $version;
+        $new = clone $this;
+        $new->protocolVersion = $version;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -108,14 +109,13 @@ class Message implements MessageInterface
      */
     public function getHeader(string $name): array
     {
-        $lowerName = strtolower($name);
-        return $this->headers[$lowerName] ?? [];
+        return $this->headers[strtolower($name)] ?? [];
     }
 
     /**
      * Retrieves a comma-separated string of the values for a single header.
      *
-     * This method returns all of the header values of the given
+     * This method returns all the header values of the given
      * case-insensitive header name as a string concatenated together using
      * a comma.
      *
@@ -155,15 +155,18 @@ class Message implements MessageInterface
     {
         $lowerName = strtolower($name);
 
+        $new = clone $this;
         if (is_array($value)) {
-            $this->headers[$lowerName] = $value;
+            // 将数组中的每个值转换为字符串
+            $new->headers[$lowerName] = array_map(function($v) {
+                return (string)$v;
+            }, $value);
         } else {
-            $this->headers[$lowerName] = [$value];
+            $new->headers[$lowerName] = [(string)$value];
         }
 
-        return $this;
+        return $new;
     }
-
 
     /**
      * Return an instance with the specified header appended with the given value.
@@ -185,13 +188,17 @@ class Message implements MessageInterface
     {
         $lowerName = strtolower($name);
 
+        $new = clone $this;
         if (is_array($value)) {
-            $this->headers[$lowerName] = array_merge($this->headers[$lowerName] ?? [], $value);
+            $convertedValues = array_map(function($v) {
+                return (string)$v;
+            }, $value);
+            $new->headers[$lowerName] = array_merge($this->headers[$lowerName] ?? [], $convertedValues);
         } else {
-            $this->headers[$lowerName][] = $value;
+            $new->headers[$lowerName][] = (string)$value;
         }
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -210,11 +217,14 @@ class Message implements MessageInterface
     {
         $name = strtolower($name);
 
-        if ($this->hasHeader($name)) {
-            unset($this->headers[$name]);
+        if (!isset($this->headers[$name])) {
+            return $this;
         }
 
-        return $this;
+        $new = clone $this;
+        unset($new->headers[$name]);
+
+        return $new;
     }
 
     /**
@@ -242,8 +252,13 @@ class Message implements MessageInterface
      */
     public function withBody(StreamInterface $body): MessageInterface
     {
-        $this->stream = $body;
+        if ($body === $this->stream) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->stream = $body;
+
+        return $new;
     }
 }

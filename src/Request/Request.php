@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace FastD\Http\Request;
 
-use FastD\Http\Exception\HttpException;
 use FastD\Http\Message;
 use FastD\Http\Response\Text;
 use FastD\Http\Stream\Stream;
@@ -13,24 +12,14 @@ use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use RuntimeException;
 
 class Request extends Message implements RequestInterface
 {
-    /**
-     * @var string
-     */
     protected string $method = 'GET';
 
-    /**
-     * @var UriInterface
-     */
     protected UriInterface $uri;
 
-    /**
-     * Supported HTTP methods
-     *
-     * @var array
-     */
     private array $validMethods = [
         'DELETE',
         'GET',
@@ -41,19 +30,32 @@ class Request extends Message implements RequestInterface
         'PUT',
     ];
 
-    /**
-     * Request constructor.
-     *
-     * @param string $method
-     * @param string $uri
-     * @param ?StreamInterface $stream
-     */
-    public function __construct(string $method, string $uri, ?StreamInterface $stream = new Stream('php://memory', 'r+'))
+    public function __construct(
+        string $method,
+        string $uri,
+        array $headers = [],
+        ?StreamInterface $stream = new Stream(),
+        string $version = '1.1'
+    )
     {
-        $this->withMethod($method);
-        $this->withUri(new Uri($uri));
+        parent::__construct($stream, $version);
+        
+        $method = strtoupper($method);
+        if (!in_array($method, $this->validMethods, true)) {
+            throw new InvalidArgumentException(sprintf('Unsupported HTTP method "%s" provided', $method));
+        }
 
-        parent::__construct($stream);
+        $this->method = $method;
+        $this->uri = new Uri($uri);
+
+        foreach ($headers as $header => $value) {
+            $header = strtolower((string) $header);
+            if (isset($this->headers[$header])) {
+                $this->headers[$header] = array_merge($this->headers[$header], $value);
+            } else {
+                $this->headers[$header] = $value;
+            }
+        }
     }
 
     /**
@@ -96,9 +98,10 @@ class Request extends Message implements RequestInterface
      */
     public function withRequestTarget(string $requestTarget): Request
     {
-        $this->uri->withPath($requestTarget);
+        $new = clone $this;
+        $new->uri = $this->uri->withPath($requestTarget);
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -134,9 +137,10 @@ class Request extends Message implements RequestInterface
             throw new InvalidArgumentException(sprintf('Unsupported HTTP method "%s" provided', $method));
         }
 
-        $this->method = $method;
+        $new = clone $this;
+        $new->method = $method;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -185,8 +189,21 @@ class Request extends Message implements RequestInterface
      */
     public function withUri(UriInterface $uri, bool $preserveHost = false): RequestInterface
     {
-        $this->uri = $uri;
+        if ($uri === $this->uri) {
+            return $this;
+        }
 
-        return $this;
+        $new = clone $this;
+        $new->uri = $uri;
+
+        // 处理 Host header 逻辑（根据 preserveHost 参数和 URI 是否包含主机）
+        if (!$preserveHost && '' !== ($host = $uri->getHost())) {
+            if (null === ($port = $uri->getPort())) {
+                $host .= ':' . $port;
+            }
+            $new->headers['Host'] = $host;
+        }
+
+        return $new;
     }
 }

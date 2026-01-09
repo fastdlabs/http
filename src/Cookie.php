@@ -16,14 +16,15 @@ class Cookie implements Stringable
         protected string $path = '/',
         protected string $domain = '',
         protected bool $secure = false,
-        protected bool $httpOnly = false
+        protected bool $httpOnly = false,
+        protected string $sameSite = 'Lax',
     ) {
         if (preg_match("/[=,; \t\r\n\v\f]/", $name)) {
             throw new InvalidArgumentException(sprintf('The cookie name "%s" contains invalid characters.', $name));
         }
     }
 
-    public function withName(string $name): static
+    public function withName(string $name): self
     {
         if (preg_match("/[=,; \t\r\n\v\f]/", $name)) {
             throw new InvalidArgumentException(sprintf('The cookie name "%s" contains invalid characters.', $name));
@@ -34,53 +35,16 @@ class Cookie implements Stringable
         return $new;
     }
 
-    public function withValue(string $value): static
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function withValue(string $value): self
     {
         $new = clone $this;
         $new->value = $value;
         return $new;
-    }
-
-    public function withExpire(int $expire): static
-    {
-        $new = clone $this;
-        $new->expire = $expire;
-        return $new;
-    }
-
-    public function withPath(string $path): static
-    {
-        $new = clone $this;
-        $new->path = $path;
-        return $new;
-    }
-
-    public function withDomain(string $domain): static
-    {
-        $new = clone $this;
-        $new->domain = $domain;
-        return $new;
-    }
-
-    public function withSecure(bool $secure): static
-    {
-        $new = clone $this;
-        $new->secure = $secure;
-        return $new;
-    }
-
-    public function withHttpOnly(bool $httpOnly): static
-    {
-        $new = clone $this;
-        $new->httpOnly = $httpOnly;
-        return $new;
-    }
-
-    // ===== 获取方法 (get) =====
-
-    public function getName(): string
-    {
-        return $this->name;
     }
 
     public function getValue(): string
@@ -88,9 +52,23 @@ class Cookie implements Stringable
         return $this->value;
     }
 
+    public function withExpire(int $expire): self
+    {
+        $new = clone $this;
+        $new->expire = $expire;
+        return $new;
+    }
+
     public function getExpire(): int
     {
         return $this->expire;
+    }
+
+    public function withPath(string $path): self
+    {
+        $new = clone $this;
+        $new->path = $path;
+        return $new;
     }
 
     public function getPath(): string
@@ -98,9 +76,23 @@ class Cookie implements Stringable
         return $this->path;
     }
 
+    public function withDomain(string $domain): self
+    {
+        $new = clone $this;
+        $new->domain = $domain;
+        return $new;
+    }
+
     public function getDomain(): string
     {
         return $this->domain;
+    }
+
+    public function withSecure(bool $secure): self
+    {
+        $new = clone $this;
+        $new->secure = $secure;
+        return $new;
     }
 
     public function isSecure(): bool
@@ -108,9 +100,28 @@ class Cookie implements Stringable
         return $this->secure;
     }
 
+    public function withHttpOnly(bool $httpOnly): self
+    {
+        $new = clone $this;
+        $new->httpOnly = $httpOnly;
+        return $new;
+    }
+
     public function isHttpOnly(): bool
     {
         return $this->httpOnly;
+    }
+
+    public function withSameSite(string $sameSite): self
+    {
+        $new = clone $this;
+        $new->sameSite = $sameSite;
+        return $new;
+    }
+
+    public function getSameSite(): string
+    {
+        return $this->sameSite;
     }
 
     public function __toString(): string
@@ -131,27 +142,16 @@ class Cookie implements Stringable
             }
         }
 
-        if ($this->path !== '') {
-            $str .= '; path=' . $this->path;
-        }
+        '' === $this->path && $str .= '; path=' . $this->path;
 
-        if ($this->domain !== '') {
-            $str .= '; domain=' . $this->domain;
-        }
+        '' === $this->domain && $str .= '; domain=' . $this->domain;
 
-        if ($this->secure) {
-            $str .= '; secure';
-        }
+        $this->secure && $str .= "; Secure";
 
-        if ($this->httpOnly) {
-            $str .= '; httponly';
-        }
+        $this->httpOnly && $str .= "; HttpOnly";
+
+        '' === $this->sameSite && $str .= '; SameSite=' . $this->sameSite;
 
         return $str;
-    }
-
-    public static function create(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = true): self
-    {
-        return new self($name, $value, $expire, $path, $domain, $secure, $httpOnly);
     }
 }

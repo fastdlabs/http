@@ -78,7 +78,7 @@ interface StatusCode
      *
      * @var array
      */
-    const STATUS_TEXT = [
+    const PHRASES = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',            // RFC2518

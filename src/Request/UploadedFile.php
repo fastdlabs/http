@@ -13,15 +13,7 @@ use RuntimeException;
 
 class UploadedFile extends CURLFile implements UploadedFileInterface
 {
-    /**
-     * @var bool Whether file has been moved
-     */
-    private bool $moved = false;
-
-    /**
-     * @var StreamInterface|null File stream
-     */
-    private ?StreamInterface $stream = null;
+    protected bool $moved = false;
 
     public function __construct(
         protected string $clientFilename,
@@ -29,6 +21,7 @@ class UploadedFile extends CURLFile implements UploadedFileInterface
         protected string $tmpName,
         protected int $size,
         protected int $error,
+        protected ?StreamInterface $stream = null,
     ) {
         // Initialize parent CURLFile
         parent::__construct($tmpName, $this->clientMediaType, $this->clientFilename);
