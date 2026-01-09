@@ -19,10 +19,10 @@ class SwooleServerRequest extends ServerRequest
         // 为满足非 POST 等请求的请求体在初始化时候的解析
         $serverRequest = new static($server['REQUEST_METHOD'], static::createUriFromBoth($server), $request->header, Stream::create($request->getContent()), $version, $server);
 
-        return $serverRequest->withQueryParams($request->get)
-            ->withParsedBody($request->post)
+        return $serverRequest->withQueryParams($request->get ?? [])
+            ->withParsedBody($request->post ?? [])
             ->withCookieParams($request->cookie ?? [])
-            ->withUploadedFiles(static::normalizeFiles($request->files));
+            ->withUploadedFiles(static::normalizeFiles($request->files ?? []));
     }
 
     /**
