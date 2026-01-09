@@ -21,6 +21,7 @@ class PhpInputStream extends Stream
     {
         parent::rewind();
         $this->cache = '';
+        $this->reachedEof = false;
     }
 
     public function __toString(): string
@@ -61,8 +62,8 @@ class PhpInputStream extends Stream
             return $this->cache;
         }
 
-        if (!$this->resource) {  // 修复：添加资源检查
-            throw new RuntimeException('No resource available; cannot get contents');
+        if (!$this->resource) {
+            throw new RuntimeException('No resource available');
         }
 
         if (!$this->isReadable()) {

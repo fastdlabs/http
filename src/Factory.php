@@ -9,6 +9,7 @@ use FastD\Http\Request\ServerRequest;
 use FastD\Http\Request\UploadedFile;
 use FastD\Http\Response\Text;
 use FastD\Http\Stream\Stream;
+use InvalidArgumentException;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -17,15 +18,17 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
-final class Factory implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
+final class Factory implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UriFactoryInterface
 {
     public function createRequest(string $method, $uri): RequestInterface
     {
+        if ($uri instanceof UriInterface) {
+            $uri = (string)$uri;
+        }
         return new Request($method, $uri);
     }
 
@@ -36,6 +39,9 @@ final class Factory implements RequestFactoryInterface, ResponseFactoryInterface
 
     public function createServerRequest(string $method, $uri, array $serverParams = []): ServerRequestInterface
     {
+        if ($uri instanceof UriInterface) {
+            $uri = (string)$uri;
+        }
         return new ServerRequest($method, $uri, [], null, '1.1', $serverParams);
     }
 
@@ -59,18 +65,36 @@ final class Factory implements RequestFactoryInterface, ResponseFactoryInterface
     }
 
     public function createUploadedFile(
-        ?StreamInterface $stream = null,
-        int $size = null,
-        int $error = \UPLOAD_ERR_OK,
-        string $clientFilename = null,
-        string $clientMediaType = null
+        StreamInterface $stream,
+        ?int            $size = null,
+        int             $error = \UPLOAD_ERR_OK,
+        ?string         $clientFilename = null,
+        ?string         $clientMediaType = null
     ): UploadedFileInterface
     {
         if ($size === null) {
             $size = $stream->getSize();
         }
 
-        return new UploadedFile($clientFilename, $clientMediaType, $clientFilename, $size, $error, $stream);
+        if (empty($clientFilename)) {
+            throw new InvalidArgumentException('Client uploaded file name cannot be empty');
+        }
+
+        // 为了兼容 UploadedFile 的构造函数，我们需要一个临时文件路径
+        // 当从 stream 创建时，我们将 stream 写入临时文件
+        $tmpFile = tempnam(sys_get_temp_dir(), 'curl_upload_tmp_');
+        
+        // 将 stream 内容写入临时文件
+        file_put_contents($tmpFile, $stream->getContents());
+
+        return new UploadedFile(
+            $clientFilename,
+            $clientMediaType ?? '',
+            $tmpFile,
+            $size,
+            $error,
+            $stream
+        );
     }
 
     public function createUri(string $uri = ''): UriInterface

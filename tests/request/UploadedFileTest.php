@@ -689,6 +689,358 @@ class UploadedFileTest extends TestCase
 
         $this->assertSame($longName, $uploadedFile->getClientFilename());
     }
+
+    // ===== 零字节文件测试 =====
+
+    public function testZeroSizeFile(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'empty.txt',
+            'text/plain',
+            $this->tempFile,
+            0,
+            UPLOAD_ERR_OK
+        );
+
+        $this->assertSame(0, $uploadedFile->getSize());
+    }
+
+    // ===== getStream异常场景测试 =====
+
+    public function testGetStreamWithInvalidFile(): void
+    {
+        $nonExistentFile = $this->tempDir . '/non_existent_file_' . uniqid() . '.txt';
+        
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $nonExistentFile,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Cannot create file stream');
+        $uploadedFile->getStream();
+    }
+
+    // ===== moveTo失败场景测试 =====
+
+    public function testMoveToFailsWhenSourceFileDoesNotExist(): void
+    {
+        // 创建一个不存在的源文件来模拟移动失败
+        $nonExistentSource = $this->tempDir . '/fake_source_' . uniqid() . '.txt';
+        
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $nonExistentSource,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $targetPath = $this->targetDir . '/should_fail.txt';
+        mkdir($this->targetDir, 0755, true);
+
+        // rename() 在源文件不存在时会触发警告，需要捕获
+        try {
+            @$uploadedFile->moveTo($targetPath);
+            $this->fail('Expected RuntimeException for non-existent source file');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('Failed to move uploaded file', $e->getMessage());
+        }
+    }
+
+    // ===== 多种MIME类型测试 =====
+
+    public function testVariousMediaTypes(): void
+    {
+        $mediaTypes = [
+            'text/plain',
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'application/json',
+            'application/octet-stream',
+            'video/mp4',
+            'audio/mpeg'
+        ];
+
+        foreach ($mediaTypes as $mediaType) {
+            $uploadedFile = new UploadedFile(
+                'test_file',
+                $mediaType,
+                $this->tempFile,
+                100,
+                UPLOAD_ERR_OK
+            );
+
+            $this->assertSame($mediaType, $uploadedFile->getClientMediaType());
+        }
+    }
+
+    // ===== 构造函数带Stream测试 =====
+
+    public function testConstructorWithProvidedStream(): void
+    {
+        $mockStream = $this->createMock(StreamInterface::class);
+        
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_OK,
+            $mockStream
+        );
+
+        $stream = $uploadedFile->getStream();
+        $this->assertSame($mockStream, $stream);
+    }
+
+    // ===== 不同文件扩展名测试 =====
+
+    public function testVariousFileExtensions(): void
+    {
+        $extensions = [
+            'txt', 'pdf', 'jpg', 'png', 'gif', 'doc', 'docx',
+            'xls', 'xlsx', 'zip', 'tar', 'gz', 'mp3', 'mp4'
+        ];
+
+        foreach ($extensions as $ext) {
+            $filename = "file.$ext";
+            $uploadedFile = new UploadedFile(
+                $filename,
+                'application/octet-stream',
+                $this->tempFile,
+                100,
+                UPLOAD_ERR_OK
+            );
+
+            $this->assertSame($filename, $uploadedFile->getClientFilename());
+        }
+    }
+
+    // ===== 路径安全性额外测试 =====
+
+    public function testMultipleParentDirectoryReferences(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Target path cannot contain parent directory references');
+        $uploadedFile->moveTo($this->targetDir . '/../../../forbidden.txt');
+    }
+
+    // ===== Unicode文件名测试 =====
+
+    public function testUnicodeFilename(): void
+    {
+        $unicodeNames = [
+            '测试文件.txt',
+            'файл.txt',
+            'ファイル.txt',
+            '파일.txt',
+            'αρχείο.txt'
+        ];
+
+        foreach ($unicodeNames as $name) {
+            $uploadedFile = new UploadedFile(
+                $name,
+                'text/plain',
+                $this->tempFile,
+                100,
+                UPLOAD_ERR_OK
+            );
+
+            $this->assertSame($name, $uploadedFile->getClientFilename());
+        }
+    }
+
+    // ===== 所有错误代码详细测试 =====
+
+    public function testUploadErrorIniSize(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_INI_SIZE
+        );
+
+        $this->assertSame(UPLOAD_ERR_INI_SIZE, $uploadedFile->getError());
+    }
+
+    public function testUploadErrorFormSize(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_FORM_SIZE
+        );
+
+        $this->assertSame(UPLOAD_ERR_FORM_SIZE, $uploadedFile->getError());
+    }
+
+    public function testUploadErrorNoFile(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_NO_FILE
+        );
+
+        $this->assertSame(UPLOAD_ERR_NO_FILE, $uploadedFile->getError());
+    }
+
+    public function testUploadErrorNoTmpDir(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_NO_TMP_DIR
+        );
+
+        $this->assertSame(UPLOAD_ERR_NO_TMP_DIR, $uploadedFile->getError());
+    }
+
+    public function testUploadErrorCantWrite(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_CANT_WRITE
+        );
+
+        $this->assertSame(UPLOAD_ERR_CANT_WRITE, $uploadedFile->getError());
+    }
+
+    public function testUploadErrorExtension(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_EXTENSION
+        );
+
+        $this->assertSame(UPLOAD_ERR_EXTENSION, $uploadedFile->getError());
+    }
+
+    // ===== 嵌套目录创建测试 =====
+
+    public function testMoveToCreatesNestedDirectories(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $targetPath = $this->targetDir . '/level1/level2/level3/file.txt';
+        $uploadedFile->moveTo($targetPath);
+
+        $this->assertTrue(file_exists($targetPath));
+        $this->assertTrue(is_dir($this->targetDir . '/level1/level2/level3'));
+    }
+
+    // ===== Stream重用测试 =====
+
+    public function testStreamReusability(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'test.txt',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $stream1 = $uploadedFile->getStream();
+        $stream2 = $uploadedFile->getStream();
+        $stream3 = $uploadedFile->getStream();
+
+        // 应该返回完全相同的实例
+        $this->assertSame($stream1, $stream2);
+        $this->assertSame($stream2, $stream3);
+        $this->assertSame($stream1, $stream3);
+    }
+
+    // ===== 大尺寸值测试 =====
+
+    public function testMaxIntegerSize(): void
+    {
+        $maxSize = PHP_INT_MAX;
+        $uploadedFile = new UploadedFile(
+            'huge_file.bin',
+            'application/octet-stream',
+            $this->tempFile,
+            $maxSize,
+            UPLOAD_ERR_OK
+        );
+
+        $this->assertSame($maxSize, $uploadedFile->getSize());
+    }
+
+    // ===== 文件名边界情况 =====
+
+    public function testFilenameWithOnlyExtension(): void
+    {
+        $uploadedFile = new UploadedFile(
+            '.htaccess',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $this->assertSame('.htaccess', $uploadedFile->getClientFilename());
+    }
+
+    public function testFilenameWithoutExtension(): void
+    {
+        $uploadedFile = new UploadedFile(
+            'README',
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $this->assertSame('README', $uploadedFile->getClientFilename());
+    }
+
+    public function testFilenameWithMultipleDots(): void
+    {
+        $filename = 'file.name.with.dots.txt';
+        $uploadedFile = new UploadedFile(
+            $filename,
+            'text/plain',
+            $this->tempFile,
+            100,
+            UPLOAD_ERR_OK
+        );
+
+        $this->assertSame($filename, $uploadedFile->getClientFilename());
+    }
 }
 
 

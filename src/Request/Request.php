@@ -38,8 +38,6 @@ class Request extends Message implements RequestInterface
         string $version = '1.1'
     )
     {
-        parent::__construct($stream, $version);
-        
         $method = strtoupper($method);
         if (!in_array($method, $this->validMethods, true)) {
             throw new InvalidArgumentException(sprintf('Unsupported HTTP method "%s" provided', $method));
@@ -48,14 +46,7 @@ class Request extends Message implements RequestInterface
         $this->method = $method;
         $this->uri = new Uri($uri);
 
-        foreach ($headers as $header => $value) {
-            $header = strtolower((string) $header);
-            if (isset($this->headers[$header])) {
-                $this->headers[$header] = array_merge($this->headers[$header], $value);
-            } else {
-                $this->headers[$header] = $value;
-            }
-        }
+        parent::__construct($stream, $headers, $version);
     }
 
     /**
@@ -198,10 +189,10 @@ class Request extends Message implements RequestInterface
 
         // 处理 Host header 逻辑（根据 preserveHost 参数和 URI 是否包含主机）
         if (!$preserveHost && '' !== ($host = $uri->getHost())) {
-            if (null === ($port = $uri->getPort())) {
+            if (null !== ($port = $uri->getPort())) {
                 $host .= ':' . $port;
             }
-            $new->headers['Host'] = $host;
+            $new->headers['host'] = [$host];
         }
 
         return $new;

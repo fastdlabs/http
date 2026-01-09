@@ -24,6 +24,11 @@ class Cookie implements Stringable
         }
     }
 
+    public static function create(string $name, string $value = '', int $expire = -1, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = false, string $sameSite = 'Lax'): self
+    {
+        return new self($name, $value, $expire, $path, $domain, $secure, $httpOnly, $sameSite);
+    }
+
     public function withName(string $name): self
     {
         if (preg_match("/[=,; \t\r\n\v\f]/", $name)) {
@@ -142,15 +147,25 @@ class Cookie implements Stringable
             }
         }
 
-        '' === $this->path && $str .= '; path=' . $this->path;
+        if ($this->path !== '') {  // 路径为 / 也要显示
+            $str .= '; path=' . $this->path;
+        }
 
-        '' === $this->domain && $str .= '; domain=' . $this->domain;
+        if ($this->domain !== '') {
+            $str .= '; domain=' . $this->domain;
+        }
 
-        $this->secure && $str .= "; Secure";
+        if ($this->secure) {
+            $str .= '; secure';  // 小写
+        }
 
-        $this->httpOnly && $str .= "; HttpOnly";
+        if ($this->httpOnly) {
+            $str .= '; httponly';  // 小写
+        }
 
-        '' === $this->sameSite && $str .= '; SameSite=' . $this->sameSite;
+        if ($this->sameSite !== '' && $this->sameSite !== 'Lax') {  // 只有非默认值才显示
+            $str .= '; samesite=' . $this->sameSite;
+        }
 
         return $str;
     }

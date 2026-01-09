@@ -379,4 +379,46 @@ class CookieTest extends TestCase
 
         $this->assertLessThan(100, $duration, 'Multiple clone operations should be efficient');
     }
+
+    // ===== 修复的 __toString 逻辑测试 =====
+
+    public function testToStringWithPathAddedWhenNotDefault(): void
+    {
+        $cookie = new Cookie('name', 'value', -1, '/custom');
+        $result = (string)$cookie;
+
+        $this->assertStringContainsString('path=/custom', $result);
+    }
+
+    public function testToStringWithDomainAdded(): void
+    {
+        $cookie = new Cookie('name', 'value', -1, '/', 'example.com');
+        $result = (string)$cookie;
+
+        $this->assertStringContainsString('domain=example.com', $result);
+    }
+
+    public function testToStringWithSecureFlag(): void
+    {
+        $cookie = new Cookie('name', 'value', -1, '/', '', true);
+        $result = (string)$cookie;
+
+        $this->assertStringContainsString('secure', $result);
+    }
+
+    public function testToStringWithHttpOnlyFlag(): void
+    {
+        $cookie = new Cookie('name', 'value', -1, '/', '', false, true);
+        $result = (string)$cookie;
+
+        $this->assertStringContainsString('httponly', $result);
+    }
+
+    public function testToStringWithSameSite(): void
+    {
+        $cookie = new Cookie('name', 'value', -1, '/', '', false, false, 'Strict');
+        $result = (string)$cookie;
+
+        $this->assertStringContainsString('samesite=Strict', $result);
+    }
 }

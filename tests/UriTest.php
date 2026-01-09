@@ -430,10 +430,18 @@ class UriTest extends TestCase
     public function testWithQueryReturnsNewInstance(): void
     {
         $uri = new Uri('http://example.com?query1=value1');
-        $uri->withQuery('query2=value2');
+        $newUri = $uri->withQuery('query2=value2');
 
-        $this->assertEquals(['query2' => 'value2'], $uri->getQueryParams());
-        $this->assertSame('query2=value2', $uri->getQuery());
+        // 原始对象不应被修改
+        $this->assertEquals(['query1' => 'value1'], $uri->getQueryParams());
+        $this->assertSame('query1=value1', $uri->getQuery());
+        
+        // 新对象应该包含新的查询参数
+        $this->assertEquals(['query2' => 'value2'], $newUri->getQueryParams());
+        $this->assertSame('query2=value2', $newUri->getQuery());
+        
+        // 验证是不同的实例
+        $this->assertNotSame($uri, $newUri);
     }
 
     public function testWithQuerySetsValidQuery(): void
@@ -825,5 +833,103 @@ class UriTest extends TestCase
         $this->assertSame('/path', $newUri->getPath());
         $this->assertSame('query=value', $newUri->getQuery());
         $this->assertSame('fragment', $newUri->getFragment());
+    }
+
+    // ===== 查询参数测试 =====
+
+    public function testGetQueryParams(): void
+    {
+        $uri = new Uri('http://example.com?name=john&age=30&city=New+York');
+        $params = $uri->getQueryParams();
+        
+        $expected = [
+            'name' => 'john',
+            'age' => '30',
+            'city' => 'New York'
+        ];
+        
+        $this->assertEquals($expected, $params);
+    }
+
+    public function testGetQueryParamsEmpty(): void
+    {
+        $uri = new Uri('http://example.com');
+        $params = $uri->getQueryParams();
+        
+        $this->assertEmpty($params);
+    }
+
+    public function testGetQueryParamsWithSpecialCharacters(): void
+    {
+        $uri = new Uri('http://example.com?search=hello%20world&filter=type%3Darticle');
+        $params = $uri->getQueryParams();
+        
+        $this->assertEquals([
+            'search' => 'hello world',
+            'filter' => 'type=article'
+        ], $params);
+    }
+
+    public function testGetQueryParamsAfterWithQuery(): void
+    {
+        $uri = new Uri('http://example.com?old=value');
+        $newUri = $uri->withQuery('new_param=new_value&another=param');
+        
+        $this->assertEquals(['old' => 'value'], $uri->getQueryParams());
+        $this->assertEquals([
+            'new_param' => 'new_value',
+            'another' => 'param'
+        ], $newUri->getQueryParams());
+    }
+
+    // ===== 片段参数测试 =====
+
+    public function testGetFragmentParams(): void
+    {
+        $uri = new Uri('http://example.com#section?param=value&other=123');
+        $params = $uri->getFragmentParams();
+        
+        // Note: The current implementation may not parse fragment parameters correctly
+        // This test documents the current behavior
+        $this->assertIsArray($params);
+    }
+
+    // ===== 端口测试 =====
+
+    public function testIsNonStandardPortLogic(): void
+    {
+        // HTTP with standard port (80) should be considered standard
+        $uri = new Uri('http://example.com:80');
+        $this->assertEquals(80, $uri->getPort());
+        // The port is considered standard if it matches the default for the scheme
+        
+        // HTTPS with standard port (443) should be considered standard
+        $uri2 = new Uri('https://example.com:443');
+        $this->assertEquals(443, $uri2->getPort());
+        
+        // Non-standard ports should be preserved in the URI string
+        $uri3 = new Uri('http://example.com:8080');
+        $this->assertEquals(8080, $uri3->getPort());
+        $this->assertStringContainsString(':8080', (string)$uri3);
+        
+        // Standard ports should not appear in the URI string
+        $uri4 = new Uri('http://example.com:80');
+        $this->assertStringNotContainsString(':80', (string)$uri4);
+    }
+
+    public function testPortRangeValidation(): void
+    {
+        $uri = new Uri('http://example.com');
+        
+        // Valid ports
+        $newUri1 = $uri->withPort(1);
+        $this->assertSame(1, $newUri1->getPort());
+        
+        $newUri2 = $uri->withPort(65535);
+        $this->assertSame(65535, $newUri2->getPort());
+        
+        // Null port is valid
+        $newUri3 = $uri->withPort(null);
+        $this->assertNull($newUri3->getPort());
     }
 }

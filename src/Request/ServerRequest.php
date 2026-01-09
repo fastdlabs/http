@@ -19,7 +19,7 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     protected array $queryParams = [];
 
-    protected array $parsedBody = [];
+    protected null|array|object $parsedBody = [];
 
     protected array $serverParams = [];
 
@@ -34,9 +34,9 @@ class ServerRequest extends Request implements ServerRequestInterface
         array $serverParams = []
     )
     {
-        parent::__construct($method, $uri, $headers, $body, $version);
-
         $this->serverParams = $serverParams;
+
+        parent::__construct($method, $uri, $headers, $body, $version);
     }
 
     /**
@@ -104,9 +104,10 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies): ServerRequest
     {
-        $this->cookieParams = $cookies;
+        $new = clone $this;
+        $new->cookieParams = $cookies;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -207,7 +208,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return array The deserialized body parameters, if any.
      *     These will typically be an array or object.
      */
-    public function getParsedBody(): array
+    public function getParsedBody(): array|object|null
     {
         return $this->parsedBody;
     }
@@ -339,18 +340,38 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     public static function normalizeFiles(array $files): array
     {
-        return array_map(function ($k, $v) {
-            return match (true) {
-                is_string($v['name']) => $v instanceof UploadedFileInterface ? $v : new UploadedFile(...array_values((array)$v)),
-                is_array($v['name']) => array_filter(array_map(
-                    fn($idx) => $v['name'][$idx] ? new UploadedFile(
-                        $v['name'][$idx], $v['type'][$idx], $v['tmp_name'][$idx], $v['size'][$idx], $v['error'][$idx]
-                    ) : null,
-                    array_keys($v['name'])
-                )),
-                default => throw new InvalidArgumentException('Invalid value in files specification')
-            };
-        }, array_keys($files), array_values($files));
+        $result = [];
+        foreach ($files as $key => $value) {
+            if (is_string($value['name'])) {
+                // Single file
+                $result[$key] = $value instanceof UploadedFileInterface ? $value : new UploadedFile(
+                    $value['name'],
+                    $value['type'],
+                    $value['tmp_name'],
+                    $value['size'],
+                    $value['error']
+                );
+            } elseif (is_array($value['name'])) {
+                // Multiple files
+                $fileList = [];
+                $count = count($value['name']);
+                for ($i = 0; $i < $count; $i++) {
+                    if (isset($value['name'][$i]) && $value['name'][$i]) {
+                        $fileList[] = new UploadedFile(
+                            $value['name'][$i],
+                            $value['type'][$i],
+                            $value['tmp_name'][$i],
+                            $value['size'][$i],
+                            $value['error'][$i]
+                        );
+                    }
+                }
+                $result[$key] = array_filter($fileList);
+            } else {
+                throw new InvalidArgumentException('Invalid value in files specification');
+            }
+        }
+        return $result;
     }
 
     public static function createUriFromBoth(array $serverParams): string
@@ -365,13 +386,14 @@ class ServerRequest extends Request implements ServerRequestInterface
         }
         if (isset($serverParams['SERVER_NAME'])) {
             $uri .= $serverParams['SERVER_NAME'];
+            if (!empty($serverParams['SERVER_PORT'])) {
+                if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
+                    $uri .= ':' . $serverParams['SERVER_PORT'];
+                }
+            }
         } elseif (isset($serverParams['HTTP_HOST'])) {
             $uri .= $serverParams['HTTP_HOST'];
-        }
-        if (!empty($serverParams['SERVER_PORT'])) {
-            if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
-                $uri .= ':' . $serverParams['SERVER_PORT'];
-            }
+            // HTTP_HOST 可能已经包含端口，不需要再次添加
         }
         if (isset($serverParams['REQUEST_URI'])) {
             $requestUriParts = explode('?', $serverParams['REQUEST_URI']);
@@ -388,9 +410,9 @@ class ServerRequest extends Request implements ServerRequestInterface
     public static function fromGlobals(): ServerRequest
     {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $headers = getallheaders();
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
         $version = isset($_SERVER['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']) : '1.1';
-        $body = new Stream('php://memory', 'wb+');
+        $body = new Stream();
         $parsed = $_POST;
 
         $serverRequest = new ServerRequest($method, static::createUriFromBoth($_SERVER), $headers, $body, $version, $_SERVER);

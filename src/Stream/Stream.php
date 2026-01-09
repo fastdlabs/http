@@ -141,7 +141,7 @@ class Stream implements StreamInterface, Stringable
     public function tell(): int
     {
         if (!$this->resource) {
-            throw new RuntimeException('No resource available; cannot tell position');
+            throw new RuntimeException('No resource available');
         }
 
         $result = ftell($this->resource);
@@ -191,8 +191,8 @@ class Stream implements StreamInterface, Stringable
      */
     public function seek(int $offset, int $whence = SEEK_SET): void
     {
-        if (!$this->resource) {  // 修复：添加资源检查
-            throw new RuntimeException('No resource available; cannot seek position');
+        if (!$this->resource) {
+            throw new RuntimeException('No resource available');
         }
 
         if (!$this->isSeekable()) {
@@ -238,8 +238,8 @@ class Stream implements StreamInterface, Stringable
      */
     public function write(string $string): int
     {
-        if (!$this->resource) {  // 修复：添加资源检查
-            throw new RuntimeException('No resource available; cannot write');
+        if (!$this->resource) {
+            throw new RuntimeException('No resource available');
         }
 
         if (!$this->isWritable()) {
@@ -277,15 +277,15 @@ class Stream implements StreamInterface, Stringable
      */
     public function read(int $length): string
     {
-        if (!$this->resource) {  // 修复：添加资源检查
-            throw new RuntimeException('No resource available; cannot read');
+        if (!$this->resource) {
+            throw new RuntimeException('No resource available');
         }
 
         if (!$this->isReadable()) {
             throw new RuntimeException('Stream is not readable');
         }
 
-        // 修复：添加对负数和零长度的验证
+        // 验证长度参数
         if ($length < 0) {
             throw new RuntimeException('Length must be non-negative');
         }
@@ -297,7 +297,7 @@ class Stream implements StreamInterface, Stringable
         $string = fread($this->resource, $length);
 
         if (false === $string) {
-            throw new \RuntimeException('Unable to read from stream');
+            throw new RuntimeException('Unable to read from stream');
         }
 
         return $string;
@@ -312,8 +312,8 @@ class Stream implements StreamInterface, Stringable
      */
     public function getContents(): string
     {
-        if (!$this->resource) {  // 修复：添加资源检查
-            throw new RuntimeException('No resource available; cannot get contents');
+        if (!$this->resource) {
+            throw new RuntimeException('No resource available');
         }
 
         if (!$this->isReadable()) {
@@ -351,7 +351,7 @@ class Stream implements StreamInterface, Stringable
      */
     public function getMetadata(?string $key = null): mixed
     {
-        if (!$this->resource) {  // 修复：添加资源检查
+        if (!$this->resource) {
             return $key === null ? [] : null;
         }
 

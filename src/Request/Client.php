@@ -120,9 +120,23 @@ class Client implements ClientInterface
             }
         }
 
-        $response = (isset($responseHeaders['content-type']) && str_contains($responseHeaders['content-type'], 'application/json')) ? Json::class : Text::class;
+        // 确定响应类型
+        $contentType = '';
+        if (isset($responseHeaders['content-type'])) {
+            $contentType = is_array($responseHeaders['content-type']) 
+                ? $responseHeaders['content-type'][0] 
+                : $responseHeaders['content-type'];
+        }
+        
+        $isJson = str_contains($contentType, 'application/json');
+        $response = $isJson ? Json::class : Text::class;
 
-        $response = new $response($statusCode, json_decode($responseBody, true), $responseHeaders);
+        // 创建响应对象
+        if ($isJson) {
+            $response = new $response($statusCode, json_decode($responseBody, true) ?? [], $responseHeaders);
+        } else {
+            $response = new $response($statusCode, $responseBody ?? '', $responseHeaders);
+        }
 
         // 设置可能存在的 cookie 信息
         foreach ($this->cookies as $cookie) {
@@ -150,7 +164,9 @@ class Client implements ClientInterface
         // 处理请求体
         if (!empty($options['body'])) {
             $request->getBody()->close();
-            $request = $request->withBody($this->buildRequestBody($options['body'], $request));
+            $body = $this->buildRequestBody($options['body'], $request);
+            $body->rewind();
+            $request = $request->withBody($body);
         }
 
         return $request;
@@ -277,10 +293,21 @@ class Client implements ClientInterface
             }
         }
 
+        // 处理 expires，转换为 Unix 时间戳（相对于当前时间的秒数）
+        $expire = -1;
+        if (!empty($cookie['expires'])) {
+            $timestamp = strtotime($cookie['expires']);
+            if ($timestamp !== false) {
+                $expire = $timestamp - time();
+            }
+        } elseif (!empty($cookie['max-age'])) {
+            $expire = (int)$cookie['max-age'];
+        }
+
         return new Cookie(
             $cookie['name'],
             $cookie['value'],
-            $cookie['expires'],
+            $expire,
             $cookie['path'],
             $cookie['domain'],
             $cookie['secure'],

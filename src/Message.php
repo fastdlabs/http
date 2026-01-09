@@ -13,8 +13,19 @@ class Message implements MessageInterface
 {
     protected array $headers = [];
 
-    public function __construct(protected ?StreamInterface $stream = new Stream('php://memory', 'r+'), protected string $protocolVersion = '1.1')
+    public function __construct(protected ?StreamInterface $stream = null, array $headers = [], protected string $protocolVersion = '1.1')
     {
+        foreach ($headers as $header => $value) {
+            $header = strtolower((string) $header);
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+            if (isset($this->headers[$header])) {
+                $this->headers[$header] = array_merge($this->headers[$header], $value);
+            } else {
+                $this->headers[$header] = $value;
+            }
+        }
     }
 
     /**
@@ -234,6 +245,9 @@ class Message implements MessageInterface
      */
     public function getBody(): StreamInterface
     {
+        if ($this->stream === null) {
+            $this->stream = new Stream('php://memory', 'r+');
+        }
         return $this->stream;
     }
 

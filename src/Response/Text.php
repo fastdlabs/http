@@ -26,21 +26,12 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
         // 首先验证状态码
         $this->assertStatusCodeRange($this->statusCode);;
 
-        // 设置内容
-        parent::__construct(Stream::create($content), $protocolVersion);
-
         // 初始化状态码，响应头
         $this->statusCode = $statusCode;
         $this->reasonPhrase = StatusCode::PHRASES[$this->statusCode] ?? 'Unknown phrase';
 
-        foreach ($headers as $header => $value) {
-            $header = strtolower((string) $header);
-            if (isset($this->headers[$header])) {
-                $this->headers[$header] = array_merge($this->headers[$header], $value);
-            } else {
-                $this->headers[$header] = $value;
-            }
-        }
+        // 设置内容
+        parent::__construct(Stream::create($content), $headers, $protocolVersion);
     }
 
     /**
@@ -108,32 +99,32 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
     // 以下自定义 with 方法不需要克隆，因为原则上使用 Message::withHeader 方法，而该方法中已经存在 clone 行为
     public function withContentType(string $contentType): MessageInterface
     {
-        return $this->withHeader('Content-Type', $contentType);
+        return $this->withHeader('content-type', $contentType);
     }
 
     public function getContentType(): string
     {
-        return $this->getHeaderLine('Content-Type');
+        return $this->getHeaderLine('content-type');
     }
 
     public function withCacheControl(string $cacheControl): MessageInterface
     {
-        return $this->withHeader('Cache-Control', $cacheControl);
+        return $this->withHeader('cache-control', $cacheControl);
     }
 
     public function getCacheControl(): string
     {
-        return $this->getHeaderLine('Cache-Control');
+        return $this->getHeaderLine('cache-control');
     }
 
     public function withETag(string $eTag = '', bool $weak = false): MessageInterface
     {
-        return $this->withHeader('ETag', (true === $weak ? 'W/' : '') . $eTag);
+        return $this->withHeader('etag', (true === $weak ? 'W/' : '') . $eTag);
     }
 
     public function getETag(): string
     {
-        return $this->getHeaderLine('ETag');
+        return $this->getHeaderLine('etag');
     }
 
     public function withExpires(DateTime $date): MessageInterface
@@ -142,14 +133,14 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
         $maxAge = max(0, $date->getTimestamp() - time());
 
         return $this
-            ->withHeader('Expires', $date->format('D, d M Y H:i:s') . ' GMT')
-            ->withAddedHeader('Cache-Control', 'max-age=' . $maxAge);
+            ->withHeader('expires', $date->format('D, d M Y H:i:s') . ' GMT')
+            ->withAddedHeader('cache-control', 'max-age=' . $maxAge);
     }
 
     public function getExpires(): DateTime
     {
         try {
-            return new DateTime($this->getHeaderLine('Expires'));
+            return new DateTime($this->getHeaderLine('expires'));
         } catch (Exception $e) {
             // according to RFC 2616 invalid date formats (e.g. "0" and "-1") must be treated as in the past
             return DateTime::createFromFormat(DATE_RFC2822, 'Sat, 01 Jan 00 00:00:00 +0000');
@@ -158,7 +149,7 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
 
     public function withMaxAge(int $value): MessageInterface
     {
-        return $this->withAddedHeader('Cache-Control', 'max-age=' . $value);
+        return $this->withAddedHeader('cache-control', 'max-age=' . $value);
     }
 
     public function getMaxAge(): int
@@ -180,12 +171,12 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
     {
         return $this
             ->withCacheControl('public')
-            ->withAddedHeader('Cache-Control', 's-maxage=' . max(0, $value));
+            ->withAddedHeader('cache-control', 's-maxage=' . max(0, $value));
     }
 
     public function withLastModified(DateTime $date): MessageInterface
     {
-        return $this->withHeader('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
+        return $this->withHeader('last-modified', $date->format('D, d M Y H:i:s') . ' GMT');
     }
 
     public function getLastModified(): string
@@ -199,13 +190,13 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
 
         // remove headers that MUST NOT be included with 304 Not Modified responses
         foreach ([
-                     'Allow',
-                     'Content-Encoding',
-                     'Content-Language',
-                     'Content-Length',
-                     'Content-MD5',
-                     'Content-Type',
-                     'Last-Modified',
+                     'allow',
+                     'content-encoding',
+                     'content-language',
+                     'content-length',
+                     'content-md5',
+                     'content-type',
+                     'last-modified',
                  ] as $header) {
             $new = $new->withoutHeader($header);
         }
@@ -225,6 +216,11 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
     public function getCookies(): array
     {
         return $this->cookies;
+    }
+
+    public function withContents(string $contents): MessageInterface
+    {
+        return $this->withBody(Stream::create($contents));
     }
 
     public function getContents(): string
