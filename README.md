@@ -14,7 +14,10 @@
 
 ## 要求
 
-* php >= 7.4
+* php >= 8.2
+* ext-curl
+* ext-json
+* ext-zlib
 
 ## 安装
 
