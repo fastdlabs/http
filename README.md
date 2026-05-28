@@ -14,7 +14,7 @@
 
 ## 要求
 
-* php >= 5.6
+* php >= 7.4
 
 ## 安装
 
@@ -35,7 +35,7 @@ HTTP 组件没有对 Session 进行封装, 如果想在项目中支持 Session, 
 ##### 获取 pathinfo
 
 ```php
-use FastD\Http\ServerRequest;
+use FastD\Http\Request\ServerRequest;
 
 $request = ServerRequest::createServerRequestFromGlobals();
 

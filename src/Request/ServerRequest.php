@@ -1,88 +1,42 @@
 <?php
-/**
- * @author    jan huang <bboyjanhuang@gmail.com>
- * @copyright 2018
- *
- * @link      https://www.github.com/janhuang
- * @link      http://www.fast-d.cn/
- */
 
-namespace FastD\Http;
+declare(strict_types=1);
 
+namespace FastD\Http\Request;
 
+use FastD\Http\Cookie;
+use FastD\Http\Stream\Stream;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
-/**
- * Class ServerRequest
- * @package FastD\Http
- */
 class ServerRequest extends Request implements ServerRequestInterface
 {
-    /**
-     * @var array
-     */
-    public $attributes = [];
+    protected array $attributes = [];
 
-    /**
-     * @var array
-     */
-    public $cookieParams = [];
+    protected array $cookieParams = [];
 
-    /**
-     * @var array
-     */
-    public $queryParams = [];
+    protected array $queryParams = [];
 
-    /**
-     * @var array
-     */
-    public $bodyParams = [];
+    protected null|array|object $parsedBody = [];
 
-    /**
-     * @var array
-     */
-    public $serverParams = [];
+    protected array $serverParams = [];
 
-    /**
-     * @var UploadedFile[]
-     */
-    public $uploadFile = [];
+    protected array $uploadFile = [];
 
-    /**
-     * ServerRequest constructor.
-     * @param null $method
-     * @param $uri
-     * @param array $headers
-     * @param StreamInterface|null $body
-     * @param array $serverParams
-     */
     public function __construct(
-        $method,
-        $uri,
+        string $method,
+        string $uri,
         array $headers = [],
-        StreamInterface $body = null,
+        ?StreamInterface $body = new Stream(),
+        string $version = '1.1',
         array $serverParams = []
-    ) {
-        parent::__construct($method, $uri, $headers, $body);
+    )
+    {
+        $this->serverParams = $serverParams;
 
-        $this
-            ->withQueryParams($this->uri->getQuery())
-            ->withServerParams($serverParams)
-            ->withParsedBody($_POST)
-            ->withCookieParams($_COOKIE)
-            ->withUploadedFiles($_FILES);
-
-        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
-            parse_str((string)$body, $data);
-            if (empty($data)) {
-                $data = json_decode((string)$body);
-            }
-
-            $this->withParsedBody($data);
-        }
+        parent::__construct($method, $uri, $headers, $body, $version);
     }
 
     /**
@@ -94,28 +48,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getServerParams()
+    public function getServerParams(): array
     {
         return $this->serverParams;
-    }
-
-    /**
-     * @param array $server
-     * @return $this
-     */
-    public function withServerParams(array $server)
-    {
-        if (empty($this->header)) {
-            array_walk($server, function ($value, $key) {
-                if (0 === strpos($key, 'HTTP_')) {
-                    $this->withAddedHeader(str_replace('HTTP_', '', $key), $value);
-                }
-            });
-        }
-
-        $this->serverParams = $server;
-
-        return $this;
     }
 
     /**
@@ -128,19 +63,26 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->cookieParams;
     }
 
     /**
-     * @param $key
-     * @param $default
-     * @return bool|mixed
+     * @param string $key
+     * @return Cookie|null
      */
-    public function getCookie($key, $default = false)
+    public function getCookie(string $key): ?Cookie
     {
-        return isset($this->cookieParams[$key]) ? $this->cookieParams[$key] : $default;
+        $value = $this->cookieParams[$key] ?? null;
+        if ($value === null) {
+            return null;
+        }
+        // 如果$value已经是Cookie对象，直接返回；否则创建新的Cookie对象
+        if ($value instanceof Cookie) {
+            return $value;
+        }
+        return new Cookie($key, (string)$value);
     }
 
     /**
@@ -158,15 +100,14 @@ class ServerRequest extends Request implements ServerRequestInterface
      * updated cookie values.
      *
      * @param array $cookies Array of key/value pairs representing cookies.
-     * @return $this
+     * @return ServerRequest
      */
-    public function withCookieParams(array $cookies)
+    public function withCookieParams(array $cookies): ServerRequest
     {
-        foreach ($cookies as $name => $value) {
-            $this->cookieParams[$name] = $value;
-        }
+        $new = clone $this;
+        $new->cookieParams = $cookies;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -181,27 +122,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
         return $this->queryParams;
-    }
-
-    /**
-     * @param $key
-     * @param bool $default
-     * @return mixed
-     */
-    public function getParam($key, $default = false)
-    {
-        if (isset($this->queryParams[$key])) {
-            return $this->queryParams[$key];
-        }
-
-        if (isset($this->bodyParams[$key])) {
-            return $this->bodyParams[$key];
-        }
-
-        return $default;
     }
 
     /**
@@ -224,15 +147,14 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @param array $query Array of query string arguments, typically from
      *                     $_GET.
-     * @return static
+     * @return ServerRequest
      */
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): ServerRequest
     {
-        foreach ($query as $name => $value) {
-            $this->queryParams[$name] = $value;
-        }
+        $new = clone $this;
+        $new->queryParams = $query;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -247,7 +169,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return UploadedFile[] An array tree of UploadedFileInterface instances; an empty
      *     array MUST be returned if no data is present.
      */
-    public function getUploadedFiles()
+    public function getUploadedFiles(): array
     {
         return $this->uploadFile;
     }
@@ -260,14 +182,15 @@ class ServerRequest extends Request implements ServerRequestInterface
      * updated body parameters.
      *
      * @param UploadedFile[] $uploadedFiles An array tree of UploadedFileInterface instances.
-     * @return static
+     * @return ServerRequest
      * @throws InvalidArgumentException if an invalid structure is provided.
      */
-    public function withUploadedFiles(array $uploadedFiles)
+    public function withUploadedFiles(array $uploadedFiles): ServerRequest
     {
-        $this->uploadFile = static::normalizer($uploadedFiles);
+        $new = clone $this;
+        $new->uploadFile = $uploadedFiles;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -282,12 +205,12 @@ class ServerRequest extends Request implements ServerRequestInterface
      * potential types MUST be arrays or objects only. A null value indicates
      * the absence of body content.
      *
-     * @return null|array|object The deserialized body parameters, if any.
+     * @return array The deserialized body parameters, if any.
      *     These will typically be an array or object.
      */
-    public function getParsedBody()
+    public function getParsedBody(): array|object|null
     {
-        return $this->bodyParams;
+        return $this->parsedBody;
     }
 
     /**
@@ -314,15 +237,16 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @param null|array|object $data The deserialized body data. This will
      *                                typically be in an array or object.
-     * @return static
+     * @return ServerRequest
      * @throws InvalidArgumentException if an unsupported argument type is
      *                                provided.
      */
-    public function withParsedBody($data)
+    public function withParsedBody(mixed $data): ServerRequest
     {
-        $this->bodyParams = $data;
+        $new = clone $this;
+        $new->parsedBody = $data;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -336,7 +260,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array Attributes derived from the request.
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
@@ -351,14 +275,14 @@ class ServerRequest extends Request implements ServerRequestInterface
      * This method obviates the need for a hasAttribute() method, as it allows
      * specifying a default value to return if the attribute is not found.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
+     * @see getAttributes()
      */
-    public function getAttribute($name, $default = null)
+    public function getAttribute(string $name, mixed $default = null): mixed
     {
-        if ( ! array_key_exists($name, $this->attributes)) {
+        if (!array_key_exists($name, $this->attributes)) {
             return $default;
         }
 
@@ -375,16 +299,17 @@ class ServerRequest extends Request implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * updated attribute.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
      * @param mixed $value The value of the attribute.
      * @return static
+     * @see getAttributes()
      */
-    public function withAttribute($name, $value)
+    public function withAttribute(string $name, mixed $value): ServerRequestInterface
     {
-        $this->attributes[$name] = $value;
+        $new = clone $this;
+        $new->attributes[$name] = $value;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -397,98 +322,63 @@ class ServerRequest extends Request implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that removes
      * the attribute.
      *
-     * @see getAttributes()
      * @param string $name The attribute name.
-     * @return static
+     * @return ServerRequest
+     * @see getAttributes()
      */
-    public function withoutAttribute($name)
+    public function withoutAttribute(string $name): ServerRequestInterface
     {
-        if ( ! isset($this->attributes[$name])) {
+        if (false === array_key_exists($name, $this->attributes)) {
             return $this;
         }
 
-        unset($this->attributes[$name]);
+        $new = clone $this;
+        unset($new->attributes[$name]);
 
-        return $this;
+        return $new;
     }
 
-    /**
-     * @return string
-     */
-    public function getClientIP()
+    public static function normalizeFiles(array $files): array
     {
-        $unknown = 'unknown';
-        $ip = 'unknown';
-        if (
-            isset($this->serverParams['HTTP_X_FORWARDED_FOR'])
-            && $this->serverParams['HTTP_X_FORWARDED_FOR']
-            && strcasecmp($this->serverParams['HTTP_X_FORWARDED_FOR'], $unknown)
-        ) {
-            $ip = $this->serverParams['HTTP_X_FORWARDED_FOR'];
-        } else if (
-            isset($this->serverParams['REMOTE_ADDR'])
-            && $this->serverParams['REMOTE_ADDR']
-            && strcasecmp($this->serverParams['REMOTE_ADDR'], $unknown)
-        ) {
-            $ip = $this->serverParams['REMOTE_ADDR'];
-        }
-
-        if (false !== strpos($ip, ',')) {
-            $ip = reset(explode(',', $ip));
-        }
-
-        return $ip;
-    }
-
-    /**
-     * @param $files
-     * @return array
-     */
-    public static function normalizer($files)
-    {
-        $normalized = [];
-
+        $result = [];
         foreach ($files as $key => $value) {
-            if (count($value) == count($value, COUNT_RECURSIVE)) {
-                if ($value instanceof UploadedFileInterface) {
-                    $normalized[$key] = $value;
-                } elseif (isset($value['name'])) {
-                    $normalized[$key] = UploadedFile::normalizer($value);
-                } else {
-                    throw new InvalidArgumentException('Invalid value in files specification');
-                }
-            } else {
-                $array = [];
-                foreach ($value['name'] as $index => $item) {
-                    if (empty($item)) {
-                        continue;
+            if (is_string($value['name'])) {
+                // Single file
+                $result[$key] = $value instanceof UploadedFileInterface ? $value : new UploadedFile(
+                    $value['name'],
+                    $value['type'],
+                    $value['tmp_name'],
+                    $value['size'],
+                    $value['error']
+                );
+            } elseif (is_array($value['name'])) {
+                // Multiple files
+                $fileList = [];
+                $count = count($value['name']);
+                for ($i = 0; $i < $count; $i++) {
+                    if (isset($value['name'][$i]) && $value['name'][$i]) {
+                        $fileList[] = new UploadedFile(
+                            $value['name'][$i],
+                            $value['type'][$i],
+                            $value['tmp_name'][$i],
+                            $value['size'][$i],
+                            $value['error'][$i]
+                        );
                     }
-
-                    $array[] = UploadedFile::normalizer([
-                        'name' => $value['name'][$index],
-                        'type' => $value['type'][$index],
-                        'tmp_name' => $value['tmp_name'][$index],
-                        'error' => $value['error'][$index],
-                        'size' => $value['size'][$index],
-                    ]);
                 }
-
-                $normalized[$key] = $array;
+                $result[$key] = array_filter($fileList);
+            } else {
+                throw new InvalidArgumentException('Invalid value in files specification');
             }
         }
-
-        return $normalized;
+        return $result;
     }
 
-    /**
-     * @param array $serverParams
-     * @return string
-     */
-    public static function createUriFromGlobal(array $serverParams)
+    public static function createUriFromBoth(array $serverParams): string
     {
         $uri = 'http://';
         if (isset($serverParams['REQUEST_SCHEME'])) {
-            $uri = strtolower($serverParams['REQUEST_SCHEME']).'://';
+            $uri = strtolower($serverParams['REQUEST_SCHEME']) . '://';
         } else {
             if (isset($serverParams['HTTPS']) && 'on' === $serverParams['HTTPS']) {
                 $uri = 'https://';
@@ -498,40 +388,47 @@ class ServerRequest extends Request implements ServerRequestInterface
             $uri .= $serverParams['HTTP_HOST'];
         } elseif (isset($serverParams['SERVER_NAME'])) {
             $uri .= $serverParams['SERVER_NAME'];
-        }
-        if (isset($serverParams['SERVER_PORT']) && ! empty($serverParams['SERVER_PORT'])) {
-            if ( ! in_array($serverParams['SERVER_PORT'], [80, 443])) {
-                $uri .= ':'.$serverParams['SERVER_PORT'];
+            if (!empty($serverParams['SERVER_PORT'])) {
+                if (!in_array($serverParams['SERVER_PORT'], [80, 443])) {
+                    $uri .= ':' . $serverParams['SERVER_PORT'];
+                }
             }
+        } elseif (isset($serverParams['HTTP_HOST'])) {
+            $uri .= $serverParams['HTTP_HOST'];
+            // HTTP_HOST 可能已经包含端口，不需要再次添加
         }
         if (isset($serverParams['REQUEST_URI'])) {
             $requestUriParts = explode('?', $serverParams['REQUEST_URI']);
             $uri .= $requestUriParts[0];
             unset($requestUriParts);
         }
-        if (isset($serverParams['QUERY_STRING']) && ! empty($serverParams['QUERY_STRING'])) {
-            $uri .= '?'.$serverParams['QUERY_STRING'];
+        if (!empty($serverParams['QUERY_STRING'])) {
+            $uri .= '?' . $serverParams['QUERY_STRING'];
         }
 
         return $uri;
     }
 
-    /**
-     * Create a new server request from PHP globals.
-     *
-     * @return ServerRequestInterface
-     */
-    public static function createServerRequestFromGlobals()
+    public static function fromGlobals(): ServerRequest
     {
-        $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $version = isset($_SERVER['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']) : '1.1';
+        $body = new Stream();
+        $parsed = $_POST;
 
-        foreach ($headers as $name => $value) {
-            unset($headers[$name]);
-            $name = str_replace('-', '_', $name);
-            $headers[$name] = $value;
+        $serverRequest = new ServerRequest($method, static::createUriFromBoth($_SERVER), $headers, $body, $version, $_SERVER);
+
+        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
+            parse_str((string)$body, $parsedBody);
+            $data = empty($parsedBody) ? (json_decode((string)$body, true) ?: []) : [];
+            !empty($data) && $parsed = array_merge($parsed, $data);
         }
 
-        return new static($method, static::createUriFromGlobal($_SERVER), $headers, new PhpInputStream(), $_SERVER);
+        return $serverRequest
+            ->withQueryParams($_GET)
+            ->withParsedBody($parsed)
+            ->withCookieParams($_COOKIE)
+            ->withUploadedFiles(static::normalizeFiles($_FILES));
     }
 }
