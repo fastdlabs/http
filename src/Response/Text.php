@@ -27,9 +27,10 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
         $this->assertStatusCodeRange($this->statusCode);;
 
         // 初始化状态码，响应头
-        $this->statusCode = $statusCode;
         $this->reasonPhrase = StatusCode::PHRASES[$this->statusCode] ?? 'Unknown phrase';
-
+        if (!isset($headers['content-type'])) {
+            $headers['content-type'] = 'text/plain; charset=UTF-8';
+        }
         // 设置内容
         parent::__construct(Stream::create($content), $headers, $protocolVersion);
     }
