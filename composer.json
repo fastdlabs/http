@@ -20,7 +20,7 @@
     "psr/http-client": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.6",
+    "phpunit/phpunit": "^10.0",
     "swoole/ide-helper": "@dev"
   },
   "autoload": {
