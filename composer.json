@@ -17,11 +17,15 @@
     "ext-zlib": "*",
     "psr/http-message": "^2.0",
     "psr/http-factory": "*",
-    "psr/http-client": "*"
+    "psr/http-client": "*",
+    "psr/http-server-middleware": "^1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^10.0",
     "swoole/ide-helper": "@dev"
+  },
+  "suggest": {
+    "ext-swoole": "Required to use the SwooleTableSessionHandler in a Swoole runtime"
   },
   "autoload": {
     "psr-4": {
