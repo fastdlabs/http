@@ -98,6 +98,7 @@ class SseResponseTest extends TestCase
             ['max_duration' => -1],
             ['retry' => -1],
             ['error_event' => "bad\nevent"],
+            ['headers' => 'not-an-array'],
         ];
 
         foreach ($cases as $options) {

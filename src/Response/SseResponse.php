@@ -59,7 +59,13 @@ final class SseResponse extends Text implements StreamingResponseInterface
      */
     public function __construct(iterable|\Closure $producer, array $options = [])
     {
-        parent::__construct(StatusCode::HTTP_OK, '', self::headers($options['headers'] ?? []));
+        $headers = $options['headers'] ?? [];
+
+        if (!is_array($headers)) {
+            throw new InvalidArgumentException('SSE option "headers" must be an array.');
+        }
+
+        parent::__construct(StatusCode::HTTP_OK, '', self::headers($headers));
 
         $this->heartbeat = self::nonNegativeNumber('heartbeat', $options['heartbeat'] ?? self::DEFAULT_HEARTBEAT);
         $this->maxDuration = self::nonNegativeNumber('max_duration', $options['max_duration'] ?? self::DEFAULT_MAX_DURATION);
@@ -161,9 +167,7 @@ final class SseResponse extends Text implements StreamingResponseInterface
     {
         $this->callErrorHandler($e);
 
-        $frame = $this->errorFrame($e);
-
-        if ($frame === null || $emitter->isClosed()) {
+        if ($this->errorEvent === null || $emitter->isClosed()) {
             return;
         }
 
