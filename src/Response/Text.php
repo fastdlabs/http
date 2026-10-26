@@ -233,6 +233,20 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
 
     public function send(): void
     {
+        $this->sendHeaders();
+
+        echo $this->getBody();
+
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+    }
+
+    /**
+     * 发送状态行、响应头与 Cookie；供流式响应（SSE）复用。
+     */
+    protected function sendHeaders(): void
+    {
         if (!headers_sent()) {
             header(sprintf('HTTP/%s %s %s', $this->getProtocolVersion(), $this->getStatusCode(), ($this->statusCode === 200 ? '' : $this->getReasonPhrase())), true, $this->getStatusCode());
 
@@ -243,12 +257,6 @@ class Text extends Message implements ResponseInterface, StatusCode, Stringable
             foreach ($this->cookies as $cookie) {
                 header(sprintf('Set-Cookie: %s', (string)$cookie), false, $this->getStatusCode());
             }
-        }
-
-        echo $this->getBody();
-
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
         }
     }
 
