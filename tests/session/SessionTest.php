@@ -180,4 +180,44 @@ class SessionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $session[[]] = 'value';
     }
+
+    public function testSaveReturnsTrueOnSuccessAndFalseWhenSessionIsNoLongerStarted(): void
+    {
+        $session = Session::start($this->handler, Session::generateId());
+        $this->assertTrue($session->save());
+
+        $session->invalidate();
+        $this->assertFalse($session->save());
+    }
+
+    public function testIsTokenValidUsesTimingSafeComparisonAndTracksRegeneration(): void
+    {
+        $session = Session::start($this->handler, Session::generateId());
+        $token = $session->getToken();
+
+        $this->assertTrue($session->isTokenValid($token));
+        $this->assertFalse($session->isTokenValid('invalid'));
+
+        $regenerated = $session->regenerateToken();
+        $this->assertFalse($session->isTokenValid($token));
+        $this->assertTrue($session->isTokenValid($regenerated));
+    }
+
+    public function testRegenerateIdRotatesStorageKeyAndKeepsData(): void
+    {
+        $id = Session::generateId();
+        $session = Session::start($this->handler, $id);
+        $session->set('user', 'jan');
+        $session->save();
+
+        $newId = $session->regenerateId();
+
+        $this->assertNotSame($id, $newId);
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $newId);
+        $this->assertFalse($this->handler->exists($id));
+        $this->assertSame(1, $this->handler->destroyCalls);
+
+        $this->assertTrue($session->save());
+        $this->assertSame(['user' => 'jan'], $this->handler->read($newId));
+    }
 }

@@ -400,11 +400,20 @@ $notice = $session->getFlash('notice');
 $token = $session->getToken();
 $token = $session->regenerateToken();
 
+// 校验客户端提交的 CSRF 令牌（hash_equals 常量时间比较）
+$valid = $session->isTokenValid($_POST['_token'] ?? '');
+
+// 登录成功 / 权限提升后轮换会话 ID，规避会话固定攻击
+// 旧 ID 立即从存储删除，新 ID 由中间件写入响应 Cookie
+$newSessionId = $session->regenerateId();
+
 // 销毁会话：清除数据并删除存储，响应会携带过期删除 Cookie
 $session->invalidate();
 ```
 
 Cookie 默认名为 `FASTD_SESSID`，可通过中间件构造函数自定义；未知或畸形的会话 ID 会自动回退为新会话。
+中间件构造函数还支持 `onError`（持久化失败回调）与 `gcProbability`（按概率触发 handler 的过期清理，
+文件存储由 `gc()` 全目录扫描，Swoole Table 存储清理过期行）。
 
 ## 📚 API 参考
 
@@ -436,6 +445,7 @@ Cookie 默认名为 `FASTD_SESSID`，可通过中间件构造函数自定义；�
 - `FastD\Http\Session\Session` - 会话对象
 - `FastD\Http\Session\SessionInterface` - 会话契约
 - `FastD\Http\Session\SessionHandlerInterface` - 会话存储契约
+- `FastD\Http\Session\SessionGcInterface` - 可选：会话过期清理契约
 - `FastD\Http\Session\Handler\NativeFileSessionHandler` - 文件存储（CGI）
 - `FastD\Http\Session\Handler\SwooleTableSessionHandler` - Swoole Table 存储（Swoole）
 

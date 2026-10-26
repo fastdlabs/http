@@ -8,6 +8,8 @@ require_once __DIR__ . '/ArraySessionHandler.php';
 
 use FastD\Http\Request\ServerRequest;
 use FastD\Http\Response\Text;
+use FastD\Http\Session\Session;
+use FastD\Http\Session\SessionHandlerInterface;
 use FastD\Http\Session\SessionInterface;
 use FastD\Http\Session\SessionMiddleware;
 use PHPUnit\Framework\TestCase;
@@ -171,6 +173,78 @@ class SessionMiddlewareTest extends TestCase
         $cookies = $response->getHeader('Set-Cookie');
         $this->assertContains('foo=bar', $cookies);
         $this->assertCount(2, $cookies);
+    }
+
+    public function testSessionStartedByOuterMiddlewareIsReused(): void
+    {
+        $session = Session::start($this->handler, str_repeat('c', 32));
+        $request = (new ServerRequest('GET', 'http://example.com/'))
+            ->withAttribute(SessionMiddleware::ATTRIBUTE, $session);
+
+        $probe = $this->probe();
+        $response = $this->middleware->process($request, $probe);
+
+        $this->assertSame($session, $probe->session);
+        $this->assertSame(0, $this->handler->writeCalls);
+        $this->assertSame([], $response->getHeader('Set-Cookie'));
+    }
+
+    public function testSaveFailureIsReportedThroughErrorCallback(): void
+    {
+        $failing = new class implements SessionHandlerInterface {
+            public function read(string $sessionId): array
+            {
+                return [];
+            }
+
+            public function write(string $sessionId, array $data): bool
+            {
+                return false;
+            }
+
+            public function destroy(string $sessionId): bool
+            {
+                return false;
+            }
+
+            public function exists(string $sessionId): bool
+            {
+                return false;
+            }
+        };
+
+        $errors = [];
+        $middleware = new SessionMiddleware(
+            $failing,
+            onError: function (string $message) use (&$errors): void {
+                $errors[] = $message;
+            }
+        );
+
+        $probe = $this->probe();
+        $response = $middleware->process(new ServerRequest('GET', 'http://example.com/'), $probe);
+
+        $this->assertSame(['session save failed'], $errors);
+        $this->assertStringContainsString(
+            'FASTD_SESSID=' . $probe->session->getId(),
+            $response->getHeaderLine('Set-Cookie')
+        );
+    }
+
+    public function testRegeneratedIdIsEmittedAndOldCookieIsDestroyed(): void
+    {
+        $this->handler->store[self::EXISTING_ID] = ['user' => 'jan'];
+
+        $probe = $this->probe(function (SessionInterface $session): void {
+            $session->regenerateId();
+        });
+        $response = $this->middleware->process($this->requestWithCookie(self::EXISTING_ID), $probe);
+
+        $newId = $probe->session->getId();
+
+        $this->assertNotSame(self::EXISTING_ID, $newId);
+        $this->assertArrayNotHasKey(self::EXISTING_ID, $this->handler->store);
+        $this->assertStringContainsString('FASTD_SESSID=' . $newId, $response->getHeaderLine('Set-Cookie'));
     }
 
     private function requestWithCookie(string $sessionId): ServerRequest

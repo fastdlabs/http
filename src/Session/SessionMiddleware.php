@@ -32,11 +32,18 @@ class SessionMiddleware implements MiddlewareInterface
         private bool $cookieSecure = false,
         private bool $cookieHttpOnly = true,
         private string $cookieSameSite = 'Lax',
+        private ?\Closure $onError = null,
+        private int $gcProbability = 0,
     ) {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // Idempotency: a session already started by an outer middleware wins.
+        if ($request->getAttribute(self::ATTRIBUTE) instanceof SessionInterface) {
+            return $handler->handle($request);
+        }
+
         $session = Session::start($this->handler, $this->resolveSessionId($request));
 
         $response = $handler->handle($request->withAttribute(self::ATTRIBUTE, $session));
@@ -45,9 +52,27 @@ class SessionMiddleware implements MiddlewareInterface
             return $response->withAddedHeader('Set-Cookie', (string) $this->cookie(''));
         }
 
-        $session->save();
+        if (!$session->save() && $this->onError !== null) {
+            ($this->onError)('session save failed', $session);
+        }
+
+        $this->collectGarbage();
 
         return $response->withAddedHeader('Set-Cookie', (string) $this->cookie($session->getId()));
+    }
+
+    /**
+     * Probabilistically sweep expired sessions when the handler supports it.
+     */
+    private function collectGarbage(): void
+    {
+        if ($this->gcProbability <= 0 || !$this->handler instanceof SessionGcInterface) {
+            return;
+        }
+
+        if (random_int(1, $this->gcProbability) === 1) {
+            $this->handler->gc();
+        }
     }
 
     /**

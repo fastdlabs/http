@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FastD\Http\Session\Handler;
 
+use FastD\Http\Session\SessionGcInterface;
 use FastD\Http\Session\SessionHandlerInterface;
 use Swoole\Table;
 
@@ -13,8 +14,13 @@ use Swoole\Table;
  * Uses a {@see Table} with an expiration column so worker processes can share
  * session state without touching the filesystem. Expired rows are never
  * returned and are removed lazily on access.
+ *
+ * Payloads are JSON encoded before being stored in the `data` column, so
+ * session values must be JSON serialisable (the same rule as the file
+ * handler). Writes that cannot be encoded or that exceed `maxDataSize` are
+ * rejected with `false`; a full table also makes `Table::set()` return false.
  */
-class SwooleTableSessionHandler implements SessionHandlerInterface
+class SwooleTableSessionHandler implements SessionHandlerInterface, SessionGcInterface
 {
     private Table $table;
 
@@ -86,5 +92,28 @@ class SwooleTableSessionHandler implements SessionHandlerInterface
         }
 
         return true;
+    }
+
+    public function gc(int $maxLifetime = 0): int
+    {
+        $now = time();
+        $expired = [];
+
+        // Collect first: deleting while iterating a Swoole\Table is unsafe.
+        foreach ($this->table as $key => $row) {
+            if ((int) ($row['expires'] ?? 0) <= $now) {
+                $expired[] = (string) $key;
+            }
+        }
+
+        $removed = 0;
+
+        foreach ($expired as $key) {
+            if ($this->table->del($key)) {
+                $removed++;
+            }
+        }
+
+        return $removed;
     }
 }

@@ -65,12 +65,29 @@ interface SessionInterface extends ArrayAccess, Countable, IteratorAggregate
     public function regenerateToken(): string;
 
     /**
+     * Constant-time check of a csrf token against the token bound to this session.
+     */
+    public function isTokenValid(string $token): bool;
+
+    /**
      * Destroy the session: clear all data, delete the storage entry and stop the session.
      */
     public function invalidate(): void;
 
     /**
-     * Persist the current state through the handler.
+     * Rotate the session id while keeping the current data.
+     *
+     * The previous id is deleted from storage; the caller is responsible for
+     * persisting the session under the new id (the middleware does this for
+     * every response). Call it after a successful login or privilege change to
+     * mitigate session fixation.
      */
-    public function save(): void;
+    public function regenerateId(): string;
+
+    /**
+     * Persist the current state through the handler.
+     *
+     * @return bool false when the session is no longer started or the handler rejected the write
+     */
+    public function save(): bool;
 }

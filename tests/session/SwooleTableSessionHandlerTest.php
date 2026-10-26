@@ -55,4 +55,16 @@ class SwooleTableSessionHandlerTest extends TestCase
         $this->assertFalse($handler->write('abc123', ['blob' => str_repeat('x', 256)]));
         $this->assertFalse($handler->exists('abc123'));
     }
+
+    public function testGcRemovesExpiredRows(): void
+    {
+        $handler = new SwooleTableSessionHandler(60, 64, 1024);
+        $handler->write('keep', ['user' => 'jan']);
+
+        $expired = new SwooleTableSessionHandler(0, 64, 1024);
+        $expired->write('stale', ['user' => 'jan']);
+
+        $this->assertSame(1, $expired->gc());
+        $this->assertTrue($handler->exists('keep'));
+    }
 }

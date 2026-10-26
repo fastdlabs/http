@@ -148,6 +148,11 @@ class Session implements SessionInterface
         return $this->token = bin2hex(random_bytes(32));
     }
 
+    public function isTokenValid(string $token): bool
+    {
+        return $this->token !== null && hash_equals($this->token, $token);
+    }
+
     public function invalidate(): void
     {
         $this->data = [];
@@ -159,13 +164,25 @@ class Session implements SessionInterface
         $this->handler->destroy($this->id);
     }
 
-    public function save(): void
+    public function regenerateId(): string
     {
-        if (!$this->started) {
-            return;
+        $previousId = $this->id;
+        $this->id = self::generateId();
+
+        if ($this->started) {
+            $this->handler->destroy($previousId);
         }
 
-        $this->handler->write($this->id, $this->payload());
+        return $this->id;
+    }
+
+    public function save(): bool
+    {
+        if (!$this->started) {
+            return false;
+        }
+
+        return $this->handler->write($this->id, $this->payload());
     }
 
     public function count(): int

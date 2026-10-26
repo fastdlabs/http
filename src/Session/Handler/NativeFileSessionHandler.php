@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FastD\Http\Session\Handler;
 
+use FastD\Http\Session\SessionGcInterface;
 use FastD\Http\Session\SessionHandlerInterface;
 use RuntimeException;
 
@@ -12,9 +13,10 @@ use RuntimeException;
  *
  * Payloads are stored as JSON files, one per session id, under the configured
  * save path. Expiration is tracked through the file modification time and
- * expired entries are removed lazily on access.
+ * expired entries are removed lazily on access; {@see gc()} sweeps the whole
+ * directory.
  */
-class NativeFileSessionHandler implements SessionHandlerInterface
+class NativeFileSessionHandler implements SessionHandlerInterface, SessionGcInterface
 {
     private string $savePath;
 
@@ -71,11 +73,24 @@ class NativeFileSessionHandler implements SessionHandlerInterface
         $file = $this->file($sessionId);
         $tmp = $file . '.' . bin2hex(random_bytes(4)) . '.tmp';
 
-        if (@file_put_contents($tmp, $content) === false) {
+        // Create the temporary file with restrictive permissions before any
+        // payload is written, so there is no window with a world-readable file.
+        $handle = @fopen($tmp, 'xb');
+
+        if ($handle === false) {
             return false;
         }
 
         @chmod($tmp, 0600);
+
+        $written = fwrite($handle, $content);
+        fclose($handle);
+
+        if ($written === false || $written !== strlen($content)) {
+            @unlink($tmp);
+
+            return false;
+        }
 
         if (!@rename($tmp, $file)) {
             @unlink($tmp);
@@ -100,6 +115,23 @@ class NativeFileSessionHandler implements SessionHandlerInterface
     public function exists(string $sessionId): bool
     {
         return $this->isFresh($this->file($sessionId));
+    }
+
+    public function gc(int $maxLifetime = 0): int
+    {
+        $lifetime = $maxLifetime > 0 ? $maxLifetime : $this->ttl;
+        $deadline = time() - $lifetime;
+        $removed = 0;
+
+        foreach (glob($this->savePath . DIRECTORY_SEPARATOR . 'fastd_session_*') ?: [] as $file) {
+            $mtime = @filemtime($file);
+
+            if ($mtime !== false && $mtime <= $deadline && @unlink($file)) {
+                $removed++;
+            }
+        }
+
+        return $removed;
     }
 
     private function file(string $sessionId): string

@@ -108,6 +108,21 @@ class NativeFileSessionHandlerTest extends TestCase
         $this->assertSame(['user' => 'jan'], $handler->read('abc123'));
     }
 
+    public function testGcRemovesOnlyExpiredSessions(): void
+    {
+        $handler = new NativeFileSessionHandler($this->dir, 60);
+        $handler->write('fresh', ['user' => 'jan']);
+        $handler->write('stale', ['user' => 'jan']);
+
+        // Age both files beyond the TTL, then let gc sweep them.
+        foreach (glob($this->dir . '/fastd_session_*') ?: [] as $file) {
+            touch($file, time() - 120);
+        }
+
+        $this->assertSame(2, $handler->gc());
+        $this->assertSame([], glob($this->dir . '/fastd_session_*') ?: []);
+    }
+
     private function removeDirectory(string $dir): void
     {
         foreach (glob($dir . '/*') ?: [] as $file) {
