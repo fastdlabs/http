@@ -14,11 +14,13 @@ use FastD\Http\Response\Json;
 use FastD\Http\Response\StatusCode;
 use FastD\Http\Response\Text;
 use FastD\Http\Stream\Stream;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Client类完整单元测试
  */
+#[Group('network')]
 class ClientTest extends TestCase
 {
     private Client $client;
