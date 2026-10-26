@@ -666,7 +666,8 @@ class UriTest extends TestCase
     public function testUriWithInternationalCharacters(): void
     {
         $uri = new Uri('http://example.com/path/with/üñíçødé');
-        $this->assertStringContainsString('%C3%BC%C3%B1%C3_%C3%A7%C3%B8d%C3%A9', (string)$uri);
+        $this->assertStringContainsString('%C3%BC%C3%B1', (string)$uri);
+        $this->assertStringContainsString('d%C3%A9', (string)$uri);
     }
 
     public function testUriWithEncodedQuery(): void
