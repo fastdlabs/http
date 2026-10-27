@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use FastD\Http\Request\UploadedFile;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 
@@ -781,6 +782,7 @@ class UploadedFileTest extends TestCase
 
     // ===== 构造函数带Stream测试 =====
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testConstructorWithProvidedStream(): void
     {
         $mockStream = $this->createMock(StreamInterface::class);
