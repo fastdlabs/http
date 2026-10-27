@@ -4,89 +4,85 @@ declare(strict_types=1);
 
 namespace FastD\Http\Tests;
 
-use FastD\Http\Session\Handler\RedisClientInterface;
 use FastD\Http\Session\Handler\RedisSessionHandler;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
+use Redis;
 
-final class FakeRedisClient implements RedisClientInterface
-{
-    /** @var array<string, array{value: string, expires: int}> */
-    public array $rows = [];
-
-    public function get(string $key): string|false
-    {
-        $row = $this->rows[$key] ?? null;
-        if ($row === null || $row['expires'] <= time()) {
-            unset($this->rows[$key]);
-
-            return false;
-        }
-
-        return $row['value'];
-    }
-
-    public function setex(string $key, int $ttl, string $value): bool
-    {
-        $this->rows[$key] = ['value' => $value, 'expires' => time() + $ttl];
-
-        return true;
-    }
-
-    public function del(string $key): int
-    {
-        $exists = isset($this->rows[$key]);
-        unset($this->rows[$key]);
-
-        return $exists ? 1 : 0;
-    }
-
-    public function exists(string $key): int
-    {
-        return $this->get($key) === false ? 0 : 1;
-    }
-}
-
+#[AllowMockObjectsWithoutExpectations]
 final class RedisSessionHandlerTest extends TestCase
 {
-    public function testWriteReadRoundtrip(): void
+    protected function setUp(): void
     {
-        $client = new FakeRedisClient();
-        $handler = new RedisSessionHandler($client, 60);
-
-        $this->assertTrue($handler->write('abc', ['user' => 'jan', 'nested' => ['a' => 1]]));
-        $this->assertTrue($handler->exists('abc'));
-        $this->assertSame(['user' => 'jan', 'nested' => ['a' => 1]], $handler->read('abc'));
-        $this->assertArrayHasKey('fastd:session:abc', $client->rows);
+        if (!extension_loaded('redis')) {
+            $this->markTestSkipped('ext-redis is required.');
+        }
     }
 
-    public function testDestroyRemovesSession(): void
+    public function testConstructorRequiresRedisObject(): void
     {
-        $handler = new RedisSessionHandler(new FakeRedisClient(), 60);
-        $handler->write('abc', ['user' => 'jan']);
+        $parameter = (new \ReflectionMethod(RedisSessionHandler::class, '__construct'))->getParameters()[0];
+
+        $this->assertInstanceOf(\ReflectionNamedType::class, $parameter->getType());
+        $this->assertSame(Redis::class, $parameter->getType()->getName());
+    }
+
+    public function testReadDecodesJson(): void
+    {
+        $redis = $this->createMock(Redis::class);
+        $redis->expects($this->once())
+            ->method('get')
+            ->with('fastd:session:abc')
+            ->willReturn(json_encode(['user' => 'jan']));
+
+        $this->assertSame(['user' => 'jan'], (new RedisSessionHandler($redis))->read('abc'));
+    }
+
+    public function testWriteUsesSetexWithTtlAndJson(): void
+    {
+        $redis = $this->createMock(Redis::class);
+        $redis->expects($this->once())
+            ->method('setex')
+            ->with('fastd:session:abc', 60, json_encode(['user' => 'jan']))
+            ->willReturn(true);
+
+        $handler = new RedisSessionHandler($redis, 60);
+
+        $this->assertTrue($handler->write('abc', ['user' => 'jan']));
+    }
+
+    public function testDestroyAndExistsUsePrefixedKey(): void
+    {
+        $redis = $this->createMock(Redis::class);
+        $redis->expects($this->once())->method('del')->with('fastd:session:abc')->willReturn(1);
+        $redis->expects($this->once())->method('exists')->with('fastd:session:abc')->willReturn(1);
+
+        $handler = new RedisSessionHandler($redis);
 
         $this->assertTrue($handler->destroy('abc'));
-        $this->assertFalse($handler->exists('abc'));
-        $this->assertFalse($handler->destroy('abc'));
+        $this->assertTrue($handler->exists('abc'));
     }
 
     public function testInvalidJsonReturnsEmptyArray(): void
     {
-        $client = new FakeRedisClient();
-        $client->setex('fastd:session:bad', 60, '{invalid');
+        $redis = $this->createMock(Redis::class);
+        $redis->method('get')->willReturn('{invalid');
 
-        $this->assertSame([], (new RedisSessionHandler($client))->read('bad'));
+        $this->assertSame([], (new RedisSessionHandler($redis))->read('bad'));
     }
 
-    public function testOversizedPayloadIsRejected(): void
+    public function testOversizedPayloadIsRejectedBeforeRedisWrite(): void
     {
-        $handler = new RedisSessionHandler(new FakeRedisClient(), 60, 'fastd:session:', 32);
+        $redis = $this->createMock(Redis::class);
+        $redis->expects($this->never())->method('setex');
+
+        $handler = new RedisSessionHandler($redis, 60, 'fastd:session:', 32);
 
         $this->assertFalse($handler->write('abc', ['blob' => str_repeat('x', 64)]));
-        $this->assertFalse($handler->exists('abc'));
     }
 
     public function testGcIsNoopBecauseRedisExpiresKeys(): void
     {
-        $this->assertSame(0, (new RedisSessionHandler(new FakeRedisClient()))->gc());
+        $this->assertSame(0, (new RedisSessionHandler($this->createMock(Redis::class)))->gc());
     }
 }

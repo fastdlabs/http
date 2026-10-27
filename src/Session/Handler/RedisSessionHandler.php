@@ -6,18 +6,22 @@ namespace FastD\Http\Session\Handler;
 
 use FastD\Http\Session\SessionGcInterface;
 use FastD\Http\Session\SessionHandlerInterface;
+use Redis;
 
 /**
  * Redis-backed session handler.
  *
- * Sessions are stored as JSON strings under a configurable key prefix and
- * expire through Redis TTL. Redis performs expiry itself, so gc() is a no-op
- * kept for SessionGcInterface compatibility.
+ * Sessions are JSON strings under a configurable prefix and expire through
+ * Redis TTL. Redis handles expiration, so gc() is a no-op kept for
+ * SessionGcInterface compatibility.
+ *
+ * The handler intentionally depends on \Redis directly; external callers can
+ * use SessionHandlerInterface to substitute other storage implementations.
  */
 final class RedisSessionHandler implements SessionHandlerInterface, SessionGcInterface
 {
     public function __construct(
-        private RedisClientInterface $client,
+        private Redis $redis,
         private int $ttl = 1440,
         private string $prefix = 'fastd:session:',
         private int $maxDataSize = 8192,
@@ -26,9 +30,9 @@ final class RedisSessionHandler implements SessionHandlerInterface, SessionGcInt
 
     public function read(string $sessionId): array
     {
-        $content = $this->client->get($this->key($sessionId));
+        $content = $this->redis->get($this->key($sessionId));
 
-        if ($content === false) {
+        if (!is_string($content)) {
             return [];
         }
 
@@ -45,17 +49,17 @@ final class RedisSessionHandler implements SessionHandlerInterface, SessionGcInt
             return false;
         }
 
-        return $this->client->setex($this->key($sessionId), $this->ttl, $content);
+        return (bool) $this->redis->setex($this->key($sessionId), $this->ttl, $content);
     }
 
     public function destroy(string $sessionId): bool
     {
-        return $this->client->del($this->key($sessionId)) > 0;
+        return (int) $this->redis->del($this->key($sessionId)) > 0;
     }
 
     public function exists(string $sessionId): bool
     {
-        return $this->client->exists($this->key($sessionId)) > 0;
+        return (bool) $this->redis->exists($this->key($sessionId));
     }
 
     /**
