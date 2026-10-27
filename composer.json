@@ -1,6 +1,6 @@
 {
     "name": "fastd/http",
-    "description": "FastD Http",
+    "description": "PSR-7, PSR-17 and PSR-18 HTTP message, factory and client component for FastD.",
     "license": "MIT",
     "type": "library",
     "keywords": [
@@ -32,7 +32,7 @@
         "phpstan/phpstan": "^2.3"
     },
     "suggest": {
-        "ext-swoole": "Required to use the SwooleTableSessionHandler in a Swoole runtime"
+        "ext-swoole": "Required to use the SwooleTableSessionHandler in a Swoole >= 6.0 runtime"
     },
     "autoload": {
         "psr-4": {
