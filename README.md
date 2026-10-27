@@ -1,6 +1,6 @@
 # FastD HTTP
 
-[![Build Status](https://travis-ci.org/fastdlabs/http.svg?branch=master)](https://travis-ci.org/fastdlabs/http)
+[![CI](https://github.com/fastdlabs/http/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fastdlabs/http/actions/workflows/ci.yml)
 ![Support Swoole](https://img.shields.io/badge/support-swoole-brightgreen.svg)
 ![Support PSR-7](https://img.shields.io/badge/support-psr7-brightgreen.svg)
 ![Support PSR-17](https://img.shields.io/badge/support-psr17-brightgreen.svg)
