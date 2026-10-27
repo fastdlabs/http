@@ -32,7 +32,8 @@
         "phpstan/phpstan": "^2.3"
     },
     "suggest": {
-        "ext-swoole": "Required to use the SwooleTableSessionHandler in a Swoole >= 6.0 runtime"
+        "ext-swoole": "Required to use the SwooleTableSessionHandler in a Swoole >= 6.0 runtime",
+        "ext-redis": "Required to use RedisSessionHandler with PhpRedisSessionClient"
     },
     "autoload": {
         "psr-4": {
