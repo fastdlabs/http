@@ -33,7 +33,7 @@
     },
     "suggest": {
         "ext-swoole": "Required to use the SwooleTableSessionHandler in a Swoole >= 6.0 runtime",
-        "ext-redis": "Required to use RedisSessionHandler with PhpRedisSessionClient"
+        "ext-redis": "Required to use RedisSessionHandler with ext-redis."
     },
     "autoload": {
         "psr-4": {
