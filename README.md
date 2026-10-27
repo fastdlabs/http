@@ -27,7 +27,7 @@ FastD HTTP 是一个功能完善的 HTTP 消息组件，完全实现 PSR-7、PSR
   - ext-curl (HTTP 客户端)
   - ext-json (JSON 处理)
   - ext-zlib (压缩支持)
-- **可选**: Swoole >= 4.5 (用于高性能服务器模式)
+- **可选**: Swoole >= 6.0 (用于高性能服务器模式)
 
 ## 📦 安装
 
