@@ -379,12 +379,21 @@ $size = $stream->getSize();
 use FastD\Http\Session\SessionMiddleware;
 use FastD\Http\Session\Handler\NativeFileSessionHandler;
 use FastD\Http\Session\Handler\SwooleTableSessionHandler;
+use FastD\Http\Session\Handler\RedisSessionHandler;
+use FastD\Http\Session\Handler\PhpRedisSessionClient;
 
 // CGI 运行时：文件存储
 $middleware = new SessionMiddleware(new NativeFileSessionHandler());
 
 // Swoole 运行时：共享内存存储（TTL 秒）
 $middleware = new SessionMiddleware(new SwooleTableSessionHandler(1440, 4096));
+
+// 多实例 / 需要跨节点共享：Redis 存储（TTL 秒）
+$redis = new \Redis();
+$redis->connect('127.0.0.1', 6379);
+$middleware = new SessionMiddleware(
+    new RedisSessionHandler(new PhpRedisSessionClient($redis), 1440, 'fastd:session:')
+);
 
 // 将 $middleware 注册进 PSR-15 管道后，即可在后续处理器中读取会话
 $session = $request->getAttribute('session');
