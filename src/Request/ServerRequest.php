@@ -366,7 +366,7 @@ class ServerRequest extends Request implements ServerRequestInterface
                         );
                     }
                 }
-                $result[$key] = array_filter($fileList);
+                $result[$key] = $fileList;
             } else {
                 throw new InvalidArgumentException('Invalid value in files specification');
             }
