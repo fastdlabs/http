@@ -22,7 +22,7 @@ FastD HTTP 是一个功能完善的 HTTP 消息组件，完全实现 PSR-7、PSR
 
 ## 📋 环境要求
 
-- **PHP**: >= 8.2
+- **PHP**: >= 8.4.1
 - **扩展**: 
   - ext-curl (HTTP 客户端)
   - ext-json (JSON 处理)
