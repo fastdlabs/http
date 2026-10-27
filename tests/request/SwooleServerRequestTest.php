@@ -5,6 +5,7 @@ declare(strict_types=1);
 use FastD\Http\Request\SwooleServerRequest;
 use FastD\Http\Request\ServerRequest;
 use FastD\Http\Stream\Stream;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -55,6 +56,7 @@ class SwooleServerRequestTest extends TestCase
     /**
      * 验证SwooleServerRequest扩展了ServerRequest
      */
+    #[AllowMockObjectsWithoutExpectations]
     public function testExtendsServerRequest()
     {
         // 由于SwooleServerRequest继承自ServerRequest，我们验证继承关系
@@ -149,6 +151,7 @@ class SwooleServerRequestTest extends TestCase
     /**
      * 测试类的不可变性 - with方法应该返回新实例
      */
+    #[AllowMockObjectsWithoutExpectations]
     public function testImmutableWithMethods()
     {
         // 创建一个模拟的SwooleServerRequest实例（通过反射绕过Swoole依赖）
