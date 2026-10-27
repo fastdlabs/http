@@ -380,7 +380,6 @@ use FastD\Http\Session\SessionMiddleware;
 use FastD\Http\Session\Handler\NativeFileSessionHandler;
 use FastD\Http\Session\Handler\SwooleTableSessionHandler;
 use FastD\Http\Session\Handler\RedisSessionHandler;
-use FastD\Http\Session\Handler\PhpRedisSessionClient;
 
 // CGI 运行时：文件存储
 $middleware = new SessionMiddleware(new NativeFileSessionHandler());
@@ -392,7 +391,7 @@ $middleware = new SessionMiddleware(new SwooleTableSessionHandler(1440, 4096));
 $redis = new \Redis();
 $redis->connect('127.0.0.1', 6379);
 $middleware = new SessionMiddleware(
-    new RedisSessionHandler(new PhpRedisSessionClient($redis), 1440, 'fastd:session:')
+    new RedisSessionHandler($redis, 1440, 'fastd:session:')
 );
 
 // 将 $middleware 注册进 PSR-15 管道后，即可在后续处理器中读取会话
