@@ -42,7 +42,7 @@ class Stream implements StreamInterface, Stringable
      */
     public function __construct(protected string $stream = 'php://memory', protected string $mode = 'w+b')
     {
-        $this->resource = fopen($stream, $this->mode);
+        $this->resource = @fopen($stream, $this->mode);
 
         if (!$this->resource) {
             throw new RuntimeException("Unable to open stream: $stream with mode: $mode");
