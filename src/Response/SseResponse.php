@@ -96,7 +96,21 @@ final class SseResponse extends Text implements StreamingResponseInterface
                         return;
                     }
 
-                    $emitter->send($event);
+                    if ($event instanceof Event || is_string($event) || is_array($event)) {
+                        $emitter->send($event);
+                        continue;
+                    }
+
+                    $sendObject = [$emitter, 'sendObject'];
+
+                    if (is_callable($sendObject)) {
+                        $sendObject($event);
+                        continue;
+                    }
+
+                    throw new InvalidArgumentException(
+                        'The current SSE emitter does not support object events; implement ObjectEmitterInterface.'
+                    );
                 }
             };
     }

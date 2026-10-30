@@ -36,7 +36,7 @@ class CgiEmitterTest extends TestCase
 
         $emitter->send('hello');
         $emitter->send(['name' => 'fastd']);
-        $emitter->send((object) ['source' => 'object']);
+        $emitter->sendObject((object) ['source' => 'object']);
         $emitter->send(new Event('done', 'done', '9'));
 
         $this->assertSame([
