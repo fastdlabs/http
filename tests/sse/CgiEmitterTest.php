@@ -36,11 +36,13 @@ class CgiEmitterTest extends TestCase
 
         $emitter->send('hello');
         $emitter->send(['name' => 'fastd']);
+        $emitter->send((object) ['source' => 'object']);
         $emitter->send(new Event('done', 'done', '9'));
 
         $this->assertSame([
             "data: hello\n\n",
             "data: {\"name\":\"fastd\"}\n\n",
+            "data: {\"source\":\"object\"}\n\n",
             "id: 9\nevent: done\ndata: done\n\n",
         ], $this->frames);
     }
