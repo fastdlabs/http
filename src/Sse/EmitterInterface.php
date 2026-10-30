@@ -15,9 +15,9 @@ interface EmitterInterface
     /**
      * 发送一条事件。
      *
-     * @param Event|string|array<array-key, mixed>|object $event string 作为 data；数组/对象 JSON 编码
+     * @param Event|string|array<array-key, mixed> $event string 作为 data；数组 JSON 编码
      */
-    public function send(string|array|object $event): void;
+    public function send(Event|string|array $event): void;
 
     /**
      * 发送注释帧（常用于心跳）。

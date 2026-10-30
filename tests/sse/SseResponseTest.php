@@ -8,6 +8,7 @@ use FastD\Http\Response\SseResponse;
 use FastD\Http\Response\StreamingResponseInterface;
 use FastD\Http\Sse\EmitterInterface;
 use FastD\Http\Sse\Event;
+use FastD\Http\Sse\ObjectEmitterInterface;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -50,6 +51,7 @@ class SseResponseTest extends TestCase
         $response = new SseResponse([
             'a',
             ['b' => 2],
+            (object) ['d' => 4],
             Event::data('c', 'custom', '3'),
         ]);
 
@@ -59,6 +61,7 @@ class SseResponseTest extends TestCase
         $this->assertSame([
             "data: a\n\n",
             "data: {\"b\":2}\n\n",
+            "data: {\"d\":4}\n\n",
             "id: 3\nevent: custom\ndata: c\n\n",
         ], $emitter->frames);
     }
@@ -170,11 +173,16 @@ class SseResponseTest extends TestCase
      */
     private function collectingEmitter(): EmitterInterface
     {
-        return new class implements EmitterInterface {
+        return new class implements ObjectEmitterInterface {
             /** @var list<string> */
             public array $frames = [];
 
-            public function send(string|array|object $event): void
+            public function send(Event|string|array $event): void
+            {
+                $this->frames[] = ($event instanceof Event ? $event : Event::data($event))->format();
+            }
+
+            public function sendObject(object $event): void
             {
                 $this->frames[] = ($event instanceof Event ? $event : Event::data($event))->format();
             }

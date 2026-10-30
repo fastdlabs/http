@@ -8,12 +8,22 @@ namespace FastD\Http\Sse;
  * SSE 发送器公共实现。
  *
  * 统一帧归一化、注释帧、重连间隔和关闭状态；具体运行时只需实现 write()。
+ * 对象事件通过 ObjectEmitterInterface::sendObject() 提供，保持 send() 的旧签名。
  */
-abstract class AbstractEmitter implements EmitterInterface
+abstract class AbstractEmitter implements ObjectEmitterInterface
 {
     protected bool $closed = false;
 
-    public function send(string|array|object $event): void
+    public function send(Event|string|array $event): void
+    {
+        if ($this->isClosed()) {
+            return;
+        }
+
+        $this->write($this->normalize($event)->format());
+    }
+
+    public function sendObject(object $event): void
     {
         if ($this->isClosed()) {
             return;
