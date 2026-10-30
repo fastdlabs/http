@@ -76,6 +76,21 @@ class SseResponseTest extends TestCase
         $this->assertSame([": connected\n\n", "event: notice\ndata: hello\n\n"], $emitter->frames);
     }
 
+    public function testEmitUsesInjectedEmitterAndRetry(): void
+    {
+        $response = new SseResponse(
+            function (EmitterInterface $emitter): void {
+                $emitter->send('hello');
+            },
+            ['retry' => 1500],
+        );
+
+        $emitter = $this->collectingEmitter();
+        $response->emit($emitter);
+
+        $this->assertSame(["retry: 1500\n\n", "data: hello\n\n"], $emitter->frames);
+    }
+
     public function testOptionsAreExposed(): void
     {
         $response = new SseResponse([], [
@@ -159,7 +174,7 @@ class SseResponseTest extends TestCase
             /** @var list<string> */
             public array $frames = [];
 
-            public function send(Event|string|array $event): void
+            public function send(string|array|object $event): void
             {
                 $this->frames[] = ($event instanceof Event ? $event : Event::data($event))->format();
             }

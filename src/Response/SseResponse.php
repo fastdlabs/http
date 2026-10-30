@@ -47,7 +47,7 @@ final class SseResponse extends Text implements StreamingResponseInterface
     private ?\Closure $onError;
 
     /**
-     * @param iterable<Event|string|array>|\Closure(EmitterInterface): void $producer
+     * @param iterable<Event|string|array|object>|\Closure(EmitterInterface): void $producer
      * @param array{
      *     heartbeat?: int,
      *     max_duration?: int,
@@ -115,8 +115,14 @@ final class SseResponse extends Text implements StreamingResponseInterface
         @set_time_limit(0);
         @ignore_user_abort(true);
 
-        $emitter = new CgiEmitter($this->maxDuration);
+        $this->emit(new CgiEmitter($this->maxDuration));
+    }
 
+    /**
+     * 使用指定发送器执行生产者；便于测试和自定义运行时注入。
+     */
+    public function emit(EmitterInterface $emitter): void
+    {
         try {
             if ($this->retry !== null) {
                 $emitter->retry($this->retry);

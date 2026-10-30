@@ -11,10 +11,8 @@ namespace FastD\Http\Sse;
  * 是否停止。生产者在长时间阻塞（如等待上游）期间无法产生心跳——需要心跳
  * 的 AI 流式场景建议使用 Swoole 运行时。
  */
-final class CgiEmitter implements EmitterInterface
+final class CgiEmitter extends AbstractEmitter
 {
-    private bool $closed = false;
-
     /** @var \Closure(string): void */
     private \Closure $writer;
 
@@ -51,33 +49,6 @@ final class CgiEmitter implements EmitterInterface
         $this->deadline = $maxDuration > 0 ? ($this->clock)() + (float) $maxDuration : null;
     }
 
-    public function send(Event|string|array $event): void
-    {
-        if ($this->isClosed()) {
-            return;
-        }
-
-        $this->write($this->normalize($event)->format());
-    }
-
-    public function comment(string $text): void
-    {
-        if ($this->isClosed()) {
-            return;
-        }
-
-        $this->write(': ' . str_replace(["\r", "\n"], ' ', $text) . "\n\n");
-    }
-
-    public function retry(int $milliseconds): void
-    {
-        if ($this->isClosed() || $milliseconds < 0) {
-            return;
-        }
-
-        $this->write('retry: ' . $milliseconds . "\n\n");
-    }
-
     public function isClosed(): bool
     {
         if ($this->closed) {
@@ -99,18 +70,8 @@ final class CgiEmitter implements EmitterInterface
         return false;
     }
 
-    public function close(): void
-    {
-        $this->closed = true;
-    }
-
-    private function write(string $frame): void
+    protected function write(string $frame): void
     {
         ($this->writer)($frame);
-    }
-
-    private function normalize(Event|string|array $event): Event
-    {
-        return $event instanceof Event ? $event : Event::data($event);
     }
 }
