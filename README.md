@@ -90,6 +90,11 @@ $contentType = $request->getHeaderLine('Content-Type');
 $body = $request->getBody();
 $parsedBody = $request->getParsedBody();   // POST 数据
 
+// 请求头 Content-Type 为 application/json 或 application/*+json 时，
+// JSON 对象和 JSON 数组都会自动解析为 PHP 数组。
+$request = ServerRequest::fromGlobals();
+$json = $request->getParsedBody();         // ['name' => 'FastD']
+
 // 获取上传文件
 $files = $request->getUploadedFiles();
 if (isset($files['avatar'])) {

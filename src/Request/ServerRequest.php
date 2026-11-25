@@ -409,26 +409,112 @@ class ServerRequest extends Request implements ServerRequestInterface
         return $uri;
     }
 
-    public static function fromGlobals(): ServerRequest
+    public static function fromGlobals(?string $rawBody = null): ServerRequest
     {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $headers = self::globalHeaders();
         $version = isset($_SERVER['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']) : '1.1';
-        $body = new Stream();
-        $parsed = $_POST;
+        $rawBody ??= self::readRawBody();
+        $body = Stream::create($rawBody);
+        $parsed = static::parseBody($method, $rawBody, $_POST, $headers);
 
         $serverRequest = new ServerRequest($method, static::createUriFromBoth($_SERVER), $headers, $body, $version, $_SERVER);
-
-        if (in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'])) {
-            parse_str((string)$body, $parsedBody);
-            $data = empty($parsedBody) ? (json_decode((string)$body, true) ?: []) : [];
-            !empty($data) && $parsed = array_merge($parsed, $data);
-        }
 
         return $serverRequest
             ->withQueryParams($_GET)
             ->withParsedBody($parsed)
             ->withCookieParams($_COOKIE)
             ->withUploadedFiles(static::normalizeFiles($_FILES));
+    }
+
+    /**
+     * Parse a raw request body into the PSR-7 parsed body value.
+     *
+     * JSON media types are decoded as associative arrays so callers receive a
+     * PHP array for both JSON objects and JSON lists. Form-encoded bodies on
+     * methods PHP does not populate in $_POST are parsed from the raw body.
+     *
+     * @param string $method HTTP request method.
+     * @param string $rawBody Raw request body.
+     * @param array $post Values already parsed by PHP, normally $_POST.
+     * @param array $headers Request headers with case-insensitive names.
+     * @return array|object|null
+     */
+    protected static function parseBody(string $method, string $rawBody, array $post, array $headers): array|object|null
+    {
+        if ($rawBody !== '' && self::isJsonContentType(self::headerValue($headers, 'content-type'))) {
+            $decoded = json_decode($rawBody, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        if ($rawBody !== '' && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH', 'OPTIONS'], true)) {
+            parse_str($rawBody, $parsed);
+
+            return $parsed === [] ? $post : $parsed;
+        }
+
+        return $post;
+    }
+
+    /**
+     * Build request headers from the CGI environment.
+     *
+     * @return array
+     */
+    private static function globalHeaders(): array
+    {
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+
+        if (self::headerValue($headers, 'content-type') === '' && isset($_SERVER['CONTENT_TYPE'])) {
+            $headers['Content-Type'] = $_SERVER['CONTENT_TYPE'];
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Read the request body from php://input.
+     *
+     * @return string
+     */
+    private static function readRawBody(): string
+    {
+        $rawBody = file_get_contents('php://input');
+
+        return $rawBody === false ? '' : $rawBody;
+    }
+
+    /**
+     * Read one header value case-insensitively.
+     *
+     * @param array $headers Request headers.
+     * @param string $name Header name.
+     * @return string
+     */
+    private static function headerValue(array $headers, string $name): string
+    {
+        foreach ($headers as $key => $value) {
+            if (strcasecmp((string)$key, $name) !== 0) {
+                continue;
+            }
+
+            return is_array($value) ? implode(', ', array_map('strval', $value)) : trim((string)$value);
+        }
+
+        return '';
+    }
+
+    /**
+     * Whether a Content-Type value denotes JSON.
+     *
+     * @param string $contentType Content-Type header value.
+     * @return bool
+     */
+    private static function isJsonContentType(string $contentType): bool
+    {
+        $mediaType = strtolower(trim(explode(';', $contentType, 2)[0]));
+
+        return $mediaType === 'application/json' || str_ends_with($mediaType, '+json');
     }
 }
