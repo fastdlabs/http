@@ -16,11 +16,14 @@ class SwooleServerRequest extends ServerRequest
     {
         $server = static::createServerFormSwoole($request);
         $version = str_replace('HTTP/', '', $server['SERVER_PROTOCOL']);
-        // 为满足非 POST 等请求的请求体在初始化时候的解析
-        $serverRequest = new static($server['REQUEST_METHOD'], static::createUriFromBoth($server), $request->header, Stream::create($request->getContent()), $version, $server);
+        $rawBody = (string)$request->getContent();
+        $headers = is_array($request->header) ? $request->header : [];
+        $post = is_array($request->post ?? null) ? $request->post : [];
+
+        $serverRequest = new static($server['REQUEST_METHOD'], static::createUriFromBoth($server), $headers, Stream::create($rawBody), $version, $server);
 
         return $serverRequest->withQueryParams($request->get ?? [])
-            ->withParsedBody($request->post ?? [])
+            ->withParsedBody(static::parseBody($server['REQUEST_METHOD'], $rawBody, $post, $headers))
             ->withCookieParams($request->cookie ?? [])
             ->withUploadedFiles(static::normalizeFiles($request->files ?? []));
     }
